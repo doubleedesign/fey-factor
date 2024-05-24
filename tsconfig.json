@@ -1,0 +1,37 @@
+{
+	"compilerOptions": {
+		"baseUrl": "./",
+		"composite": true,
+		"module": "esnext",
+		"target": "esnext",
+		"moduleResolution": "node",
+		"lib": [
+			"ESNext",
+			"DOM", // required to make WebStorm colour console.log as a global, not a module
+			"DOM.Iterable",
+		],
+		"allowJs": false,
+		"skipLibCheck": true,
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"resolveJsonModule": true,
+		"isolatedModules": true
+	},
+	"include": [
+		"src"
+	],
+	// Note: Tests are not excluded here because if they are it messes up the syntax highlighting in WebStorm
+	"typechecker": {
+		"types": [
+			"PersonCastCredit", "PersonCrewCredit" ,"PersonFormattedCredit", "PersonMergedCredit",
+			"PersonRawCredits", "PersonFormattedCredits", "PersonMergedCredits",
+			"ShowDetails", "ShowAggregateCredits",
+			"ShowCastCredit", "ShowCrewCredit",
+		],
+		"locations": [
+			"./src/datasources/types-person.ts",
+			"./src/datasources/types-show.ts"
+		]
+	}
+}
+
