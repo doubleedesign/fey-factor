@@ -1,7 +1,6 @@
 {
 	"compilerOptions": {
 		"baseUrl": "./",
-		"composite": true,
 		"module": "esnext",
 		"target": "esnext",
 		"moduleResolution": "node",
@@ -15,10 +14,12 @@
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
 		"resolveJsonModule": true,
-		"isolatedModules": true
+		"isolatedModules": true,
+		"allowImportingTsExtensions": true // required to run scripts that import other TS files
 	},
 	"include": [
-		"src"
+		"src",
+		"jest.setup.ts"
 	],
 	// Note: Tests are not excluded here because if they are it messes up the syntax highlighting in WebStorm
 	"typechecker": {

@@ -1,5 +1,5 @@
 import { WriteStream } from 'fs';
-import { Database } from './database/database';
+import { Database } from './database/database.ts';
 
 export const db = new Database();
 

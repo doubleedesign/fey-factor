@@ -1,6 +1,7 @@
 import axios from 'axios';
-import * as dotenv from 'dotenv';
 import chalk from 'chalk';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
+import * as dotenv from 'dotenv';
 dotenv.config();
 
 /**
@@ -14,6 +15,15 @@ export class TmdbApi {
 		this.authToken = process.env.TMDB_AUTH_TOKEN;
 	}
 
+	savetoCache(path: string, filename: string, data: object) {
+		if (!existsSync(path)){
+			mkdirSync(path, { recursive: true });
+		}
+
+		writeFileSync(`${path}/${filename}`, JSON.stringify(data, null, 4));
+	}
+
+
 	async getTvCreditsForPerson(id: number) {
 		try {
 			const response = await axios.request({
@@ -24,10 +34,11 @@ export class TmdbApi {
 				}
 			});
 
+			this.savetoCache(`./cache/person/${id}/`, 'tv_credits.json', response.data);
 			return response.data;
 		}
 		catch (error) {
-			console.error(chalk.red(`getTvCreditsForPerson\t ${id}\t ${error}`));
+			console.error(chalk.red(`getTvCreditsForPerson\t ${id}\t ${error.message}`));
 		}
 	}
 
@@ -41,6 +52,7 @@ export class TmdbApi {
 				}
 			});
 
+			this.savetoCache(`./cache/tv/${id}/`, 'index.json', response.data);
 			return response.data;
 		}
 		catch(error) {
@@ -58,6 +70,7 @@ export class TmdbApi {
 				}
 			});
 
+			this.savetoCache(`./cache/tv/${id}/`, 'aggregate_credits.json', response.data);
 			return response.data;
 		}
 		catch(error) {

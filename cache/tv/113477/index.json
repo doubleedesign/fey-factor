@@ -1,0 +1,150 @@
+{
+    "adult": false,
+    "backdrop_path": "/4bcBNrKWz4N79KoL11QOZPEYFle.jpg",
+    "created_by": [
+        {
+            "id": 56323,
+            "credit_id": "5fb82930f18ce7004201690c",
+            "name": "Tina Fey",
+            "original_name": "Tina Fey",
+            "gender": 1,
+            "profile_path": "/yPTAi1iucXf85UpiFPtyiTSM6do.jpg"
+        },
+        {
+            "id": 1224760,
+            "credit_id": "5fb829430582240041ebcd7d",
+            "name": "Robert Carlock",
+            "original_name": "Robert Carlock",
+            "gender": 2,
+            "profile_path": null
+        }
+    ],
+    "episode_run_time": [
+        24
+    ],
+    "first_air_date": "2021-01-07",
+    "genres": [
+        {
+            "id": 35,
+            "name": "Comedy"
+        }
+    ],
+    "homepage": "https://www.nbc.com/mr-mayor",
+    "id": 113477,
+    "in_production": false,
+    "languages": [
+        "en"
+    ],
+    "last_air_date": "2022-05-17",
+    "last_episode_to_air": {
+        "id": 3664987,
+        "overview": "Arpi and Neil square off in the televised mayoral recall debate; James reveals information that may change the course of his and Mikaela's relationship.",
+        "name": "The Debate",
+        "vote_average": 0,
+        "vote_count": 0,
+        "air_date": "2022-05-17",
+        "episode_number": 10,
+        "episode_type": "finale",
+        "production_code": "",
+        "runtime": 24,
+        "season_number": 2,
+        "show_id": 113477,
+        "still_path": "/3hwtYDAuv0Kfx6SN6GHl4y7iUyC.jpg"
+    },
+    "name": "Mr. Mayor",
+    "next_episode_to_air": null,
+    "networks": [
+        {
+            "id": 6,
+            "logo_path": "/cm111bsDVlYaC1foL0itvEI4yLG.png",
+            "name": "NBC",
+            "origin_country": "US"
+        }
+    ],
+    "number_of_episodes": 19,
+    "number_of_seasons": 2,
+    "origin_country": [
+        "US"
+    ],
+    "original_language": "en",
+    "original_name": "Mr. Mayor",
+    "overview": "A retired businessman runs for mayor of Los Angeles to prove he's \"still got it.\" Once he wins, he has to figure out what he stands for, gain the respect of his biggest critic and connect with his teenage daughter, all while trying to get anything right for America's second weirdest city.",
+    "popularity": 58.766,
+    "poster_path": "/uPAaoNJWbRkF7s0f3tPbVehiBgT.jpg",
+    "production_companies": [
+        {
+            "id": 787,
+            "logo_path": "/cCefBs1t7jxtiz3eCxBp9yxrxGx.png",
+            "name": "3 Arts Entertainment",
+            "origin_country": "US"
+        },
+        {
+            "id": 90766,
+            "logo_path": null,
+            "name": "Bevel Gears",
+            "origin_country": "US"
+        },
+        {
+            "id": 26402,
+            "logo_path": "/1BFbFgEhD1tJShFTYPNt87q99rD.png",
+            "name": "Little Stranger",
+            "origin_country": "US"
+        },
+        {
+            "id": 26727,
+            "logo_path": "/jeTxdjXhzgKZyLr3l9MllkTn3fy.png",
+            "name": "Universal Television",
+            "origin_country": "US"
+        }
+    ],
+    "production_countries": [
+        {
+            "iso_3166_1": "US",
+            "name": "United States of America"
+        }
+    ],
+    "seasons": [
+        {
+            "air_date": "2021-12-15",
+            "episode_count": 1,
+            "id": 236176,
+            "name": "Specials",
+            "overview": "",
+            "poster_path": "/dgaSuc2vrvH1IW6tId9gCARsZUN.jpg",
+            "season_number": 0,
+            "vote_average": 0
+        },
+        {
+            "air_date": "2021-01-07",
+            "episode_count": 9,
+            "id": 169567,
+            "name": "Season 1",
+            "overview": "",
+            "poster_path": "/qppkOrZKvVhUQhUvMuB5SeHMBVX.jpg",
+            "season_number": 1,
+            "vote_average": 6.6
+        },
+        {
+            "air_date": "2022-03-15",
+            "episode_count": 10,
+            "id": 219375,
+            "name": "Season 2",
+            "overview": "",
+            "poster_path": "/uPAaoNJWbRkF7s0f3tPbVehiBgT.jpg",
+            "season_number": 2,
+            "vote_average": 7
+        }
+    ],
+    "spoken_languages": [
+        {
+            "english_name": "English",
+            "iso_639_1": "en",
+            "name": "English"
+        }
+    ],
+    "status": "Canceled",
+    "tagline": "Welcome to L.A.… where dreams sometimes come true!",
+    "type": "Scripted",
+    "vote_average": 6.485,
+    "vote_count": 68
+}

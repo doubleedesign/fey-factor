@@ -1,4 +1,4 @@
-import tinaFey from '../test-data/person/56323/tv_credits.json';
+import tinaFey from '../cache/person/56323/tv_credits.json';
 import { tmdbTvData } from './tmdb-tv-utils';
 import { PersonFormattedCredits, PersonMergedCredits, PersonRawCredits } from './types-person';
 import { TypeChecker } from '@doubleedesign/type-checker';
@@ -32,10 +32,9 @@ describe('TV data processing', () => {
 	});
 
 	describe('With Tina Fey\'s real credits', () => {
-		const filtered: PersonRawCredits = tmdbTvData.filterCreditsByYearAndGenre(tinaFey);
-		const formatted: PersonFormattedCredits = tmdbTvData.formatCredits(filtered);
-		const merged: PersonMergedCredits = tmdbTvData.mergeFormattedCredits(formatted);
-
+		const filtered = tmdbTvData.filterCreditsByYearAndGenre(tinaFey);
+		const formatted = tmdbTvData.formatCredits(filtered);
+		const merged = tmdbTvData.mergeFormattedCredits(formatted);
 		const thirtyRock = merged.credits.find(credit => credit.name === '30 Rock');
 
 		it('collects all roles for 30 Rock', () => {
@@ -57,8 +56,10 @@ describe('TV data processing', () => {
 			expect(crewRoles).toHaveLength(3);
 		});
 
+		it('has the correct episode count for the creator credit when the combo function is used', async () => {
+			const completeCredits = await tmdbTvData.filterFormatAndMergeCredits(tinaFey);
+			const thirtyRock = completeCredits.credits.find(credit => credit.name === '30 Rock');
 
-		it('has the correct episode count for the creator credit', () => {
 			const creatorCredit = thirtyRock.roles.find(role => role.name === 'Creator');
 			expect(creatorCredit.episode_count).toEqual(138);
 		});

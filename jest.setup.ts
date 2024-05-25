@@ -1,8 +1,12 @@
-/*
- * Chalk causes errors in tests because of its use of require()
- * and it doesn't need to be actually called in tests anyway
- */
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 jest.mock('chalk', () => ({
-	green: jest.fn(),
-	red: jest.fn()
+	green: jest.fn().mockImplementation((message: string) => {
+		console.log(message);
+	}),
+	red: jest.fn().mockImplementation((message: string) => {
+		console.log(message);
+	})
 }));
+

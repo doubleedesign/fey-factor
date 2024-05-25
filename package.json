@@ -5,9 +5,9 @@
 	"description": "",
 	"type": "module",
 	"scripts": {
-		"init-db": "node --trace-uncaught --loader ts-node/esm scripts/init-db.ts",
-		"reset-db": "node --trace-uncaught --loader ts-node/esm scripts/reset-db.ts",
-		"populate-db": "node --trace-uncaught --loader ts-node/esm scripts/populate-db.ts"
+		"init-db": "node --trace-uncaught --loader ts-node/esm src/scripts/init-db.ts",
+		"reset-db": "node --trace-uncaught --loader ts-node/esm src/scripts/reset-db.ts",
+		"populate-db": "node --trace-uncaught --loader ts-node/esm src/scripts/populate-db.ts"
 	},
 	"dependencies": {
 		"axios": "^1.6.8",

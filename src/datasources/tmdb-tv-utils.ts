@@ -1,11 +1,17 @@
-import { COMEDY_GENRE_ID, EXCLUDED_GENRE_IDS } from '../common';
-import { PersonFormattedCredits, PersonMergedCredit, PersonMergedCredits, PersonRawCredits } from './types-person';
-import { omit, pick } from 'lodash';
+import { COMEDY_GENRE_ID, EXCLUDED_GENRE_IDS } from '../common.ts';
+import { PersonFormattedCredits, PersonMergedCredit, PersonMergedCredits, PersonRawCredits } from './types-person.ts';
+import pkg from 'lodash';
+import { TmdbApi } from './tmdb-api.ts';
+const { omit, pick } = pkg;
+
+const api = new TmdbApi();
 
 /**
  * Functions to process data fetched from the TMDB API
+ * (and occasionally fetch more until I think of a better way to manage this)
  */
 export const tmdbTvData = {
+
 	filterCreditsByYearAndGenre: ({ id, cast, crew }: PersonRawCredits): PersonRawCredits => {
 		const includeCredit = (credit) => {
 			return new Date(credit.first_air_date).getFullYear() >= 1994
@@ -65,6 +71,38 @@ export const tmdbTvData = {
 		return {
 			id,
 			credits: merged
+		};
+	},
+
+	filterFormatAndMergeCredits: async (credits: PersonRawCredits): Promise<PersonMergedCredits> => {
+		const filtered: PersonRawCredits = tmdbTvData.filterCreditsByYearAndGenre(credits);
+		const formatted: PersonFormattedCredits = tmdbTvData.formatCredits(filtered);
+		const merged: PersonMergedCredits = tmdbTvData.mergeFormattedCredits(formatted);
+
+		const updated: PersonMergedCredit[] = await Promise.all(merged.credits.map(async (credit) => {
+			const creatorRole = credit.roles.find(role => role.name === 'Creator');
+			if (creatorRole) {
+				const showDetails = await api.getTvShowDetails(credit.id);
+				const updatedCreatorRole = {
+					...creatorRole,
+					episode_count: showDetails.number_of_episodes
+				};
+
+				return {
+					...credit,
+					roles: [
+						...credit.roles.filter(role => role.name !== 'Creator'),
+						updatedCreatorRole
+					]
+				};
+			}
+
+			return credit;
+		}));
+
+		return {
+			id: merged.id,
+			credits: updated
 		};
 	}
 };

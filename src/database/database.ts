@@ -1,7 +1,7 @@
 import pg from 'pg';
 import chalk from 'chalk';
-import { Film, Person, TvShow } from './types';
-import { logToFile } from '../common';
+import { Film, Person, TvShow } from './types.ts';
+import { logToFile } from '../common.ts';
 import { WriteStream, createWriteStream } from 'fs';
 
 const baseConfig = {
