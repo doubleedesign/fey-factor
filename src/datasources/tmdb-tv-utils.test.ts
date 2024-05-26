@@ -55,13 +55,20 @@ describe('TV data processing', () => {
 			const crewRoles = thirtyRock.roles.filter(role => role.type === 'crew');
 			expect(crewRoles).toHaveLength(3);
 		});
+	});
 
-		it('has the correct episode count for the creator credit when the combo function is used', async () => {
-			const completeCredits = await tmdbTvData.filterFormatAndMergeCredits(tinaFey);
-			const thirtyRock = completeCredits.credits.find(credit => credit.name === '30 Rock');
+	describe('Real examples of cast roles that should count', () => {
 
-			const creatorCredit = thirtyRock.roles.find(role => role.name === 'Creator');
-			expect(creatorCredit.episode_count).toEqual(138);
+		describe('30 Rock', () => {
+			const count = 139;
+
+			test('Elizabeth Banks', () => {
+				expect(tmdbTvData.doesCastCreditCount({ name: 'Avery Jessup', type: 'cast', episode_count: 14 }, count)).toBeTruthy();
+			});
+
+			test('James Marsden', () => {
+				expect(tmdbTvData.doesCastCreditCount({ name: 'Criss', type: 'cast', episode_count: 13 }, count)).toBeTruthy();
+			});
 		});
 	});
 });

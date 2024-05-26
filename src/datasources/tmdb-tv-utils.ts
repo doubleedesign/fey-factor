@@ -1,14 +1,13 @@
 import { COMEDY_GENRE_ID, EXCLUDED_GENRE_IDS } from '../common.ts';
-import { PersonFormattedCredits, PersonMergedCredit, PersonMergedCredits, PersonRawCredits } from './types-person.ts';
-import pkg from 'lodash';
+import { PersonFormattedCredits, PersonMergedCredit, PersonMergedCredits, PersonRawCredits, PersonRoleSummary } from './types-person.ts';
 import { TmdbApi } from './tmdb-api.ts';
-const { omit, pick } = pkg;
+import pkg from 'lodash';
+const { omit, pick, compact } = pkg;
 
 const api = new TmdbApi();
 
 /**
  * Functions to process data fetched from the TMDB API
- * (and occasionally fetch more until I think of a better way to manage this)
  */
 export const tmdbTvData = {
 
@@ -74,35 +73,78 @@ export const tmdbTvData = {
 		};
 	},
 
-	filterFormatAndMergeCredits: async (credits: PersonRawCredits): Promise<PersonMergedCredits> => {
+	filterFormatAndMergeCredits: (credits: PersonRawCredits): PersonMergedCredits => {
 		const filtered: PersonRawCredits = tmdbTvData.filterCreditsByYearAndGenre(credits);
 		const formatted: PersonFormattedCredits = tmdbTvData.formatCredits(filtered);
-		const merged: PersonMergedCredits = tmdbTvData.mergeFormattedCredits(formatted);
 
-		const updated: PersonMergedCredit[] = await Promise.all(merged.credits.map(async (credit) => {
-			const creatorRole = credit.roles.find(role => role.name === 'Creator');
-			if (creatorRole) {
-				const showDetails = await api.getTvShowDetails(credit.id);
-				const updatedCreatorRole = {
-					...creatorRole,
-					episode_count: showDetails.number_of_episodes
-				};
+		return tmdbTvData.mergeFormattedCredits(formatted);
+	},
 
-				return {
-					...credit,
-					roles: [
-						...credit.roles.filter(role => role.name !== 'Creator'),
-						updatedCreatorRole
-					]
-				};
-			}
 
-			return credit;
-		}));
+	/**
+	 * Thresholds for whether to count a person's involvement in a show are difficult
+	 * because of the gaping difference in general series lengths 20 years ago vs. today.
+	 * This will probably need some tweaking.
+	 * // TODO: Finish this next
+	 *
+	 * @param showEpisodeCount
+	 */
+	getEpisodeCountThresholds(showEpisodeCount: number) {
+		// Girls 5Eva, Mr Mayor
+		if(showEpisodeCount < 25) {
+			return {
+				includePerson: 0,
+				continueTree: 0
+			};
+		}
+		// Unbreakable Kimmy Schmidt, The Good Place
+		if(showEpisodeCount < 55) {
+			return {
+				includePerson: 0,
+				continueTree: 0
+			};
+		}
+		// 30 Rock, Parks and Rec, Community, Becker, The Office
+		if(showEpisodeCount < 140) {
+			return {
+				includePerson: 0,
+				continueTree: 0
+			};
+		}
+		// Brooklyn 99, Scrubs, Just Shoot Me
+		if(showEpisodeCount < 200) {
+			return {
+				includePerson: 0,
+				continueTree: 0
+			};
+		}
+		// Friends, Big Bang, Frasier
+		else {
+			return {
+				includePerson: 0,
+				continueTree: 0
+			};
+		}
+	},
 
-		return {
-			id: merged.id,
-			credits: updated
-		};
+	/**
+	 * Determine if a cast credit should be counted for including the person in the database
+	 * and assigning their Fey number the first time the loop hits them
+	 *
+	 * @param castCredit
+	 * @param showEpisodeCount
+	 */
+	doesCastCreditCountForIncludingThisPerson(castCredit: PersonRoleSummary, showEpisodeCount: number): boolean {
+		return castCredit.episode_count >= this.getEpisodeCountThresholds(showEpisodeCount).includePerson;
+	},
+
+
+	/**
+	 *
+	 * @param castCredit
+	 * @param showEpisodeCount
+	 */
+	doesCastCreditCountForContinuingTheTree(castCredit: PersonRoleSummary, showEpisodeCount: number): boolean {
+		return castCredit.episode_count >= this.getEpisodeCountThresholds(showEpisodeCount).continueTree;
 	}
 };

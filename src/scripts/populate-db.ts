@@ -7,6 +7,7 @@ import { TmdbApi } from '../datasources/tmdb-api.ts';
 import { db, logToFile, wait } from '../common.ts';
 import { TvShow } from '../database/types.ts';
 import { tmdbTvData } from '../datasources/tmdb-tv-utils.ts';
+import { PersonMergedCredit, PersonMergedCredits } from '../datasources/types-person.ts';
 
 const api = new TmdbApi();
 const tvId = await db.getWorkTypeId('television');
@@ -37,6 +38,7 @@ async function processTvShowsFromPerson(personId: number) {
 		// Add the person to the db, get the shows they've been involved in that are being included, and return the show IDs
 		const showIds = await getTvCreditsForPerson(personId);
 
+
 		// // Add those shows to the db and come back with the people involved in those shows
 		// const nextPeople: number[] = await Promise.all(
 		// 	showIds.map(showId => handleTvShow(showId, feyNumber))).then(people => people.flat()
@@ -54,9 +56,32 @@ async function processTvShowsFromPerson(personId: number) {
 async function getTvCreditsForPerson(personId: number) {
 	await wait(2000);
 	const credits = await api.getTvCreditsForPerson(personId);
-	const mergedCredits = await tmdbTvData.filterFormatAndMergeCredits(credits);
+	const mergedCredits = tmdbTvData.filterFormatAndMergeCredits(credits);
 
-	//return finalData.credits.map(credit => credit.id);
+	const includedCredits: PersonMergedCredits = mergedCredits.credits.filter(async (credit: PersonMergedCredit) => {
+		// Some roles are automatically included, no need to query the API for show details
+		const includedRoleNames = ['Creator', 'Executive Producer', 'Producer'];
+		if (credit.roles.some(role => includedRoleNames.includes(role.name))) {
+			return true;
+		}
+
+		const showDetails = await api.getTvShowDetails(credit.id);
+		const showEpisodeCount = showDetails.number_of_episodes;
+
+		// Include main cast and recurring roles above the threshold
+		const castCredit = credit.roles.find(role => role.type === 'cast');
+		// TODO: Finish the thresholds in the tmdb-tv-utils.ts file
+
+		// Add up the episode counts of all roles
+		// Note: This means someone who has more than one job in a single episode is counted twice. This is intentional.
+		const cumulativeEpisodeCount = credit.roles.reduce((acc, role) => acc + role.episode_count, 0);
+		// TODO: Writing, directing, and other included crew role thresholds
+	});
+
+	return {
+		id: personId,
+		credits: _.compact(includedCredits.credits)
+	};
 }
 
 // async function handleTvShow(showId: number, feyNumber: number): Promise<number[]> {

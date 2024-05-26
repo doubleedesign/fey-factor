@@ -53,11 +53,13 @@ export type PersonFormattedCredits = {
  * combining cast and crew roles in the same production
  */
 export type PersonMergedCredit = PersonCreditCommon & {
-	roles: {
-		name: string;
-		type: 'cast' | 'crew';
-		episode_count?: number;
-	}[];
+	roles: PersonRoleSummary[];
+}
+
+export type PersonRoleSummary = {
+	name: string;
+	type: 'cast' | 'crew';
+	episode_count?: number;
 }
 
 /**
