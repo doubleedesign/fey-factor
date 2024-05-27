@@ -84,67 +84,63 @@ export const tmdbTvData = {
 	/**
 	 * Thresholds for whether to count a person's involvement in a show are difficult
 	 * because of the gaping difference in general series lengths 20 years ago vs. today.
-	 * This will probably need some tweaking.
-	 * // TODO: Finish this next
-	 *
+	 * This is fairly arbitrary, based on quick decisions for the below listed sample shows, and will probably need some tweaking.
 	 * @param showEpisodeCount
+	 * @returns object
 	 */
-	getEpisodeCountThresholds(showEpisodeCount: number) {
+	getEpisodeCountThresholdsForCastCredits(showEpisodeCount: number) {
 		// Girls 5Eva, Mr Mayor
 		if(showEpisodeCount < 25) {
 			return {
-				includePerson: 0,
-				continueTree: 0
+				includePerson: 3,
+				continueTree: 8, // accounts for someone being in a single 8-episode season
 			};
 		}
 		// Unbreakable Kimmy Schmidt, The Good Place
 		if(showEpisodeCount < 55) {
 			return {
-				includePerson: 0,
-				continueTree: 0
+				includePerson: 4,
+				continueTree: 20,
 			};
 		}
-		// 30 Rock, Parks and Rec, Community, Becker, The Office
+		// 30 Rock, Parks and Rec, Community
 		if(showEpisodeCount < 140) {
 			return {
-				includePerson: 0,
-				continueTree: 0
+				includePerson: 4,
+				continueTree: 75,
 			};
 		}
 		// Brooklyn 99, Scrubs, Just Shoot Me
 		if(showEpisodeCount < 200) {
 			return {
-				includePerson: 0,
-				continueTree: 0
+				includePerson: 6,
+				continueTree: 90,
 			};
 		}
 		// Friends, Big Bang, Frasier
 		else {
 			return {
-				includePerson: 0,
-				continueTree: 0
+				includePerson: 8,
+				continueTree: 80
 			};
 		}
 	},
 
+
 	/**
 	 * Determine if a cast credit should be counted for including the person in the database
-	 * and assigning their Fey number the first time the loop hits them
+	 * and assigning their Fey number the first time the loop hits them,
+	 * and whether to continue the tree i.e., get and process all of their credits as well
 	 *
 	 * @param castCredit
 	 * @param showEpisodeCount
+	 * @returns object
 	 */
-	doesCastCreditCountForIncludingThisPerson(castCredit: PersonRoleSummary, showEpisodeCount: number): boolean {
-		return castCredit.episode_count >= this.getEpisodeCountThresholds(showEpisodeCount).includePerson;
+	// eslint-disable-next-line max-len
+	doesCastOrCumulativeCreditCount(castCredit: PersonRoleSummary, showEpisodeCount: number): { includePerson: boolean, continueTree: boolean } {
+		return {
+			includePerson: castCredit.episode_count >= this.getEpisodeCountThresholdsForCastCredits(showEpisodeCount).includePerson,
+			continueTree: castCredit.episode_count >= this.getEpisodeCountThresholdsForCastCredits(showEpisodeCount).continueTree
+		};
 	},
-
-
-	/**
-	 *
-	 * @param castCredit
-	 * @param showEpisodeCount
-	 */
-	doesCastCreditCountForContinuingTheTree(castCredit: PersonRoleSummary, showEpisodeCount: number): boolean {
-		return castCredit.episode_count >= this.getEpisodeCountThresholds(showEpisodeCount).continueTree;
-	}
 };

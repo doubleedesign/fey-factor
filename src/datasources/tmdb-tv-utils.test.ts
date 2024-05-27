@@ -63,11 +63,11 @@ describe('TV data processing', () => {
 			const count = 139;
 
 			test('Elizabeth Banks', () => {
-				expect(tmdbTvData.doesCastCreditCount({ name: 'Avery Jessup', type: 'cast', episode_count: 14 }, count)).toBeTruthy();
+				expect(tmdbTvData.doesCastOrCumulativeCreditCount({ name: 'Avery Jessup', type: 'cast', episode_count: 14 }, count)).toBeTruthy();
 			});
 
 			test('James Marsden', () => {
-				expect(tmdbTvData.doesCastCreditCount({ name: 'Criss', type: 'cast', episode_count: 13 }, count)).toBeTruthy();
+				expect(tmdbTvData.doesCastOrCumulativeCreditCount({ name: 'Criss', type: 'cast', episode_count: 13 }, count)).toBeTruthy();
 			});
 		});
 	});

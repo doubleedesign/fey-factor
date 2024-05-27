@@ -58,7 +58,7 @@ export type PersonMergedCredit = PersonCreditCommon & {
 
 export type PersonRoleSummary = {
 	name: string;
-	type: 'cast' | 'crew';
+	type?: 'cast' | 'crew';
 	episode_count?: number;
 }
 
