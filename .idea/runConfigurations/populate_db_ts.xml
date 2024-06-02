@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="populate-db.ts" type="NodeJSConfigurationType" nameIsGenerated="true" node-parameters="--loader ts-node/esm --trace-warnings" path-to-js-file="src/scripts/populate-db.ts" working-dir="$PROJECT_DIR$">
+  <configuration default="false" name="populate-db.ts" type="NodeJSConfigurationType" nameIsGenerated="true" node-parameters="--loader ts-node/esm --trace-uncaught" path-to-js-file="src/scripts/populate-db.ts" working-dir="$PROJECT_DIR$">
     <method v="2" />
   </configuration>
 </component>

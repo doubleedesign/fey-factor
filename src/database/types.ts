@@ -7,14 +7,16 @@ export type Person = {
 type WorkCommon = {
 	id: number;
 	name: string;
-	release_year: number;
 	type: number; // ID of type in the database
 }
 
 export type TvShow = WorkCommon & {
-	end_year: number;
+	start_year: number;
+	end_year?: number;
 	episode_count: number;
-	season_count: number;
+	season_count?: number;
 }
 
-export type Film = WorkCommon;
+export type Film = WorkCommon & {
+	release_year: number;
+}

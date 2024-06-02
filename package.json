@@ -5,12 +5,13 @@
 	"description": "",
 	"type": "module",
 	"scripts": {
-		"init-db": "node --trace-uncaught --loader ts-node/esm src/scripts/init-db.ts",
+		"init-db": "node --trace-uncaught --trace-warnings --loader ts-node/esm src/scripts/init-db.ts",
 		"reset-db": "node --trace-uncaught --loader ts-node/esm src/scripts/reset-db.ts",
 		"populate-db": "node --trace-uncaught --loader ts-node/esm src/scripts/populate-db.ts"
 	},
 	"dependencies": {
 		"axios": "^1.6.8",
+		"case": "^1.6.3",
 		"chalk": "^5.3.0",
 		"dotenv": "^16.4.5",
 		"lodash": "^4.17.21",

@@ -39,5 +39,5 @@ try {
 	await initDb();
 }
 catch(error) {
-	console.log(chalk.red(error));
+	console.log(chalk.red(error.message));
 }

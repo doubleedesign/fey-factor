@@ -137,10 +137,10 @@ export const tmdbTvData = {
 	 * @returns object
 	 */
 	// eslint-disable-next-line max-len
-	doesCastOrCumulativeCreditCount(castCredit: PersonRoleSummary, showEpisodeCount: number): { includePerson: boolean, continueTree: boolean } {
+	doesCastOrCumulativeCreditCount(credit: PersonRoleSummary, showEpisodeCount: number): { includePerson: boolean, continueTree: boolean } {
 		return {
-			includePerson: castCredit.episode_count >= this.getEpisodeCountThresholdsForCastCredits(showEpisodeCount).includePerson,
-			continueTree: castCredit.episode_count >= this.getEpisodeCountThresholdsForCastCredits(showEpisodeCount).continueTree
+			includePerson: credit.episode_count >= this.getEpisodeCountThresholdsForCastCredits(showEpisodeCount).includePerson,
+			continueTree: credit.episode_count >= this.getEpisodeCountThresholdsForCastCredits(showEpisodeCount).continueTree
 		};
 	},
 };

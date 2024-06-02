@@ -5,7 +5,7 @@ type PersonCreditCommon = {
 	name: string; // name of the show
 	first_air_date: string;
 	last_air_date?: string;
-	episode_count?: number;
+	episode_count?: number; // total episode count for the show itself, not the person
 }
 
 /**
@@ -59,7 +59,7 @@ export type PersonMergedCredit = PersonCreditCommon & {
 export type PersonRoleSummary = {
 	name: string;
 	type?: 'cast' | 'crew';
-	episode_count?: number;
+	episode_count?: number; // Person's episode count for the role
 }
 
 /**

@@ -30,7 +30,7 @@ export class Database {
 			`SELECT datname FROM pg_catalog.pg_database WHERE datname = '${this.dbName}'
 		`);
 		if (response.rowCount === 0) {
-			console.log('musicstats database not found, creating it.');
+			console.log('Database not found, creating it.');
 			await this.tempClient.query(`CREATE DATABASE "${this.dbName}";`);
 			console.log(chalk.green(`Created database "${this.dbName}".`));
 		}
@@ -57,14 +57,7 @@ export class Database {
 
 	async testPostgresConnection() {
 		try {
-			const connected = await this.pgClient.query('SELECT NOW()');
-			if (connected.rows) {
-				console.log(chalk.green('Successfully connected to Postgres database'));
-				return true;
-			}
-			else {
-				throw new Error('Connection error');
-			}
+			return await this.pgClient.query('SELECT NOW()');
 		}
 		catch (error) {
 			console.log(chalk.red('Connection error: ', error));
@@ -174,8 +167,7 @@ export class Database {
 			text: 'SELECT id FROM work_types WHERE name = $1',
 			values: [name]
 		});
-		return response.rows[0].id;
-
+		return response.rows[0]?.id;
 	}
 
 	async createRole(name: string) {
@@ -193,7 +185,7 @@ export class Database {
 			text: 'SELECT id FROM roles WHERE name = $1',
 			values: [name]
 		});
-		return response.rows[0].id;
+		return response.rows[0]?.id;
 	}
 
 	async getRoles() {
@@ -209,10 +201,14 @@ export class Database {
 		return response.rows[0] ?? false;
 	}
 
-	async addPerson(person: Person) {
+	async addOrUpdatePerson(person: Person) {
 		try {
 			const response = await this.pgClient.query({
-				text: 'INSERT INTO people(id, name, fey_number) VALUES($1, $2, $3) ON CONFLICT (id) DO NOTHING',
+				text: `INSERT INTO people(id, name, fey_number) 
+						VALUES($1, $2, $3) 
+                        ON CONFLICT (id) DO UPDATE
+						SET fey_number = COALESCE(NULLIF(people.fey_number, null), EXCLUDED.fey_number, people.fey_number)
+					`,
 				values: [person.id, person.name, person.feyNumber],
 			});
 			if (response.rowCount === 1) {
@@ -233,29 +229,40 @@ export class Database {
 		return response.rows[0] ?? false;
 	}
 
-	// TODO: Handle movies
-	async addTvShow(work: TvShow) {
+
+	async addOrUpdateTvShow(work: TvShow) {
 		try {
 			const response = await this.pgClient.query({
-				text: `INSERT INTO works(id, title, release_year, end_year, season_count, episode_count, type) 
-						VALUES($1, $2, $3, $4, $5, $6, $7)
-						ON CONFLICT (id) DO NOTHING`,
-				values: [work.id, work.name, work.release_year, work.end_year, work.season_count, work.episode_count, work.type]
+				text: `INSERT INTO works(id, title, release_year, end_year, season_count, episode_count, type)
+                    VALUES($1, $2, $3, $4, $5, $6, $7)
+                    ON CONFLICT (id) DO UPDATE
+                        SET
+                            title = COALESCE(NULLIF(works.title, null), EXCLUDED.title, works.title),
+                            release_year = COALESCE(NULLIF(works.release_year::text, null), EXCLUDED.release_year, works.release_year),
+                            end_year = COALESCE(NULLIF(works.end_year::text, null), EXCLUDED.end_year, works.end_year),
+                            season_count = COALESCE(NULLIF(works.season_count::text, null), EXCLUDED.season_count, works.season_count),
+                            episode_count = COALESCE(NULLIF(works.episode_count::text, null), EXCLUDED.episode_count, works.episode_count),
+                            type = COALESCE(NULLIF(works.type, null), EXCLUDED.type, works.type)
+					`,
+				values: [work.id, work.name, work.start_year, work.end_year, work.season_count, work.episode_count, work.type]
 			});
 			if (response.rowCount === 1) {
 				console.log(chalk.green(`Successfully inserted work ${work.name}`));
 			}
 		}
 		catch (error) {
-			console.log(chalk.red('addTvShow\t', error));
-			logToFile(this.logFile, `addTvShow\t\t ${error}`);
+			console.log(chalk.red('addOrUpdateTvShow\t', error));
+			logToFile(this.logFile, `addOrUpdateTvShow\t\t ${error}`);
 		}
 	}
 
 	async connectPersonToWork(personId: number, workId: number, roleId: number, episodeCount: number) {
 		try {
 			const response = await this.pgClient.query({
-				text: 'INSERT INTO connections(person_id, work_id, role_id, episode_count) VALUES($1, $2, $3, $4)',
+				text: `INSERT INTO connections(person_id, work_id, role_id, episode_count) 
+						VALUES($1, $2, $3, $4)
+						ON CONFLICT (person_id, work_id, role_id) 
+					    DO UPDATE SET episode_count = EXCLUDED.episode_count`,
 				values: [personId, workId, roleId, episodeCount]
 			});
 			if (response.rowCount === 1) {
