@@ -39,20 +39,26 @@ export class Database {
 		}
 	}
 
-	async dropDatabase() {
-		const response = await this.tempClient.query(
-			`SELECT datname FROM pg_catalog.pg_database WHERE datname = '${this.dbName}'
-		`);
-		if (response.rowCount === 1) {
-			console.log('Database found, dropping it.');
+	async forceDropDatabase() {
+		try {
+			console.log('Force dropping database...');
+			await this.tempClient.query(
+				`SELECT pg_terminate_backend(pg_stat_activity.pid) 
+								FROM pg_stat_activity 
+								WHERE pg_stat_activity.datname = '${this.dbName}' AND pid <> pg_backend_pid();`);
 			await this.tempClient.query(`DROP DATABASE "${this.dbName}";`);
-			console.log(chalk.green(`Dropped database "${this.dbName}".`));
-
+			console.log(chalk.green(`Force dropped database "${this.dbName}".`));
 		}
-		else {
-			console.log(chalk.yellow(`Database "${this.dbName}" does not exist.`));
+        catch (error) {
+			console.log(chalk.red(`Error force dropping database "${this.dbName}": `, error));
 		}
+	}
 
+	async databaseExists() {
+		const response = await this.tempClient.query(
+			`SELECT datname FROM pg_catalog.pg_database WHERE datname = '${this.dbName}'`
+		);
+		return response.rowCount === 1;
 	}
 
 	async testPostgresConnection() {
@@ -66,8 +72,13 @@ export class Database {
 	}
 
 	async tableExists(tablename: string) {
-		const result = await this.pgClient.query(`SELECT EXISTS (SELECT 1 FROM pg_tables WHERE tablename = '${tablename}');`);
-		return result.rows[0].exists;
+		try {
+			const result = await this.pgClient.query(`SELECT EXISTS (SELECT 1 FROM pg_tables WHERE tablename = '${tablename}');`);
+			return result.rows[0].exists;
+		}
+		catch (error) {
+			console.log(chalk.red(error.message));
+		}
 	}
 
 	async createTables() {
