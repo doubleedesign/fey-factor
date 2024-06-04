@@ -152,7 +152,8 @@ export class Database {
 	                person_id	  	integer NOT NULL REFERENCES people(id),
 	                work_id       	integer NOT NULL REFERENCES works(id),
 	                role_id       	integer NOT NULL REFERENCES roles(id),
-	                episode_count	integer
+	                episode_count	integer,
+                    UNIQUE 			(person_id, work_id, role_id)
 	            );
 			`);
 		}
@@ -249,10 +250,10 @@ export class Database {
                     ON CONFLICT (id) DO UPDATE
                         SET
                             title = COALESCE(NULLIF(works.title, null), EXCLUDED.title, works.title),
-                            release_year = COALESCE(NULLIF(works.release_year::text, null), EXCLUDED.release_year, works.release_year),
-                            end_year = COALESCE(NULLIF(works.end_year::text, null), EXCLUDED.end_year, works.end_year),
-                            season_count = COALESCE(NULLIF(works.season_count::text, null), EXCLUDED.season_count, works.season_count),
-                            episode_count = COALESCE(NULLIF(works.episode_count::text, null), EXCLUDED.episode_count, works.episode_count),
+                            release_year = COALESCE(NULLIF(works.release_year, null), EXCLUDED.release_year, works.release_year),
+                            end_year = COALESCE(NULLIF(works.end_year, null), EXCLUDED.end_year, works.end_year),
+                            season_count = COALESCE(NULLIF(works.season_count, null), EXCLUDED.season_count, works.season_count),
+                            episode_count = COALESCE(NULLIF(works.episode_count, null), EXCLUDED.episode_count, works.episode_count),
                             type = COALESCE(NULLIF(works.type, null), EXCLUDED.type, works.type)
 					`,
 				values: [work.id, work.name, work.start_year, work.end_year, work.season_count, work.episode_count, work.type]

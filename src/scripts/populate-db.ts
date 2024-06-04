@@ -20,44 +20,35 @@ const includedRoleNames = roles.map(role => role.name);
 const skippedRoles = [];
 const logFile = createWriteStream('logs/populate-db.log');
 
-db.addOrUpdatePerson({ id: 56323, name: 'Tina Fey', feyNumber: 0 }).then(() => {
-	processTvShowsFromPerson(56323).then(() => {
-		//logToFile(logFile, `Skipped roles: ${skippedRoles.join(', ')}`);
-		// TODO: Process movies
-	});
+db.addOrUpdatePerson({ id: 56323, name: 'Tina Fey', feyNumber: 0 }).then(async () => {
+	await processTvShowsFromPerson(56323);
 });
 
 async function processTvShowsFromPerson(personId: number) {
-	const degrees = 3;
-	const feyNumber = 1;
+	let degrees = 0;
 
-	//while (feyNumber <= degrees) {
+	while (degrees <= 3) {
 		try {
-			// Add the person to the db, get the shows they've been involved in that are being included, and return the show IDs
-			const showIds = await getAndProcessTvCreditsForPerson(personId, feyNumber);
-			console.log('Show IDs to process next:', showIds);
+			const showIdsToProcessNext: number[] = await getAndProcessTvCreditsForPerson(personId);
+			// TODO: Fix this so it gets one unique array of all people found here
+			const peopleIdsToProcessNext: number[] = showIdsToProcessNext.forEach(getAndProcessTvShowAggregateCredits);
+			degrees++;
+			// TODO People need to be added to the database somewhere
+			peopleIdsToProcessNext.forEach(processTvShowsFromPerson);
 		}
-		catch (error) {
+        catch (error) {
 			console.error(chalk.red(error.message));
 		}
-
-
-		// // Add those shows to the db and come back with the people involved in those shows
-		// const nextPeople: number[] = await Promise.all(
-		// 	showIds.map(showId => handleTvShow(showId, feyNumber))).then(people => people.flat()
-		// );
-		//
-		// console.log(nextPeople);
-		//
-		// feyNumber++;
-		//
-		// await wait(2000);
-		// nextPeople.forEach(processTvShowsFromPerson);
-	//}
+	}
 }
 
-// TODO: Fix this so that db methods like addPerson don't get called more than once
-async function getAndProcessTvCreditsForPerson(personId: number, feyNumber: number) {
+/**
+ * Look up a person's TV credits by their ID, add the relevant ones to the database,
+ * and return the IDs of the shows to look up for the next level of the tree.
+ * // TODO: Finish this
+ * @param personId
+ */
+async function getAndProcessTvCreditsForPerson(personId: number): Promise<number[]> {
 	await wait(2000);
 	const credits = await api.getTvCreditsForPerson(personId);
 	const mergedCredits = tmdbTvData.filterFormatAndMergeCredits(credits);
@@ -72,7 +63,6 @@ async function getAndProcessTvCreditsForPerson(personId: number, feyNumber: numb
 		const autoIncludedRoleNames = ['Creator', 'Executive Producer', 'Producer'];
 		const autoIncludedRoles: PersonRoleSummary[] = credit.roles.filter(role => autoIncludedRoleNames.includes(role.name));
 		if (autoIncludedRoles.length > 0) {
-			await db.addOrUpdatePerson({ id: personId, name: credit.name, feyNumber });
 			await db.addOrUpdateTvShow({
 				id: credit.id,
 				name: credit.name,
@@ -89,7 +79,7 @@ async function getAndProcessTvCreditsForPerson(personId: number, feyNumber: numb
 					// If the episode count to use is still undefined, it's probably the Creator role which should use the show's total
 					if(!episodeCountToUse) {
 						showDetails = await api.getTvShowDetails(credit.id);
-						episodeCountToUse = showDetails.episode_count;
+						episodeCountToUse = showDetails.number_of_episodes;
 					}
 					await db.connectPersonToWork(personId, credit.id, roleId, episodeCountToUse);
 				}
@@ -104,7 +94,8 @@ async function getAndProcessTvCreditsForPerson(personId: number, feyNumber: numb
 		if (!showDetails) {
 			showDetails = await api.getTvShowDetails(credit.id);
 		}
-		// const showEpisodeCount = showDetails.number_of_episodes;
+		const showEpisodeCount = showDetails.number_of_episodes;
+
 		//
 		// // Include main cast and recurring roles above the threshold
 		// const castCredit = credit.roles.find(role => role.type === 'cast');
@@ -143,6 +134,19 @@ async function getAndProcessTvCreditsForPerson(personId: number, feyNumber: numb
 
 	return _.compact(includedCreditsForContinuation.map(credit => credit.id));
 }
+
+
+/**
+ * Look up a TV show's aggregate credits, add the relevant ones to the database,
+ * and return the IDs of the people to look up for the next level of the tree.
+ * // TODO: Finish this
+ * @param showId
+ */
+async function getAndProcessTvShowAggregateCredits(showId: number): Promise<number[]> {
+
+	return [];
+}
+
 
 // async function handleTvShow(showId: number, feyNumber: number): Promise<number[]> {
 // 	await wait(2000);
