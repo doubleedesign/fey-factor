@@ -42,6 +42,25 @@ export class TmdbApi {
 		}
 	}
 
+	async getPersonDetails(id: number) {
+		try {
+			const response = await axios.request({
+				url: `${this.baseUrl}/person/${id}`,
+				method: 'get',
+				headers: {
+					'Authorization': `Bearer ${this.authToken}`
+				}
+			});
+
+			this.savetoCache(`./cache/person/${id}/`, 'index.json', response.data);
+			return response.data;
+		}
+		catch (error) {
+			console.error(chalk.red(`getPersonDetails\t ${id}\t ${error}`));
+		}
+
+	}
+
 	async getTvShowDetails(id: number) {
 		try {
 			const response = await axios.request({

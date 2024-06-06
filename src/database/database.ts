@@ -97,37 +97,22 @@ export class Database {
 			console.log(chalk.yellow('People table already exists. Skipping.'));
 		}
 
-		if (!await (this.tableExists('work_types'))) {
-			console.log('Creating Work Types table...');
-			await this.pgClient.query(`CREATE TABLE public.work_types
-	            (
-	                id             SERIAL,
-	                name           varchar UNIQUE,
-	                PRIMARY KEY (id)
-	            );
-			`);
-		}
-		else {
-			console.log(chalk.yellow('Work Types table already exists. Skipping.'));
-		}
-
-		if(!await this.tableExists('works')) {
-			console.log('Creating Works table...');
-			await this.pgClient.query(`CREATE TABLE public.works
+		if(!await this.tableExists('tv_shows')) {
+			console.log('Creating TV Shows table...');
+			await this.pgClient.query(`CREATE TABLE public.tv_shows
 	            (
 	                id             	integer UNIQUE NOT NULL,
 	                title          	varchar UNIQUE,
-                	release_year    integer NOT NULL, 
+                	start_year	    integer,
 	                end_year       	integer,
 	                season_count	integer,
 	                episode_count	integer,
-	              	type		   	integer NOT NULL REFERENCES work_types(id),
 	                PRIMARY KEY (id)
 	            );
 			`);
 		}
 		else {
-			console.log(chalk.yellow('Works table already exists. Skipping.'));
+			console.log(chalk.yellow('TV Shows table already exists. Skipping.'));
 		}
 
 		if(!await this.tableExists('roles')) {
@@ -144,13 +129,14 @@ export class Database {
 			console.log(chalk.yellow('Roles table already exists. Skipping.'));
 		}
 
+		// TODO: Account for movies
 		if (!await (this.tableExists('connections'))) {
 			console.log('Creating Connections table...');
 			await this.pgClient.query(`CREATE TABLE public.connections
 	            (
 					id             	SERIAL PRIMARY KEY,
 	                person_id	  	integer NOT NULL REFERENCES people(id),
-	                work_id       	integer NOT NULL REFERENCES works(id),
+	                work_id       	integer NOT NULL REFERENCES tv_shows(id),
 	                role_id       	integer NOT NULL REFERENCES roles(id),
 	                episode_count	integer,
                     UNIQUE 			(person_id, work_id, role_id)
@@ -162,24 +148,6 @@ export class Database {
 		}
 
 		console.log(chalk.green('Done creating tables.'));
-	}
-
-	async createWorkType(name: string) {
-		const response = await this.pgClient.query({
-			text: 'INSERT INTO work_types(name) VALUES($1)',
-			values: [name]
-		});
-		if (response.rowCount === 1) {
-			console.log(chalk.green(`Successfully inserted work type ${name}`));
-		}
-	}
-
-	async getWorkTypeId(name: string) {
-		const response = await this.pgClient.query({
-			text: 'SELECT id FROM work_types WHERE name = $1',
-			values: [name]
-		});
-		return response.rows[0]?.id;
 	}
 
 	async createRole(name: string) {
@@ -233,33 +201,23 @@ export class Database {
 		}
 	}
 
-	async getWork(id: number) {
-		const response = await this.pgClient.query({
-			text: 'SELECT * FROM works WHERE id = $1',
-			values: [id]
-		});
-		return response.rows[0] ?? false;
-	}
-
-
 	async addOrUpdateTvShow(work: TvShow) {
 		try {
 			const response = await this.pgClient.query({
-				text: `INSERT INTO works(id, title, release_year, end_year, season_count, episode_count, type)
-                    VALUES($1, $2, $3, $4, $5, $6, $7)
+				text: `INSERT INTO tv_shows(id, title, start_year, end_year, season_count, episode_count)
+                    VALUES($1, $2, $3, $4, $5, $6)
                     ON CONFLICT (id) DO UPDATE
                         SET
-                            title = COALESCE(NULLIF(works.title, null), EXCLUDED.title, works.title),
-                            release_year = COALESCE(NULLIF(works.release_year, null), EXCLUDED.release_year, works.release_year),
-                            end_year = COALESCE(NULLIF(works.end_year, null), EXCLUDED.end_year, works.end_year),
-                            season_count = COALESCE(NULLIF(works.season_count, null), EXCLUDED.season_count, works.season_count),
-                            episode_count = COALESCE(NULLIF(works.episode_count, null), EXCLUDED.episode_count, works.episode_count),
-                            type = COALESCE(NULLIF(works.type, null), EXCLUDED.type, works.type)
+                            title = COALESCE(NULLIF(tv_shows.title, null), EXCLUDED.title, tv_shows.title),
+                            start_year = COALESCE(NULLIF(tv_shows.start_year, null), EXCLUDED.start_year, tv_shows.start_year),
+                            end_year = COALESCE(NULLIF(tv_shows.end_year, null), EXCLUDED.end_year, tv_shows.end_year),
+                            season_count = COALESCE(NULLIF(tv_shows.season_count, null), EXCLUDED.season_count, tv_shows.season_count),
+                            episode_count = COALESCE(NULLIF(tv_shows.episode_count, null), EXCLUDED.episode_count, tv_shows.episode_count)
 					`,
-				values: [work.id, work.name, work.start_year, work.end_year, work.season_count, work.episode_count, work.type]
+				values: [work.id, work.name, work.start_year, work.end_year, work.season_count, work.episode_count]
 			});
 			if (response.rowCount === 1) {
-				console.log(chalk.green(`Successfully inserted work ${work.name}`));
+				console.log(chalk.green(`Successfully inserted TV show ${work.name}`));
 			}
 		}
 		catch (error) {

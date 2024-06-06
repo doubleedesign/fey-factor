@@ -11,35 +11,36 @@ import { PersonMergedCredit, PersonMergedCredits, PersonRoleSummary } from '../d
 import Case from 'case';
 
 const api = new TmdbApi();
-const tvId = await db.getWorkTypeId('television');
-const movieId = await db.getWorkTypeId('film');
-const castRoleId = await db.getRoleId('cast');
-const creatorRoleId = await db.getRoleId('creator');
-const roles = await db.getRoles();
-const includedRoleNames = roles.map(role => role.name);
-const skippedRoles = [];
 const logFile = createWriteStream('logs/populate-db.log');
 
-db.addOrUpdatePerson({ id: 56323, name: 'Tina Fey', feyNumber: 0 }).then(async () => {
+let degrees = 0;
+while(degrees <= 3) {
 	await processTvShowsFromPerson(56323);
-});
+}
 
 async function processTvShowsFromPerson(personId: number) {
-	let degrees = 0;
+	const person = await api.getPersonDetails(personId);
+	await db.addOrUpdatePerson({
+		id: personId,
+		name: person.name,
+		feyNumber: degrees
+	});
 
-	while (degrees <= 3) {
-		try {
-			const showIdsToProcessNext: number[] = await getAndProcessTvCreditsForPerson(personId);
-			// TODO: Fix this so it gets one unique array of all people found here
-			const peopleIdsToProcessNext: number[] = showIdsToProcessNext.forEach(getAndProcessTvShowAggregateCredits);
-			degrees++;
-			// TODO People need to be added to the database somewhere
-			peopleIdsToProcessNext.forEach(processTvShowsFromPerson);
-		}
-        catch (error) {
-			console.error(chalk.red(error.message));
-		}
-	}
+	// Get the person's TV credits, add the relevant ones to the database,
+	// and return the IDs of the shows to look up for the next level of the tree.
+	const showIdsToProcessNext: number[] = await getAndProcessTvCreditsForPerson(personId);
+
+	// Get the aggregate credits for each show, add the relevant ones to the database,
+	// and return the IDs of the people to look up for the next level of the tree.
+	const peopleIdsToProcessNext: number[] = _.uniq((await Promise.all(
+		showIdsToProcessNext.map(getAndProcessTvShowAggregateCredits))
+	).flat());
+
+	// Increment the degree of separation
+	degrees++;
+
+	// Recursively process the next level of the tree
+	peopleIdsToProcessNext.forEach(processTvShowsFromPerson);
 }
 
 /**
@@ -60,15 +61,16 @@ async function getAndProcessTvCreditsForPerson(personId: number): Promise<number
 	// e.g., notable guest roles are included for the person, but we don't keep the tree going from there.
 	const includedCreditsForContinuation: PersonMergedCredit[] = mergedCredits.credits.filter(async (credit: PersonMergedCredit) => {
 		// Some roles are automatically included, no need to query the API for show details
-		const autoIncludedRoleNames = ['Creator', 'Executive Producer', 'Producer'];
-		const autoIncludedRoles: PersonRoleSummary[] = credit.roles.filter(role => autoIncludedRoleNames.includes(role.name));
+		const autoIncludedRoles: PersonRoleSummary[] = credit.roles.filter(role => {
+			return ['Creator', 'Executive Producer', 'Producer'].includes(role.name);
+		});
 		if (autoIncludedRoles.length > 0) {
+			// Add the show to the db
 			await db.addOrUpdateTvShow({
 				id: credit.id,
 				name: credit.name,
-				type: tvId,
-				start_year: new Date(credit.first_air_date).getFullYear(),
-				episode_count: credit.episode_count
+				// credit.episode_count is the person's episode count so not always appropriate to add here
+				// it will be added along with other data when the show is looked up in getAndProcessTvShowAggregateCredits()
 			});
 			for (const role of autoIncludedRoles) {
 				const roleId: number = await db.getRoleId(Case.snake(role.name));
@@ -143,93 +145,31 @@ async function getAndProcessTvCreditsForPerson(personId: number): Promise<number
  * @param showId
  */
 async function getAndProcessTvShowAggregateCredits(showId: number): Promise<number[]> {
+	const peopleIds: number[] = [];
+	await wait(2000);
+	const showDetails = await api.getTvShowDetails(showId);
 
-	return [];
+	// Add the show to the db
+	await db.addOrUpdateTvShow({
+		id: showId,
+		name: showDetails.name,
+		start_year: Number(new Date(showDetails.first_air_date).getFullYear()),
+		end_year: Number(new Date(showDetails.last_air_date).getFullYear()),
+		episode_count: showDetails.number_of_episodes,
+		season_count: showDetails.number_of_seasons,
+	} as TvShow);
+
+	// Include the creator in the returned IDs
+	showDetails.created_by.forEach(creator => peopleIds.push(creator.id));
+
+	const showCredits = await api.getTvShowCredits(showId);
+	// Start with cast members who were in at least 50% of episodes
+	// TODO: Fine-tune inclusion criteria
+	showCredits.cast.forEach(credit => {
+		if(credit.episode_count / showDetails.number_of_episodes >= 0.5) {
+			peopleIds.push(credit.id);
+		}
+	});
+
+	return _.uniq(peopleIds);
 }
-
-
-// async function handleTvShow(showId: number, feyNumber: number): Promise<number[]> {
-// 	await wait(2000);
-// 	const showDetails: ShowDetails = await api.getTvShowDetails(showId);
-// 	if(showDetails?.type && showDetails.type !== 'Scripted') {
-// 		return;
-// 	}
-//
-// 	await wait(2000);
-// 	const showCredits: ShowAggregateCredits = await api.getTvShowCredits(showId);
-//
-// 	const formattedShowData: TvShow = {
-// 		id: showId,
-// 		name: showDetails.name,
-// 		release_year: Number(new Date(showDetails.first_air_date).getFullYear()),
-// 		end_year: Number(new Date(showDetails.last_air_date).getFullYear()),
-// 		episode_count: showDetails.number_of_episodes,
-// 		season_count: showDetails.number_of_seasons,
-// 		type: tvId
-// 	};
-//
-// 	// Add the show to the db
-// 	await db.addTvShow(formattedShowData);
-//
-// 	// Add the creator
-// 	const creator = {
-// 		id: showDetails.created_by.id,
-// 		name: showDetails.created_by.name
-// 	};
-// 	if (creator.id) {
-// 		await db.addPerson({
-// 			id: creator.id,
-// 			name: showDetails.created_by.name,
-// 			feyNumber: feyNumber
-// 		});
-// 		await db.connectPersonToWork(creator.id, showId, creatorRoleId, showDetails.number_of_episodes);
-// 	}
-//
-// 	// Add the notable cast members
-// 	const cast: Promise<number>[] = showCredits.cast.map(async (castMember: CastCredit) => {
-// 		if(utils.doesItCount(castMember.total_episode_count, showDetails.number_of_episodes)) {
-// 			await db.addPerson({ id: castMember.id, name: castMember.name, feyNumber });
-// 			await db.connectPersonToWork(castMember.id, showId, castRoleId, castMember.total_episode_count);
-// 			return castMember.id;
-// 		}
-// 	});
-//
-// 	// Add crew members in defined roles such as writing, directing, producing
-// 	const crew: Promise<number>[] = showCredits.crew.map(async (crewMember: CrewCredit) => {
-// 		// total_episode_count accounts for all jobs a person had on the show
-// 		if(utils.doesItCount(crewMember.total_episode_count, showDetails.number_of_episodes)) {
-// 			// All the jobs they had on this show
-// 			const jobNames = crewMember.jobs.map((item: CrewJob) => utils.toSnakeCase(item.job));
-// 			// The jobs to specifically account for
-// 			const jobsToInclude = _.intersection(jobNames, includedRoleNames);
-// 			// Record excluded jobs for later review
-// 			//const excludedJobs = _.difference(jobs, roleNames);
-// 			// if (excludedJobs.length > 0) {
-// 			// 	skippedRoles.concat(excludedJobs);
-// 			// }
-// 			if (jobsToInclude.length < 1) {
-// 				return;
-// 			}
-//
-// 			await db.addPerson({ id: crewMember.id, name: crewMember.name, feyNumber });
-// 			for (const jobName of jobsToInclude) {
-// 				const thisRole = crewMember.jobs.find((job: CrewJob) => utils.toSnakeCase(job.job) === jobName);
-// 				const dbRoleId = roles.find(role => role.name === jobName).id;
-// 				await db.connectPersonToWork(
-// 					crewMember.id,
-// 					showId,
-// 					dbRoleId,
-// 					// number of episodes they had this specific job
-// 					thisRole.episode_count
-// 				);
-// 			}
-//
-// 			return crewMember.id;
-// 		}
-// 	});
-//
-// 	// Return a flattened list of unique IDs of people involved in the show within the defined parameters
-// 	// i.e., from whom we should continue the tree
-// 	const ids: number[] = await Promise.all(([creator?.id, ...cast, ...crew]));
-// 	return _.uniq(ids.flat().filter(id => id !== undefined));
-// }

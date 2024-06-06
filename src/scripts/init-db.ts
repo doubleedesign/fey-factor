@@ -4,8 +4,6 @@ import { db, wait } from '../common.ts';
 export async function initDb() {
 	db.createDatabase().then(() => {
 		db.createTables().then(async() => {
-			await db.createWorkType('film');
-			await db.createWorkType('television');
 			await db.createRole('cast');
 			await db.createRole('recurring_cast');
 			await db.createRole('guest_cast');
