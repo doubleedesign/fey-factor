@@ -5,8 +5,7 @@ export async function initDb() {
 	db.createDatabase().then(() => {
 		db.createTables().then(async() => {
 			await db.createRole('cast');
-			await db.createRole('recurring_cast');
-			await db.createRole('guest_cast');
+			// TODO Differentiate between main, recurring, and guest cast roles
 			await db.createRole('creator');
 			await db.createRole('writer');
 			await db.createRole('director');

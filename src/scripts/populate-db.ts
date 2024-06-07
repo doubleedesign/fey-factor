@@ -7,11 +7,12 @@ import { TmdbApi } from '../datasources/tmdb-api.ts';
 import { db, logToFile, wait } from '../common.ts';
 import { TvShow } from '../database/types.ts';
 import { tmdbTvData } from '../datasources/tmdb-tv-utils.ts';
-import { PersonMergedCredit, PersonMergedCredits, PersonRoleSummary } from '../datasources/types-person.ts';
+import { PersonMergedCredit, PersonRoleSummary } from '../datasources/types-person.ts';
 import Case from 'case';
 
 const api = new TmdbApi();
 const logFile = createWriteStream('logs/populate-db.log');
+const includedRoles = (await db.getRoles()).map(role => Case.snake(role.name));
 
 let degrees = 0;
 while(degrees <= 3) {
@@ -19,6 +20,7 @@ while(degrees <= 3) {
 }
 
 async function processTvShowsFromPerson(personId: number) {
+	await wait(2000);
 	const person = await api.getPersonDetails(personId);
 	await db.addOrUpdatePerson({
 		id: personId,
@@ -62,7 +64,7 @@ async function getAndProcessTvCreditsForPerson(personId: number): Promise<number
 	const includedCreditsForContinuation: PersonMergedCredit[] = mergedCredits.credits.filter(async (credit: PersonMergedCredit) => {
 		// Some roles are automatically included, no need to query the API for show details
 		const autoIncludedRoles: PersonRoleSummary[] = credit.roles.filter(role => {
-			return ['Creator', 'Executive Producer', 'Producer'].includes(role.name);
+			return ['Creator', 'Executive Producer', 'Producer', 'Writer'].includes(role.name);
 		});
 		if (autoIncludedRoles.length > 0) {
 			// Add the show to the db
@@ -80,6 +82,7 @@ async function getAndProcessTvCreditsForPerson(personId: number): Promise<number
 					let episodeCountToUse = Number(role?.episode_count) ? role.episode_count : credit.episode_count;
 					// If the episode count to use is still undefined, it's probably the Creator role which should use the show's total
 					if(!episodeCountToUse) {
+						await wait(2000);
 						showDetails = await api.getTvShowDetails(credit.id);
 						episodeCountToUse = showDetails.number_of_episodes;
 					}
@@ -93,45 +96,11 @@ async function getAndProcessTvCreditsForPerson(personId: number): Promise<number
 			return true;
 		}
 
-		if (!showDetails) {
-			showDetails = await api.getTvShowDetails(credit.id);
-		}
+		await wait(2000);
+		showDetails = await api.getTvShowDetails(credit.id);
 		const showEpisodeCount = showDetails.number_of_episodes;
 
-		//
-		// // Include main cast and recurring roles above the threshold
-		// const castCredit = credit.roles.find(role => role.type === 'cast');
-		// const doesItCount = tmdbTvData.doesCastOrCumulativeCreditCount(castCredit, showEpisodeCount);
-		// if(doesItCount.includePerson) {
-		// 	await db.addPerson({ id: personId, name: credit.name, feyNumber });
-		// 	await db.connectPersonToWork(personId, credit.id, castRoleId, castCredit.episode_count);
-		// 	// Not returning false here in case this person had other roles that would mean this credit gets included for further processing
-		// }
-		// if(doesItCount.continueTree) {
-		// 	// Shouldn't need to add to the db here because if continueTree is true, includePerson should have been too
-		// 	return true;
-		// }
-		//
-		// // Add up the episode counts of all roles
-		// // Note: This means someone who has more than one job in a single episode is counted twice. This is intentional.
-		// const cumulativeEpisodeCount = credit.roles.reduce((acc, role) => acc + role.episode_count, 0);
-		// const doesItCountNow = tmdbTvData.doesCastOrCumulativeCreditCount(
-		// 	{ name: credit.name, episode_count: cumulativeEpisodeCount }, showEpisodeCount
-		// );
-		// if(doesItCountNow.includePerson) {
-		// 	await db.addPerson({ id: personId, name: credit.name, feyNumber });
-		// 	for (const role of credit.roles) {
-		// 		const roleId: number = await db.getRoleId(Case.snake(role.name));
-		// 		await db.connectPersonToWork(personId, credit.id, roleId, credit.roles[0].episode_count);
-		// 	}
-		// 	// Not returning false here in case this person had other roles that would mean this credit gets included for further processing
-		// }
-		// if(doesItCountNow.continueTree) {
-		// 	// Shouldn't need to add to the db here because if continueTree is true, includePerson should have been too
-		// 	return true;
-		// }
-
-		// TODO: Do writing, directing, and other included crew role thresholds need to be added here is the cumulative total sufficient?
+		return tmdbTvData.doesCumulativeCreditCount(credit, showEpisodeCount);
 	});
 
 	return _.compact(includedCreditsForContinuation.map(credit => credit.id));
@@ -145,8 +114,8 @@ async function getAndProcessTvCreditsForPerson(personId: number): Promise<number
  * @param showId
  */
 async function getAndProcessTvShowAggregateCredits(showId: number): Promise<number[]> {
-	const peopleIds: number[] = [];
 	await wait(2000);
+	const peopleIds: number[] = [];
 	const showDetails = await api.getTvShowDetails(showId);
 
 	// Add the show to the db
@@ -165,11 +134,15 @@ async function getAndProcessTvShowAggregateCredits(showId: number): Promise<numb
 	const showCredits = await api.getTvShowCredits(showId);
 	// Start with cast members who were in at least 50% of episodes
 	// TODO: Fine-tune inclusion criteria
-	showCredits.cast.forEach(credit => {
-		if(credit.episode_count / showDetails.number_of_episodes >= 0.5) {
-			peopleIds.push(credit.id);
-		}
+	const relevantCastIds = showCredits.cast
+		.filter(credit => credit.episode_count / showDetails.number_of_episodes >= 0.5)
+		.map(credit => credit.id);
+
+	const crewIds = showCredits.crew.filter(credit => {
+		return credit.jobs.some(job => includedRoles.includes(Case.snake(job.job)));
 	});
+
+	peopleIds.push(...relevantCastIds, ...crewIds);
 
 	return _.uniq(peopleIds);
 }

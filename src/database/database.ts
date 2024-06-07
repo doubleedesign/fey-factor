@@ -192,7 +192,7 @@ export class Database {
 				values: [person.id, person.name, person.feyNumber],
 			});
 			if (response.rowCount === 1) {
-				console.log(chalk.green(`Successfully inserted person ${person.name}`));
+				console.log(chalk.green(`Successfully inserted or updated person ${person.id}\t ${person.name}`));
 			}
 		}
 		catch (error) {
@@ -217,7 +217,7 @@ export class Database {
 				values: [work.id, work.name, work.start_year, work.end_year, work.season_count, work.episode_count]
 			});
 			if (response.rowCount === 1) {
-				console.log(chalk.green(`Successfully inserted TV show ${work.name}`));
+				console.log(chalk.green(`Successfully inserted or updated TV show ${work.id}\t ${work.name}`));
 			}
 		}
 		catch (error) {

@@ -128,19 +128,19 @@ export const tmdbTvData = {
 
 
 	/**
-	 * Determine if a cast credit should be counted for including the person in the database
+	 * Determine if a credit should be counted for including the person
 	 * and assigning their Fey number the first time the loop hits them,
-	 * and whether to continue the tree i.e., get and process all of their credits as well
+	 * accounting for all roles they had in the production.
+	 * Note: This means that when someone has more than one job in a single episode, it's counted like two episodes. This is intentional.
 	 *
-	 * @param castCredit
+	 * @param credit
 	 * @param showEpisodeCount
 	 * @returns object
 	 */
 	// eslint-disable-next-line max-len
-	doesCastOrCumulativeCreditCount(credit: PersonRoleSummary, showEpisodeCount: number): { includePerson: boolean, continueTree: boolean } {
-		return {
-			includePerson: credit.episode_count >= this.getEpisodeCountThresholdsForCastCredits(showEpisodeCount).includePerson,
-			continueTree: credit.episode_count >= this.getEpisodeCountThresholdsForCastCredits(showEpisodeCount).continueTree
-		};
+	doesCumulativeCreditCount(credit: PersonMergedCredit, showEpisodeCount: number): boolean {
+		const count = credit.roles.reduce((acc, role) => acc + role.episode_count, 0);
+		// Starting with an arbitrary minimum of 2 episodes for shows <= 10 episodes; otherwise 5 episodes TODO: Refine thi
+		return showEpisodeCount <= 10 ? count > 1 : count > 4;
 	},
 };
