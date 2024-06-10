@@ -1,6 +1,5 @@
 import chalk from 'chalk';
-import { db, wait } from '../common.ts';
-import { initDb } from './init-db.ts';
+import { db } from '../common.ts';
 
 try {
 	const dbExists = await db.databaseExists();
@@ -11,6 +10,7 @@ try {
 
 	await db.forceDropDatabase();
 	console.log(chalk.green('Database dropped. Run "npm run init-db" to continue.'));
+	process.exit(0);
 }
 catch(error) {
 	console.log(chalk.red(error.message));

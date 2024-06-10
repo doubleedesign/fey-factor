@@ -5,6 +5,7 @@ import { logToFile } from '../common.ts';
 import { WriteStream, createWriteStream } from 'fs';
 
 const baseConfig = {
+	// Can use 'localhost' if using WSL1, but this will not work on WSL2 - need to do some IP magic.
 	host: 'localhost',
 	port: 5432,
 	user: 'postgres',
@@ -83,12 +84,12 @@ export class Database {
 
 	async createTables() {
 		if (!await this.tableExists('people')) {
-			console.log('Creating People table...');
+			console.log(chalk.cyan('Creating People table...'));
 			await this.pgClient.query(`CREATE TABLE public.people
 	            (
 	                id             integer UNIQUE NOT NULL,
 	                name           varchar,
-	                fey_number	   integer,
+	                degree  	   integer,
 	                PRIMARY KEY (id)
 	            );
 			`);
@@ -98,7 +99,7 @@ export class Database {
 		}
 
 		if(!await this.tableExists('tv_shows')) {
-			console.log('Creating TV Shows table...');
+			console.log(chalk.cyan('Creating TV Shows table...'));
 			await this.pgClient.query(`CREATE TABLE public.tv_shows
 	            (
 	                id             	integer UNIQUE NOT NULL,
@@ -116,7 +117,7 @@ export class Database {
 		}
 
 		if(!await this.tableExists('roles')) {
-			console.log('Creating Roles table...');
+			console.log(chalk.cyan('Creating Roles table...'));
 			await this.pgClient.query(`CREATE TABLE public.roles
 	            (
 	                id             SERIAL,
@@ -131,7 +132,7 @@ export class Database {
 
 		// TODO: Account for movies
 		if (!await (this.tableExists('connections'))) {
-			console.log('Creating Connections table...');
+			console.log(chalk.cyan('Creating Connections table...'));
 			await this.pgClient.query(`CREATE TABLE public.connections
 	            (
 					id             	SERIAL PRIMARY KEY,
@@ -156,7 +157,7 @@ export class Database {
 			values: [name]
 		});
 		if (response.rowCount === 1) {
-			console.log(chalk.green(`Successfully inserted role type ${name}`));
+			console.log(chalk.cyan(`Successfully inserted role type ${name}`));
 		}
 	}
 
@@ -184,15 +185,17 @@ export class Database {
 	async addOrUpdatePerson(person: Person) {
 		try {
 			const response = await this.pgClient.query({
-				text: `INSERT INTO people(id, name, fey_number) 
+				text: `INSERT INTO people(id, name, degree) 
 						VALUES($1, $2, $3) 
                         ON CONFLICT (id) DO UPDATE
-						SET fey_number = COALESCE(NULLIF(people.fey_number, null), EXCLUDED.fey_number, people.fey_number)
+						SET degree = COALESCE(NULLIF(people.degree, null), EXCLUDED.degree, people.degree)
 					`,
-				values: [person.id, person.name, person.feyNumber],
+				values: [person.id, person.name, person.degree],
 			});
 			if (response.rowCount === 1) {
-				console.log(chalk.green(`Successfully inserted or updated person ${person.id}\t ${person.name}`));
+				console.log(chalk.green(
+					`Successfully inserted or updated person ${person.id}\t ${person.name} at degree ${person.degree}`
+				));
 			}
 		}
 		catch (error) {

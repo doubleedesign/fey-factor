@@ -82,54 +82,8 @@ export const tmdbTvData = {
 
 
 	/**
-	 * Thresholds for whether to count a person's involvement in a show are difficult
-	 * because of the gaping difference in general series lengths 20 years ago vs. today.
-	 * This is fairly arbitrary, based on quick decisions for the below listed sample shows, and will probably need some tweaking.
-	 * @param showEpisodeCount
-	 * @returns object
-	 */
-	getEpisodeCountThresholdsForCastCredits(showEpisodeCount: number) {
-		// Girls 5Eva, Mr Mayor
-		if(showEpisodeCount < 25) {
-			return {
-				includePerson: 3,
-				continueTree: 8, // accounts for someone being in a single 8-episode season
-			};
-		}
-		// Unbreakable Kimmy Schmidt, The Good Place
-		if(showEpisodeCount < 55) {
-			return {
-				includePerson: 4,
-				continueTree: 20,
-			};
-		}
-		// 30 Rock, Parks and Rec, Community
-		if(showEpisodeCount < 140) {
-			return {
-				includePerson: 4,
-				continueTree: 75,
-			};
-		}
-		// Brooklyn 99, Scrubs, Just Shoot Me
-		if(showEpisodeCount < 200) {
-			return {
-				includePerson: 6,
-				continueTree: 90,
-			};
-		}
-		// Friends, Big Bang, Frasier
-		else {
-			return {
-				includePerson: 8,
-				continueTree: 80
-			};
-		}
-	},
-
-
-	/**
 	 * Determine if a credit should be counted for including the person
-	 * and assigning their Fey number the first time the loop hits them,
+	 * and assigning their degree the first time the loop hits them,
 	 * accounting for all roles they had in the production.
 	 * Note: This means that when someone has more than one job in a single episode, it's counted like two episodes. This is intentional.
 	 *
@@ -137,10 +91,13 @@ export const tmdbTvData = {
 	 * @param showEpisodeCount
 	 * @returns object
 	 */
-	// eslint-disable-next-line max-len
-	doesCumulativeCreditCount(credit: PersonMergedCredit, showEpisodeCount: number): boolean {
+	doesCumulativeCreditCount(credit: PersonMergedCredit, showEpisodeCount: number) {
 		const count = credit.roles.reduce((acc, role) => acc + role.episode_count, 0);
-		// Starting with an arbitrary minimum of 2 episodes for shows <= 10 episodes; otherwise 5 episodes TODO: Refine thi
-		return showEpisodeCount <= 10 ? count > 1 : count > 4;
+		// Starting with an arbitrary minimum of 2 episodes for shows <= 10 episodes; otherwise 5 episodes for inclusion
+		// and 50% for continuation TODO: Refine this
+		return {
+			inclusion: showEpisodeCount <= 10 ? count > 1 : count > 4,
+			continuation: count / showEpisodeCount >= 0.5
+		};
 	},
 };

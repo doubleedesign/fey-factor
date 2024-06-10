@@ -1,7 +1,7 @@
 export type Person = {
 	id: number;
 	name: string;
-	feyNumber: number;
+	degree: number;
 }
 
 type WorkCommon = {

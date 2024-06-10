@@ -21,11 +21,12 @@ export class TmdbApi {
 		// If data is cached in a JSON file in src/cache, use that
 		const cachePath = this.getCachedFilePath(url);
 		if(existsSync(cachePath)) {
-			console.log(chalk.magenta(`Using cached data for ${url}`));
+			console.log(chalk.cyan(`Using cached data for ${url}`));
 			const data = readFileSync(cachePath, 'utf-8');
 			return JSON.parse(data);
 		}
 
+		await wait(2000); // Wait 2 seconds between requests to avoid rate limiting
 		console.log(chalk.cyan(`No cached data at ${cachePath}, making request to ${url}...`));
 		try {
 			const response = await axios.request({
