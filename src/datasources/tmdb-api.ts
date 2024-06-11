@@ -1,8 +1,7 @@
 import axios from 'axios';
-import chalk from 'chalk';
 import { existsSync, mkdirSync, writeFileSync, readFileSync, createWriteStream, WriteStream } from 'fs';
 import * as dotenv from 'dotenv';
-import { logToFile, wait } from '../common.ts';
+import { customConsole, logToFile, wait } from '../common.ts';
 
 dotenv.config();
 
@@ -19,17 +18,27 @@ export class TmdbApi {
 		this.logFile = createWriteStream('./logs/tmdb-api.log');
 	}
 
-	async makeRequest(url: string, method: string, data?: any) {
+	async makeRequest(url: string, method: string, data?: any, useCached = true) {
 		// If data is cached in a JSON file in src/cache, use that
 		const cachePath = this.getCachedFilePath(url);
 		if(existsSync(cachePath)) {
-			console.log(chalk.cyan(`Using cached data for ${url}`));
-			const data = readFileSync(cachePath, 'utf-8');
-			return JSON.parse(data);
+			try {
+				// TODO: Fix this logging (it's not working with the transient console thing)
+				//customConsole.info(`Using cached data for ${url}\n`, false);
+				const data = readFileSync(cachePath, 'utf-8');
+				return JSON.parse(data);
+			}
+			catch (error) {
+				customConsole.error(`Error reading cached data from ${cachePath}: ${error.message}`);
+				logToFile(this.logFile, `Error reading cached data from ${cachePath}: ${error.message}`);
+				// TODO: Fix call stack issues with this
+				// It was done because of empty JSON files, maybe deal with that better
+				return await this.makeRequest(url, method, data, false);
+			}
 		}
 
 		await wait(2000); // Wait 2 seconds between requests to avoid rate limiting
-		console.log(chalk.cyan(`No cached data at ${cachePath}, making request to ${url}...`));
+		customConsole.info(`No cached data at ${cachePath}, making request to ${url}...`);
 		try {
 			const response = await axios.request({
 				url: url,
@@ -44,13 +53,13 @@ export class TmdbApi {
 		}
 		catch (error) {
 			if (error.response && error.response.status === 429) {
-				console.log(chalk.yellow('Rate limit exceeded. Waiting for 30 seconds before retrying...'));
+				customConsole.warn('Rate limit exceeded. Waiting for 30 seconds before retrying...');
 				await wait(30000);
 
 				return this.makeRequest(url, method, data); // Retry the request
 			}
 			else if(error?.response && error?.response?.status) {
-				console.error(chalk.red(`Error ${error.response?.status}: ${error.response?.statusText} for request to ${url}`));
+				customConsole.error(`Error ${error.response?.status}: ${error.response?.statusText} for request to ${url}`);
 				logToFile(this.logFile,
 					`Error ${error.response?.status}: ${error.response?.statusText} for request to ${url}. \t${error.message}`
 				);
@@ -58,9 +67,7 @@ export class TmdbApi {
 				return null;
 			}
 			else {
-				console.error(chalk.red(
-					`Error ${error?.response?.status}: ${error?.response?.statusText} for request to ${url}. \t ${error.message}`
-				));
+				customConsole.error(`Error ${error?.response?.status}: ${error?.response?.statusText} for request to ${url}`);
 				logToFile(this.logFile,
 					`Error ${error?.response?.status}: ${error?.response?.statusText} for request to ${url}. \t${error.message}`
 				);

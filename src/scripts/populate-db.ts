@@ -1,10 +1,9 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // noinspection UnnecessaryLocalVariableJS
 import _ from 'lodash';
-import chalk from 'chalk';
 import { createWriteStream } from 'fs';
 import { TmdbApi } from '../datasources/tmdb-api.ts';
-import { db, logToFile } from '../common.ts';
+import { db, customConsole, logToFile } from '../common.ts';
 import { TvShow } from '../database/types.ts';
 import { tmdbTvData } from '../datasources/tmdb-tv-utils.ts';
 import { PersonMergedCredit, PersonMergedCredits } from '../datasources/types-person.ts';
@@ -47,30 +46,28 @@ class Populator {
 	}
 
 	async run() {
+		this.runMessageQueue();
+
 		const showsInDb = await db.getAllTvShows();
 		showsInDb.forEach(show => this.showsAlreadyAdded.add(show.id));
 		const peopleInDb = await db.getAllPeople();
 		peopleInDb.forEach(person => this.peopleAlreadyAdded.add(person.id));
-		console.log(chalk.magenta('------------------------------------------------'));
-		console.log(chalk.cyan(`Database already contained ${showsInDb.length} shows and ${peopleInDb.length} people.`));
-		console.log(chalk.magenta('------------------------------------------------'));
+		customConsole.info(`Database already contained ${showsInDb.length} shows and ${peopleInDb.length} people.`, true);
 
 		let peopleIdsToProcessNext = [this.startPersonId];
 
 		while(this.degree <= this.maxDegree) {
 			if(this.degree === this.maxDegree) {
-				console.log(chalk.magenta('------------------------------------------------'));
-				console.log(chalk.yellow('Max degree reached, stopping.'));
-				console.log(chalk.magenta('------------------------------------------------'));
-				process.exit(0);
+				customConsole.warn('Max degree reached, stopping.', true);
+				return;
 			}
 
-			console.log(chalk.magenta('------------------------------------------------'));
-			console.log(chalk.green(`Starting degree ${this.degree} with ${peopleIdsToProcessNext.length} people to process`));
-			console.log(chalk.magenta('------------------------------------------------'));
+			customConsole.info(`Starting degree ${this.degree} with ${peopleIdsToProcessNext.length} people to process`, true);
 
 			// Process the TV credits for each person at the current degree
-			const showIds: number[][] = await Promise.all(peopleIdsToProcessNext.map(personId => this.getAndProcessTvCreditsForPerson(personId, this.degree)));
+			const showIds: number[][] = await Promise.all(peopleIdsToProcessNext.map(personId => {
+				return this.getAndProcessTvCreditsForPerson(personId, this.degree);
+			}));
 
 			// Only if we have not reached the max degree, do further processing of the shows and get the next round of people
 			// TODO: This means that the last batch of shows will have minimal data, because most show fields are populated in getAndProcessTvShowAggregateCredits, which we do not want to run again - we just want the show details query part.
@@ -82,6 +79,16 @@ class Populator {
 				this.degree++;
 			}
 		}
+	}
+
+
+	// Ensure processQueue runs continuously in the background
+	runMessageQueue() {
+		setInterval(() => {
+			if (!customConsole.isProcessing && customConsole.messageQueue.length > 0) {
+				customConsole.processQueue();
+			}
+		}, 200);
 	}
 
 
@@ -116,7 +123,7 @@ class Populator {
 			}
 
 			// If the person had a cast role for at least 50% of the episodes, include it
-			// TODO: Refine inclusion criteria and use/add to the tmbdTVData functions for tis
+			// TODO: Refine inclusion criteria and use/add to the tmbdTVData functions for this
 			if(credit.roles.some(role => role.type === 'cast' && role.episode_count / cachedEpisodeCount >= 0.5)) {
 				await this.addPersonAndShowToDatabase({
 					personId,
@@ -254,7 +261,7 @@ class Populator {
 
 			// Record that this show has been added and save episode count for quick lookups in later iterations
 			this.showsAlreadyAdded.add(showId);
-			this.episodeCounts[showId.toString()] = showDetails.number_of_episodes;
+			this.episodeCounts[showId?.toString()] = showDetails?.number_of_episodes;
 
 			// Include the creator in the returned IDs
 			showDetails.created_by.forEach(creator => peopleIdsToReturn.push(creator.id));
@@ -262,7 +269,7 @@ class Populator {
 
 		// Fetch and handle aggregate credits
 		const showCredits = await api.getTvShowCredits(showId);
-		const episodeCount = this.episodeCounts[showId.toString()] || showDetails?.number_of_episodes;
+		const episodeCount = this.episodeCounts[showId?.toString()] || showDetails?.number_of_episodes;
 		if(showCredits && episodeCount) {
 			// Cast members who meet inclusion criteria
 			const relevantCastIds = showCredits.cast
@@ -281,7 +288,7 @@ class Populator {
 		}
 
 		if(!showDetails || !showCredits) {
-			console.log(chalk.red(`Failed to fetch some data for show ID ${showId}, which may have impacted cast and crew inclusion.`));
+			customConsole.error(`Failed to fetch some data for show ID ${showId}, which may have impacted cast and crew inclusion.`, true);
 			logToFile(logFile, `Failed to fetch some data for show ID ${showId}, which may have impacted cast and crew inclusion.`);
 		}
 
@@ -350,9 +357,6 @@ class Populator {
 
 
 new Populator(56323).run().then(() => {
-	console.log(chalk.magenta('------------------------------------------------'));
-	console.log(chalk.green('Database population complete.'));
-	// TODO Add some stats here
-	console.log(chalk.magenta('------------------------------------------------'));
+	customConsole.success('Database population complete.', true);
 	process.exit(0);
 });

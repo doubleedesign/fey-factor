@@ -1,7 +1,7 @@
 import pg from 'pg';
 import chalk from 'chalk';
 import { Film, Person, TvShow } from './types.ts';
-import { logToFile } from '../common.ts';
+import { customConsole, logToFile, wait } from '../common.ts';
 import { WriteStream, createWriteStream } from 'fs';
 
 const baseConfig = {
@@ -185,13 +185,14 @@ export class Database {
 				values: [person.id, person.name, person.degree],
 			});
 			if (response.rowCount === 1) {
-				console.log(chalk.green(
+				await wait(1000);
+				customConsole.success(chalk.green(
 					`Successfully inserted or updated person ${person.id}\t ${person.name} at degree ${person.degree}`
 				));
 			}
 		}
 		catch (error) {
-			console.log(chalk.red('addPerson\t: ', error));
+			customConsole.error(`addPerson error for ${person.id} ${person.name}:\t ${error}`);
 			logToFile(this.logFile, `addPerson ${person.id}\t\t ${error}`);
 		}
 	}
@@ -225,11 +226,12 @@ export class Database {
 				values: [work.id, work.name, work.start_year, work.end_year, work.season_count, work.episode_count]
 			});
 			if (response.rowCount === 1) {
-				console.log(chalk.green(`Successfully inserted or updated TV show ${work.id}\t ${work.name}`));
+				await wait(1000);
+				customConsole.success(`Successfully inserted or updated TV show ${work.id}\t ${work.name}`);
 			}
 		}
 		catch (error) {
-			console.log(chalk.red('addOrUpdateTvShow\t', error));
+			customConsole.error(`addOrUpdateTvShow error for \t ${work.id} ${work.name}:\t ${error}`);
 			logToFile(this.logFile, `addOrUpdateTvShow ${work.id}\t\t ${error}`);
 		}
 	}
@@ -249,14 +251,15 @@ export class Database {
 				values: [personId, workId, roleId, episodeCount]
 			});
 			if (response.rowCount === 1) {
-				console.log(chalk.green(
-				`Successfully connected person ${personId} to work ${workId} with role ${roleId} for ${episodeCount} episodes`
-				));
+				await wait(1000);
+				customConsole.success(
+					`Successfully connected person ${personId} to work ${workId} with role ${roleId} for ${episodeCount} episodes`
+				);
 			}
 		}
 		catch (error) {
-			console.log(chalk.red(`connectPersontoWork\t personId: ${personId}\t workId: ${workId}`, error));
-			logToFile(this.logFile, `connectPersonTowork\t\t ${error}`);
+			customConsole.error(`connectPersonToWork error for ${personId} ${workId}:\t ${error}`);
+			logToFile(this.logFile, `connectPersonToWork error for ${personId} ${workId}:\t ${error}`);
 		}
 	}
 }
