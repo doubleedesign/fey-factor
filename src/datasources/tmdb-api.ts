@@ -1,8 +1,8 @@
 import axios from 'axios';
 import chalk from 'chalk';
-import { existsSync, mkdirSync, writeFileSync, readFileSync } from 'fs';
+import { existsSync, mkdirSync, writeFileSync, readFileSync, createWriteStream, WriteStream } from 'fs';
 import * as dotenv from 'dotenv';
-import { wait } from '../common.ts';
+import { logToFile, wait } from '../common.ts';
 
 dotenv.config();
 
@@ -12,9 +12,11 @@ dotenv.config();
 export class TmdbApi {
 	authToken: string;
 	baseUrl: string = 'https://api.themoviedb.org/3';
+	logFile: WriteStream;
 
 	constructor() {
 		this.authToken = process.env.TMDB_AUTH_TOKEN;
+		this.logFile = createWriteStream('./logs/tmdb-api.log');
 	}
 
 	async makeRequest(url: string, method: string, data?: any) {
@@ -47,8 +49,23 @@ export class TmdbApi {
 
 				return this.makeRequest(url, method, data); // Retry the request
 			}
+			else if(error?.response && error?.response?.status) {
+				console.error(chalk.red(`Error ${error.response?.status}: ${error.response?.statusText} for request to ${url}`));
+				logToFile(this.logFile,
+					`Error ${error.response?.status}: ${error.response?.statusText} for request to ${url}. \t${error.message}`
+				);
+
+				return null;
+			}
 			else {
-				console.error(chalk.red(`Error making request to ${url}\t ${error.message}`));
+				console.error(chalk.red(
+					`Error ${error?.response?.status}: ${error?.response?.statusText} for request to ${url}. \t ${error.message}`
+				));
+				logToFile(this.logFile,
+					`Error ${error?.response?.status}: ${error?.response?.statusText} for request to ${url}. \t${error.message}`
+				);
+
+				return null;
 			}
 		}
 	}

@@ -174,14 +174,6 @@ export class Database {
 		return response.rows;
 	}
 
-	async getPerson(id: number) {
-		const response = await this.pgClient.query({
-			text: 'SELECT * FROM people WHERE id = $1',
-			values: [id]
-		});
-		return response.rows[0] ?? false;
-	}
-
 	async addOrUpdatePerson(person: Person) {
 		try {
 			const response = await this.pgClient.query({
@@ -200,8 +192,21 @@ export class Database {
 		}
 		catch (error) {
 			console.log(chalk.red('addPerson\t: ', error));
-			logToFile(this.logFile, `addPerson\t\t ${error}`);
+			logToFile(this.logFile, `addPerson ${person.id}\t\t ${error}`);
 		}
+	}
+
+	async getPerson(id: number) {
+		const response = await this.pgClient.query({
+			text: 'SELECT * FROM people WHERE id = $1',
+			values: [id]
+		});
+		return response.rows[0] ?? false;
+	}
+
+	async getAllPeople() {
+		const response = await this.pgClient.query('SELECT * FROM people');
+		return response.rows;
 	}
 
 	async addOrUpdateTvShow(work: TvShow) {
@@ -225,8 +230,13 @@ export class Database {
 		}
 		catch (error) {
 			console.log(chalk.red('addOrUpdateTvShow\t', error));
-			logToFile(this.logFile, `addOrUpdateTvShow\t\t ${error}`);
+			logToFile(this.logFile, `addOrUpdateTvShow ${work.id}\t\t ${error}`);
 		}
+	}
+
+	async getAllTvShows() {
+		const response = await this.pgClient.query('SELECT * FROM tv_shows');
+		return response.rows;
 	}
 
 	async connectPersonToWork(personId: number, workId: number, roleId: number, episodeCount: number) {

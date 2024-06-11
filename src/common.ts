@@ -4,7 +4,7 @@ import { Database } from './database/database.ts';
 export const db = new Database();
 
 export const COMEDY_GENRE_ID = 35; // themoviedb.org genre id
-export const EXCLUDED_GENRE_IDS = [10767, 16, 10762, 10763, 99]; // talk shows, animation, kids, news, documentary
+export const EXCLUDED_GENRE_IDS = [10767, 16, 10762, 10763, 99, 10764]; // talk shows, animation, kids, news, documentary, reality
 
 export function logToFile(logFile: WriteStream, message: string) {
 	logFile.write(`${new Date().toLocaleString('en-AU', {
