@@ -8,6 +8,7 @@ import { TvShow } from '../database/types.ts';
 import { tmdbTvData } from '../datasources/tmdb-tv-utils.ts';
 import { PersonMergedCredit, PersonMergedCredits } from '../datasources/types-person.ts';
 import Case from 'case';
+import async from 'async';
 
 const api = new TmdbApi();
 const logFile = createWriteStream('logs/populate-db.log');
@@ -64,16 +65,18 @@ class Populator {
 
 			customConsole.info(`Starting degree ${this.degree} with ${peopleIdsToProcessNext.length} people to process`, true);
 
-			// Process the TV credits for each person at the current degree
-			const showIds: number[][] = await Promise.all(peopleIdsToProcessNext.map(personId => {
+
+			// Sequentially process the TV credits for each person at the current degree
+			const showIds: number[][] = await async.mapSeries(peopleIdsToProcessNext, (personId => {
 				return this.getAndProcessTvCreditsForPerson(personId, this.degree);
 			}));
 
 			// Only if we have not reached the max degree, do further processing of the shows and get the next round of people
-			// TODO: This means that the last batch of shows will have minimal data, because most show fields are populated in getAndProcessTvShowAggregateCredits, which we do not want to run again - we just want the show details query part.
+			// TODO: This means that the last batch of shows will have minimal data, because most show fields are populated in
+			//  getAndProcessTvShowAggregateCredits, which we do not want to run again - we just want the show details query part.
 			if(this.degree < this.maxDegree) {
 				const showIdsToProcessNext: number[] = _.difference(_.uniq(showIds.flat()), Array.from(this.showsAlreadyAdded));
-				const peopleIds: number[][] = await Promise.all(showIdsToProcessNext.map(this.getAndProcessTvShowAggregateCredits));
+				const peopleIds: number[][] = await async.mapSeries(showIdsToProcessNext, this.getAndProcessTvShowAggregateCredits);
 
 				peopleIdsToProcessNext = _.difference(_.uniq(peopleIds.flat()), Array.from(this.peopleAlreadyAdded));
 				this.degree++;
@@ -88,7 +91,7 @@ class Populator {
 			if (!customConsole.isProcessing && customConsole.messageQueue.length > 0) {
 				customConsole.processQueue();
 			}
-		}, 200);
+		}, 1000);
 	}
 
 

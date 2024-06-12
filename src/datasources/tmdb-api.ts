@@ -23,8 +23,7 @@ export class TmdbApi {
 		const cachePath = this.getCachedFilePath(url);
 		if(existsSync(cachePath)) {
 			try {
-				// TODO: Fix this logging (it's not working with the transient console thing)
-				//customConsole.info(`Using cached data for ${url}\n`, false);
+				customConsole.info(`Using cached data for ${url}\n`, false);
 				const data = readFileSync(cachePath, 'utf-8');
 				return JSON.parse(data);
 			}

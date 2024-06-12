@@ -10,6 +10,8 @@
 		"populate-db": "node --trace-uncaught --loader ts-node/esm src/scripts/populate-db.ts"
 	},
 	"dependencies": {
+		"@types/async": "^3.2.24",
+		"async": "^3.2.5",
 		"axios": "^1.6.8",
 		"case": "^1.6.3",
 		"chalk": "^5.3.0",
