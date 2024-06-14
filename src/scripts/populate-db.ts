@@ -32,7 +32,7 @@ class Populator {
 		this.api = new TmdbApi();
 		this.startPersonId = startPersonId;
 		this.degree = 0;
-		this.maxDegree = 2;
+		this.maxDegree = 3;
 		this.peopleAlreadyAdded = new Set<number>();
 		this.showsAlreadyAdded = new Set<number>();
 		this.roleIds = {};
@@ -47,7 +47,7 @@ class Populator {
 	}
 
 	async run() {
-		this.runMessageQueue({ verbose: false, speed: 100 });
+		this.runMessageQueue();
 
 		const showsInDb = await db.getAllTvShows();
 		showsInDb.forEach(show => this.showsAlreadyAdded.add(show.id));
@@ -64,18 +64,14 @@ class Populator {
 				return true;
 			}
 
-			customConsole.announce(`Starting degree ${this.degree} with ${peopleIdsToProcessNext.length} people to process`, true);
+			customConsole.announce(`${peopleIdsToProcessNext.length} people to process at degree ${this.degree}`, true);
 
 			// Sequentially process the TV credits for each person at the current degree
 			// Doing things synchronously helps reduce duplicate requests and makes it easier to track progress and debug issues
 			const showIds: number[][] = await async.mapSeries(peopleIdsToProcessNext, (async (personId: number) => {
-				customConsole.announce(
-					`Processing ${peopleProcessedCount + 1} of ${peopleIdsToProcessNext.length} at degree ${this.degree}\t (Person ID ${personId})`, true
-				);
 				try {
 					const result = await this.getAndProcessTvCreditsForPerson(personId, this.degree);
-					customConsole.success(`Processed person ID ${personId}.\t Show IDs returned: ${result}`, true);
-					//await customConsole.clearPreviousLine(); // TODO: Make this work
+					customConsole.success(`Processed ${peopleProcessedCount + 1} of ${peopleIdsToProcessNext.length} at degree ${this.degree}\t (Person ID ${personId})\t Show IDs returned: ${result}`, true);
 					peopleProcessedCount++;
 					return result;
 				}
@@ -87,7 +83,7 @@ class Populator {
 			}));
 			const showIdsToProcessNext: number[] = _.difference(_.uniq(showIds.flat()), Array.from(this.showsAlreadyAdded));
 			customConsole.announce(
-				`${showIdsToProcessNext.length} shows to process at degree ${this.degree}. (This skips previously processed shows.)`, true
+				`${showIdsToProcessNext.length} shows to process at degree ${this.degree}.`, true
 			);
 
 			// Only if we have not reached the max degree, do further processing of the shows and get the next round of people
@@ -95,7 +91,6 @@ class Populator {
 			//  getAndProcessTvShowAggregateCredits, which we do not want to run again - we just want the show details query part.
 			if(this.degree < this.maxDegree) {
 				const peopleIds = await async.mapSeries(showIdsToProcessNext, (async (showId: number) => {
-					customConsole.announce(`Processing show ID ${showId}`, true);
 					const result = await this.getAndProcessTvShowAggregateCredits(showId);
 					customConsole.success(`Processed show ID ${showId}.\t People IDs returned: ${result}`, true);
 					return result;
@@ -110,8 +105,8 @@ class Populator {
 
 	// Ensure processQueue runs continuously in the background
 	// NOTE: Using this custom logging means console messages are often far behind the actual processing status.
-	runMessageQueue({ verbose, speed }) {
-		if(!verbose) {
+	runMessageQueue() {
+		if(!customConsole.verbose) {
 			customConsole.warn('Important warning: This custom console logging is designed for a human watching it, ' +
 				'with artificial delays to make it readable. This means it runs far behind the actual processing status.' +
 				'\nFor a more accurate view of the process, set `verbose` to true in the runMessageQueue() call.' +
@@ -124,7 +119,7 @@ class Populator {
 
 		setInterval(() => {
 			if (!customConsole.isProcessing && customConsole.messageQueue.length > 0) {
-				customConsole.processQueue({ verbose, speed });
+				customConsole.processQueue();
 			}
 		}, 100);
 	}
