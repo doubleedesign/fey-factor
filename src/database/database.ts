@@ -185,7 +185,6 @@ export class Database {
 				values: [person.id, person.name, person.degree],
 			});
 			if (response.rowCount === 1) {
-				await wait(1000);
 				customConsole.success(chalk.green(
 					`Successfully inserted or updated person ${person.id}\t ${person.name} at degree ${person.degree}`
 				));
@@ -226,7 +225,6 @@ export class Database {
 				values: [work.id, work.name, work.start_year, work.end_year, work.season_count, work.episode_count]
 			});
 			if (response.rowCount === 1) {
-				await wait(1000);
 				customConsole.success(`Successfully inserted or updated TV show ${work.id}\t ${work.name}`);
 			}
 		}
@@ -251,7 +249,6 @@ export class Database {
 				values: [personId, workId, roleId, episodeCount]
 			});
 			if (response.rowCount === 1) {
-				await wait(1000);
 				customConsole.success(
 					`Successfully connected person ${personId} to work ${workId} with role ${roleId} for ${episodeCount} episodes`
 				);
