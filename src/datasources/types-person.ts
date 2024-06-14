@@ -5,7 +5,7 @@ type PersonCreditCommon = {
 	name: string; // name of the show
 	first_air_date: string;
 	last_air_date?: string;
-	episode_count?: number; // total episode count for the show itself, not the person
+	episode_count?: number;
 }
 
 /**

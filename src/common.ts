@@ -3,10 +3,19 @@ import { Database } from './database/database.ts';
 import { CustomConsole } from './utils/CustomConsole/CustomConsole.ts';
 
 export const db = new Database();
-export const customConsole = new CustomConsole({ verbose: false, speed: 20 });
+export const customConsole = new CustomConsole({ verbose: false, speed: 50 });
 
 export const COMEDY_GENRE_ID = 35; // themoviedb.org genre id
-export const EXCLUDED_GENRE_IDS = [10767, 16, 10762, 10763, 99, 10764]; // talk shows, animation, kids, news, documentary, reality
+export const EXCLUDED_GENRE_IDS = [
+	10767, // talk shows
+	16, // animation
+	10762, // kids
+	10751, // family
+	10763, // news
+	99, // documentary
+	10764, // reality
+	10759, // action/adventure
+];
 
 export function logToFile(logFile: WriteStream, message: string) {
 	logFile.write(`${new Date().toLocaleString('en-AU', {

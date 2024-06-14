@@ -14,12 +14,13 @@ export const tmdbTvData = {
 	filterCreditsByYearAndGenre: ({ id, cast, crew }: PersonRawCredits): PersonRawCredits => {
 		const includeCredit = (credit) => {
 			const timely =
-				// Shows that started in the last 25 years
-				new Date(credit.first_air_date).getFullYear() >= 1999
-				// or were running in the last 25 years even if they started earlier
-				|| new Date(credit?.last_air_date)?.getFullYear() >= 1999;
+				// Shows that started in the last 20 years
+				new Date(credit.first_air_date).getFullYear() >= 2004
+				// or were running in the last 20 years even if they started earlier
+				|| new Date(credit?.last_air_date)?.getFullYear() >= 2004;
 
 			return timely
+				&& credit.origin_country.includes('US')
 				&& credit.genre_ids.includes(COMEDY_GENRE_ID)
 				&& !credit.genre_ids.some((genreId: number) => EXCLUDED_GENRE_IDS.includes(genreId));
 		};
@@ -93,17 +94,17 @@ export const tmdbTvData = {
 	 * accounting for all roles they had in the production.
 	 * Note: This means that when someone has more than one job in a single episode, it's counted like two episodes. This is intentional.
 	 *
+	 * This is currently pretty arbitrary and experimental.
+	 *
 	 * @param credit
 	 * @param showEpisodeCount
 	 * @returns object
 	 */
 	doesCumulativeCreditCount(credit: PersonMergedCredit, showEpisodeCount: number) {
 		const count = credit.roles.reduce((acc, role) => acc + role.episode_count, 0);
-		// Starting with an arbitrary minimum of 2 episodes for shows <= 10 episodes; otherwise 5 episodes for inclusion
-		// and 50% for continuation TODO: Refine this
 		return {
-			inclusion: showEpisodeCount <= 10 ? count > 1 : count > 4,
-			continuation: count / showEpisodeCount >= 0.5
+			inclusion: count / showEpisodeCount >= 0.25, // At least 25% of episodes
+			continuation: count / showEpisodeCount >= 0.5 // At least 50% of episodes
 		};
 	},
 };

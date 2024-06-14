@@ -92,7 +92,7 @@ class Populator {
 			if(this.degree < this.maxDegree) {
 				const peopleIds = await async.mapSeries(showIdsToProcessNext, (async (showId: number) => {
 					const result = await this.getAndProcessTvShowAggregateCredits(showId);
-					customConsole.success(`Processed show ID ${showId}.\t People IDs returned: ${result}`, true);
+					customConsole.success(`Processed show ID ${showId}.\t Number of People IDs returned: ${result.length}`, true);
 					return result;
 				}));
 				peopleIdsToProcessNext = _.difference(_.uniq(peopleIds.flat()), Array.from(this.peopleAlreadyAdded));
@@ -337,6 +337,14 @@ class Populator {
 
 
 	/**
+	 * Find the top shows in the database and populate more detailed credits for them
+	 */
+	async findAndTopUpTopShows() {
+
+	}
+
+
+	/**
 	 * Utility function to handle adding a person and show to the database once it's been determined that they should be included
 	 * @param personId
 	 * @param degree
@@ -398,6 +406,5 @@ class Populator {
 
 new Populator(56323).run().then(() => {
 	customConsole.success('Database population complete.', true);
-	// TODO Make sure message queue has finished before exiting
-	//process.exit(0);
+	process.exit(0);
 });
