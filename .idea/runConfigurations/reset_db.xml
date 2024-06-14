@@ -1,0 +1,5 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="reset-db" type="NodeJSConfigurationType" node-parameters="--loader ts-node/esm --trace-uncaught" path-to-js-file="src/scripts/reset-db.ts" working-dir="$PROJECT_DIR$">
+    <method v="2" />
+  </configuration>
+</component>
