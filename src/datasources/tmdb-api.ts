@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { existsSync, mkdirSync, writeFileSync, readFileSync, createWriteStream, WriteStream } from 'fs';
+import { existsSync, mkdirSync, writeFileSync, readFileSync, unlinkSync, createWriteStream, WriteStream } from 'fs';
 import * as dotenv from 'dotenv';
 import { customConsole, logToFile, wait } from '../common.ts';
 
@@ -21,22 +21,22 @@ export class TmdbApi {
 	async makeRequest(url: string, method: string, data?: any, useCached = true) {
 		// If data is cached in a JSON file in src/cache, use that
 		const cachePath = this.getCachedFilePath(url);
-		if(existsSync(cachePath)) {
+		if(useCached && existsSync(cachePath)) {
 			try {
-				customConsole.info(`Using cached data for ${url}\n`, false);
+				customConsole.info(`Using cached data for ${url}`, false);
 				const data = readFileSync(cachePath, 'utf-8');
 				return JSON.parse(data);
 			}
 			catch (error) {
 				customConsole.error(`Error reading cached data from ${cachePath}: ${error.message}`);
 				logToFile(this.logFile, `Error reading cached data from ${cachePath}: ${error.message}`);
-				// TODO: Fix call stack issues with this
-				// It was done because of empty JSON files, maybe deal with that better
+				// Assume file is dodgy and delete it
+				unlinkSync(cachePath);
+
 				return await this.makeRequest(url, method, data, false);
 			}
 		}
 
-		await wait(2000); // Wait 2 seconds between requests to avoid rate limiting
 		customConsole.info(`No cached data at ${cachePath}, making request to ${url}...`);
 		try {
 			const response = await axios.request({
@@ -88,6 +88,7 @@ export class TmdbApi {
 	}
 
 	savetoCache(path: string, filename: string, data: object) {
+		if(!data) return;
 		const fullPath = `./src/datasources/cache${path}`;
 		if (!existsSync(fullPath)) {
 			mkdirSync(fullPath, { recursive: true });
