@@ -6,7 +6,7 @@ import { TmdbApi } from '../datasources/tmdb-api.ts';
 import { db, customConsole, logToFile } from '../common.ts';
 import { TvShow } from '../database/types.ts';
 import { tmdbTvData } from '../datasources/tmdb-tv-utils.ts';
-import { PersonMergedCredit, PersonMergedCredits } from '../datasources/types-person.ts';
+import { PersonMergedCredit, PersonMergedCredits, PersonRoleSummary } from '../datasources/types-person.ts';
 import Case from 'case';
 import async from 'async';
 
@@ -47,7 +47,7 @@ class Populator {
 	}
 
 	async run() {
-		this.runMessageQueue();
+		this.runMessageQueue({ verbose: false, speed: 100 });
 
 		const showsInDb = await db.getAllTvShows();
 		showsInDb.forEach(show => this.showsAlreadyAdded.add(show.id));
@@ -56,29 +56,52 @@ class Populator {
 		customConsole.info(`Database already contained ${showsInDb.length} shows and ${peopleInDb.length} people.`, true);
 
 		let peopleIdsToProcessNext = [this.startPersonId];
+		let peopleProcessedCount = 0;
 
 		while(this.degree <= this.maxDegree) {
 			if(this.degree === this.maxDegree) {
 				customConsole.warn('Max degree reached, stopping.', true);
-				return;
+				return true;
 			}
 
-			customConsole.info(`Starting degree ${this.degree} with ${peopleIdsToProcessNext.length} people to process`, true);
-
+			customConsole.announce(`Starting degree ${this.degree} with ${peopleIdsToProcessNext.length} people to process`, true);
 
 			// Sequentially process the TV credits for each person at the current degree
-			const showIds: number[][] = await async.mapSeries(peopleIdsToProcessNext, (personId => {
-				return this.getAndProcessTvCreditsForPerson(personId, this.degree);
+			// Doing things synchronously helps reduce duplicate requests and makes it easier to track progress and debug issues
+			const showIds: number[][] = await async.mapSeries(peopleIdsToProcessNext, (async (personId: number) => {
+				customConsole.announce(
+					`Processing ${peopleProcessedCount + 1} of ${peopleIdsToProcessNext.length} at degree ${this.degree}\t (Person ID ${personId})`, true
+				);
+				try {
+					const result = await this.getAndProcessTvCreditsForPerson(personId, this.degree);
+					customConsole.success(`Processed person ID ${personId}.\t Show IDs returned: ${result}`, true);
+					//await customConsole.clearPreviousLine(); // TODO: Make this work
+					peopleProcessedCount++;
+					return result;
+				}
+                catch (error) {
+					customConsole.error(`Error processing person ID ${personId}:\t ${error}`, true);
+					logToFile(logFile, `Error processing person ID ${personId}:\t ${error}`);
+					return [];
+				}
 			}));
+			const showIdsToProcessNext: number[] = _.difference(_.uniq(showIds.flat()), Array.from(this.showsAlreadyAdded));
+			customConsole.announce(
+				`${showIdsToProcessNext.length} shows to process at degree ${this.degree}. (This skips previously processed shows.)`, true
+			);
 
 			// Only if we have not reached the max degree, do further processing of the shows and get the next round of people
 			// TODO: This means that the last batch of shows will have minimal data, because most show fields are populated in
 			//  getAndProcessTvShowAggregateCredits, which we do not want to run again - we just want the show details query part.
 			if(this.degree < this.maxDegree) {
-				const showIdsToProcessNext: number[] = _.difference(_.uniq(showIds.flat()), Array.from(this.showsAlreadyAdded));
-				const peopleIds: number[][] = await async.mapSeries(showIdsToProcessNext, this.getAndProcessTvShowAggregateCredits);
-
+				const peopleIds = await async.mapSeries(showIdsToProcessNext, (async (showId: number) => {
+					customConsole.announce(`Processing show ID ${showId}`, true);
+					const result = await this.getAndProcessTvShowAggregateCredits(showId);
+					customConsole.success(`Processed show ID ${showId}.\t People IDs returned: ${result}`, true);
+					return result;
+				}));
 				peopleIdsToProcessNext = _.difference(_.uniq(peopleIds.flat()), Array.from(this.peopleAlreadyAdded));
+
 				this.degree++;
 			}
 		}
@@ -86,12 +109,24 @@ class Populator {
 
 
 	// Ensure processQueue runs continuously in the background
-	runMessageQueue() {
+	// NOTE: Using this custom logging means console messages are often far behind the actual processing status.
+	runMessageQueue({ verbose, speed }) {
+		if(!verbose) {
+			customConsole.warn('Important warning: This custom console logging is designed for a human watching it, ' +
+				'with artificial delays to make it readable. This means it runs far behind the actual processing status.' +
+				'\nFor a more accurate view of the process, set `verbose` to true in the runMessageQueue() call.' +
+				'\nThis will log directly to the console without delays, and ignores persistent/transient message status.', true);
+		}
+		else {
+			customConsole.warn('Running console logging in verbose mode.' +
+				'\nLogging will be instant and persistent/transient message status will be ignored.', true);
+		}
+
 		setInterval(() => {
 			if (!customConsole.isProcessing && customConsole.messageQueue.length > 0) {
-				customConsole.processQueue();
+				customConsole.processQueue({ verbose, speed });
 			}
-		}, 1000);
+		}, 100);
 	}
 
 
@@ -104,22 +139,29 @@ class Populator {
 	 * @return {Promise<number[]>} An array of show IDs to look up next
 	 */
 	async getAndProcessTvCreditsForPerson(personId: number, degree: number): Promise<number[]> {
-		if(this.peopleAlreadyAdded.has(personId)) return;
+		if(this.peopleAlreadyAdded.has(personId)) {
+			customConsole.warn(`Person ID ${personId} has already been processed, skipping.`, true);
+			return;
+		}
 
 		const showIdsToReturn: number[] = [];
 
 		// All credits for the person, then filtered down to just the kind we're interested in
 		const credits = await api.getTvCreditsForPerson(personId);
-		if(!credits) return;
+		if(!credits) {
+			customConsole.warn(`Failed to fetch credits for person ID ${personId}, skipping.`, true);
+			return;
+		}
+
 		const mergedCredits: PersonMergedCredits = tmdbTvData.filterFormatAndMergeCredits(credits);
 
 		// Loop through each credit (which here, is a show)
-		// remembering that a person may have multiple roles within that show/credit, e.g., writer and director)
-		for (const credit of mergedCredits.credits) {
+		// remembering that a person may have multiple roles within that show/credit, e.g., writer and director
+		await async.eachSeries(mergedCredits.credits, async (credit: PersonMergedCredit) => {
 			let cachedEpisodeCount = this.episodeCounts?.[credit.id];
-			if(!cachedEpisodeCount) {
+			if (!cachedEpisodeCount) {
 				const showDetails = await api.getTvShowDetails(credit.id);
-				if(showDetails && showDetails.number_of_episodes) {
+				if (showDetails && showDetails.number_of_episodes) {
 					this.episodeCounts[credit.id.toString()] = showDetails.number_of_episodes;
 					cachedEpisodeCount = showDetails.number_of_episodes;
 				}
@@ -127,7 +169,7 @@ class Populator {
 
 			// If the person had a cast role for at least 50% of the episodes, include it
 			// TODO: Refine inclusion criteria and use/add to the tmbdTVData functions for this
-			if(credit.roles.some(role => role.type === 'cast' && role.episode_count / cachedEpisodeCount >= 0.5)) {
+			if (credit.roles.some(role => role.type === 'cast' && role.episode_count / cachedEpisodeCount >= 0.5)) {
 				await this.addPersonAndShowToDatabase({
 					personId,
 					degree: degree,
@@ -136,14 +178,14 @@ class Populator {
 				});
 
 				// Connect the person to the show with the appropriate role ID(s) and role-based episode counts for all roles they had
-				for (const role of credit.roles) {
+				await async.eachSeries(credit.roles, async (role) => {
 					await this.connect({
 						personId: personId,
 						showId: credit.id,
 						roleName: role.name,
 						roleEpisodeCount: role.episode_count
 					});
-				}
+				});
 
 				// Add the show ID to the array that this function returns for further processing
 				showIdsToReturn.push(credit.id);
@@ -151,18 +193,12 @@ class Populator {
 			// Otherwise, look at crew roles
 			else {
 				// This person and show are automatically included if they had any of the specified crew roles
-				const autoIncludedRoles: PersonMergedCredit[] = mergedCredits.credits.filter(credit => {
-					return credit.roles.filter(role => {
-						return ['Creator', 'Executive Producer', 'Producer'].includes(role.name);
-					});
+				const autoIncludedRoles: PersonRoleSummary[] = credit.roles.filter(role => {
+					return ['Creator', 'Executive Producer', 'Producer'].includes(role.name);
 				});
 				// We also want to include other roles an auto-included person had in the same show,
 				// but without processing the same role twice in terms of writing to the database
-				const otherRoles = mergedCredits.credits.filter(credit => {
-					return credit.roles.filter(role => {
-						return !['Creator', 'Executive Producer', 'Producer'].includes(role.name);
-					});
-				});
+				const otherRoles: PersonRoleSummary[] = _.omit(credit.roles, autoIncludedRoles.map(role => role.name));
 
 				if (autoIncludedRoles.length > 0) {
 					await this.addPersonAndShowToDatabase({
@@ -173,7 +209,7 @@ class Populator {
 					});
 
 					// Connect the person to the show with the appropriate role IDs for the auto-included roles
-					for (const role of autoIncludedRoles) {
+					await async.eachSeries(autoIncludedRoles, async (role) => {
 						// Some roles have their own episode count, but others such as Creator do not
 						// and should inherit the show's episode count
 						let episodeCountToUse = Number(role?.episode_count) ? role.episode_count : credit.episode_count;
@@ -186,17 +222,19 @@ class Populator {
 							personId: personId,
 							showId: credit.id,
 							roleName: role.name,
-							roleEpisodeCount: role.episode_count
+							roleEpisodeCount: episodeCountToUse
 						});
-					}
+					});
 
 					// Add their other roles to the db
-					for (const role of otherRoles) {
-						await this.connect({
-							personId: personId,
-							showId: credit.id,
-							roleName: role.name,
-							roleEpisodeCount: role.episode_count
+					if(otherRoles.length > 0) {
+						await async.eachSeries(otherRoles, async (role) => {
+							await this.connect({
+								personId: personId,
+								showId: credit.id,
+								roleName: role.name,
+								roleEpisodeCount: role.episode_count
+							});
 						});
 					}
 
@@ -206,6 +244,7 @@ class Populator {
 				// This person did not have auto-included roles for this credit/show, but may have multiple that add up to qualify
 				else {
 					const countFor = tmdbTvData.doesCumulativeCreditCount(credit, cachedEpisodeCount);
+
 					if (countFor.inclusion) {
 						// Add the person and the show to the database
 						await this.addPersonAndShowToDatabase({
@@ -225,15 +264,15 @@ class Populator {
 							});
 						}
 					}
-					if(countFor.continuation) {
+					if (countFor.continuation) {
 						// Add the show to the array that this function returns for further processing
 						showIdsToReturn.push(credit.id);
 					}
 				}
 			}
-		}
+		});
 
-		return _.difference(_.uniq(showIdsToReturn), Array.from(this.showsAlreadyAdded)) || [];
+		return showIdsToReturn;
 	}
 
 
@@ -245,7 +284,10 @@ class Populator {
 	 * @return {Promise<number[]>} An array of person IDs to look up next
 	 */
 	async getAndProcessTvShowAggregateCredits(showId: number): Promise<number[]> {
-		if(this.showsAlreadyAdded.has(showId)) return;
+		if(this.showsAlreadyAdded.has(showId)) {
+			customConsole.warn(`Show ID ${showId} has already been processed, skipping.`, true);
+			return;
+		}
 
 		const peopleIdsToReturn: number[] = [];
 
@@ -361,5 +403,6 @@ class Populator {
 
 new Populator(56323).run().then(() => {
 	customConsole.success('Database population complete.', true);
-	process.exit(0);
+	// TODO Make sure message queue has finished before exiting
+	//process.exit(0);
 });
