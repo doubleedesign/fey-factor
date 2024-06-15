@@ -1,8 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-// noinspection UnnecessaryLocalVariableJS
 import _ from 'lodash';
-import { createWriteStream } from 'fs';
-import { TmdbApi } from '../datasources/tmdb-api.ts';
+import { DataPopulator, DataPopulatorInterface } from './DataPopulator.ts';
 import { db, customConsole, logToFile } from '../common.ts';
 import { TvShow } from '../database/types.ts';
 import { tmdbTvData } from '../datasources/tmdb-tv-utils.ts';
@@ -10,12 +7,8 @@ import { PersonMergedCredit, PersonMergedCredits, PersonRoleSummary } from '../d
 import Case from 'case';
 import async from 'async';
 
-const api = new TmdbApi();
-const logFile = createWriteStream('logs/populate-db.log');
-const includedRoles = (await db.getRoles()).map(role => Case.snake(role.name));
 
-class Populator {
-	api = undefined;
+class Populator extends DataPopulator implements DataPopulatorInterface {
 	startPersonId: number;
 	degree: number;
 	maxDegree: number;
@@ -23,20 +16,20 @@ class Populator {
 	peopleAlreadyAdded: Set<number>;
 	// Likewise for shows, but remember shows should only be added here when a full show object has been added, not the minimal one
 	showsAlreadyAdded: Set<number>;
-	// Role IDs for easy lookup
-	roleIds: { [key: string]: number };
 	// Episode counts for easy lookup
 	episodeCounts: { [key: string]: number };
+	// Roles that are set in the database
+	includedRoles: string[];
 
-	constructor(startPersonId: number) {
-		this.api = new TmdbApi();
+	constructor({ startPersonId }) {
+		super();
 		this.startPersonId = startPersonId;
 		this.degree = 0;
 		this.maxDegree = 3;
 		this.peopleAlreadyAdded = new Set<number>();
 		this.showsAlreadyAdded = new Set<number>();
-		this.roleIds = {};
 		this.episodeCounts = {};
+		// includedRoles can't be set here because it's async, so it's set in run()
 
 		// Bind methods to the class instance so that the above properties are available to them
 		this.run = this.run.bind(this);
@@ -47,7 +40,8 @@ class Populator {
 	}
 
 	async run() {
-		this.runMessageQueue();
+		super.runMessageQueue();
+		this.includedRoles = (await db.getRoles()).map(role => Case.snake(role.name));
 
 		const showsInDb = await db.getAllTvShows();
 		showsInDb.forEach(show => this.showsAlreadyAdded.add(show.id));
@@ -71,13 +65,14 @@ class Populator {
 			const showIds: number[][] = await async.mapSeries(peopleIdsToProcessNext, (async (personId: number) => {
 				try {
 					const result = await this.getAndProcessTvCreditsForPerson(personId, this.degree);
+					// eslint-disable-next-line max-len
 					customConsole.success(`Processed ${peopleProcessedCount + 1} of ${peopleIdsToProcessNext.length} at degree ${this.degree}\t (Person ID ${personId})\t Show IDs returned: ${result}`, true);
 					peopleProcessedCount++;
 					return result;
 				}
                 catch (error) {
 					customConsole.error(`Error processing person ID ${personId}:\t ${error}`, true);
-					logToFile(logFile, `Error processing person ID ${personId}:\t ${error}`);
+					logToFile(this.logFile, `Error processing person ID ${personId}:\t ${error}`);
 					return [];
 				}
 			}));
@@ -103,28 +98,6 @@ class Populator {
 	}
 
 
-	// Ensure processQueue runs continuously in the background
-	// NOTE: Using this custom logging means console messages are often far behind the actual processing status.
-	runMessageQueue() {
-		if(!customConsole.verbose) {
-			customConsole.warn('Important warning: This custom console logging is designed for a human watching it, ' +
-				'with artificial delays to make it readable. This means it runs far behind the actual processing status.' +
-				'\nFor a more accurate view of the process, set `verbose` to true in the runMessageQueue() call.' +
-				'\nThis will log directly to the console without delays, and ignores persistent/transient message status.', true);
-		}
-		else {
-			customConsole.warn('Running console logging in verbose mode.' +
-				'\nLogging will be instant and persistent/transient message status will be ignored.', true);
-		}
-
-		setInterval(() => {
-			if (!customConsole.isProcessing && customConsole.messageQueue.length > 0) {
-				customConsole.processQueue();
-			}
-		}, 100);
-	}
-
-
 	/**
 	 * Look up a person's TV credits by their ID, add the relevant ones to the database,
 	 * and return the IDs of the shows to look up for the next level of the tree.
@@ -142,7 +115,7 @@ class Populator {
 		const showIdsToReturn: number[] = [];
 
 		// All credits for the person, then filtered down to just the kind we're interested in
-		const credits = await api.getTvCreditsForPerson(personId);
+		const credits = await this.api.getTvCreditsForPerson(personId);
 		if(!credits) {
 			customConsole.warn(`Failed to fetch credits for person ID ${personId}, skipping.`, true);
 			return;
@@ -155,7 +128,7 @@ class Populator {
 		await async.eachSeries(mergedCredits.credits, async (credit: PersonMergedCredit) => {
 			let cachedEpisodeCount = this.episodeCounts?.[credit.id];
 			if (!cachedEpisodeCount) {
-				const showDetails = await api.getTvShowDetails(credit.id);
+				const showDetails = await this.api.getTvShowDetails(credit.id);
 				if (showDetails && showDetails.number_of_episodes) {
 					this.episodeCounts[credit.id.toString()] = showDetails.number_of_episodes;
 					cachedEpisodeCount = showDetails.number_of_episodes;
@@ -287,7 +260,7 @@ class Populator {
 		const peopleIdsToReturn: number[] = [];
 
 		// Fetch and handle show details
-		const showDetails = await api.getTvShowDetails(showId);
+		const showDetails = await this.api.getTvShowDetails(showId);
 		if(showDetails) {
 			// Add the show to the db
 			await db.addOrUpdateTvShow({
@@ -308,7 +281,7 @@ class Populator {
 		}
 
 		// Fetch and handle aggregate credits
-		const showCredits = await api.getTvShowCredits(showId);
+		const showCredits = await this.api.getTvShowCredits(showId);
 		const episodeCount = this.episodeCounts[showId?.toString()] || showDetails?.number_of_episodes;
 		if(showCredits && episodeCount) {
 			// Cast members who meet inclusion criteria
@@ -321,7 +294,7 @@ class Populator {
 			// their IDs are returned from here for processing but their inclusion gets decided based on cumulative episode count
 			// in the processTvShowsFromPerson() function
 			const crewIds = showCredits.crew.filter(credit => {
-				return credit.jobs.some(job => includedRoles.includes(Case.snake(job.job)));
+				return credit.jobs.some(job => this.includedRoles.includes(Case.snake(job.job)));
 			}).map(credit => credit.id);
 
 			peopleIdsToReturn.push(...relevantCastIds, ...crewIds);
@@ -329,18 +302,10 @@ class Populator {
 
 		if(!showDetails || !showCredits) {
 			customConsole.error(`Failed to fetch some data for show ID ${showId}, which may have impacted cast and crew inclusion.`, true);
-			logToFile(logFile, `Failed to fetch some data for show ID ${showId}, which may have impacted cast and crew inclusion.`);
+			logToFile(this.logFile, `Failed to fetch some data for show ID ${showId}, which may have impacted cast and crew inclusion.`);
 		}
 
 		return _.difference(_.uniq(peopleIdsToReturn), Array.from(this.peopleAlreadyAdded)) || [];
-	}
-
-
-	/**
-	 * Find the top shows in the database and populate more detailed credits for them
-	 */
-	async findAndTopUpTopShows() {
-
 	}
 
 
@@ -358,7 +323,7 @@ class Populator {
 		if(!this.peopleAlreadyAdded.has(personId)) { // they were not added in this session
 			const personExists = await db.getPerson(personId); // ...and they also didn't already exist in the db
 			if (!personExists) {
-				const person = await api.getPersonDetails(personId);
+				const person = await this.api.getPersonDetails(personId);
 				await db.addOrUpdatePerson({
 					id: personId,
 					name: person?.name ?? '',
@@ -381,30 +346,11 @@ class Populator {
 			});
 		}
 	}
-
-
-	/**
-	 * Utility function to wrap connectPersonToWork just to reduce repetition
-	 * @param personId
-	 * @param showId
-	 * @param roleName
-	 * @param roleEpisodeCount
-	 *
-	 * @return {Promise<void>}
-	 */
-	async connect({ personId, showId, roleName, roleEpisodeCount }): Promise<void> {
-		// Use locally stored role ID if we have it, otherwise fetch from the db
-		const roleId: number = this.roleIds[roleName] || await db.getRoleId(Case.snake(roleName));
-		if(roleId) {
-			await db.connectPersonToWork(personId, showId, roleId, roleEpisodeCount);
-			// Add the role to the local store for future lookups
-			this.roleIds[roleName] = roleId;
-		}
-	}
 }
 
 
-new Populator(56323).run().then(() => {
-	customConsole.success('Database population complete.', true);
-	process.exit(0);
-});
+export function populateDb({ startPersonId }) {
+	new Populator({ startPersonId }).run().then(() => {
+		customConsole.success('Database population complete.', true);
+	});
+}

@@ -1,5 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="init-db" type="NodeJSConfigurationType" node-parameters="--loader ts-node/esm --trace-uncaught" path-to-js-file="src/scripts/init-db.ts" working-dir="$PROJECT_DIR$">
-    <method v="2" />
-  </configuration>
-</component>

@@ -5,9 +5,7 @@
 	"description": "",
 	"type": "module",
 	"scripts": {
-		"init-db": "node --trace-uncaught --trace-warnings --loader ts-node/esm src/scripts/init-db.ts",
-		"reset-db": "node --trace-uncaught --loader ts-node/esm src/scripts/reset-db.ts",
-		"populate-db": "node --trace-uncaught --loader ts-node/esm src/scripts/populate-db.ts"
+		"start": "node --trace-uncaught --trace-warnings --loader ts-node/esm src/scripts/index.ts"
 	},
 	"dependencies": {
 		"@types/async": "^3.2.24",
@@ -22,6 +20,7 @@
 	},
 	"devDependencies": {
 		"@doubleedesign/type-checker": "^0.1.2",
+		"@types/inquirer": "^9.0.7",
 		"@types/jest": "^29.5.12",
 		"@types/lodash": "^4.17.0",
 		"@types/node": "^20.12.7",
@@ -29,6 +28,8 @@
 		"@typescript-eslint/eslint-plugin": "^7.7.1",
 		"@typescript-eslint/parser": "^7.7.1",
 		"eslint": "^8.57.0",
+		"inquirer": "^9.2.23",
+		"@inquirer/select": "^2.3.5",
 		"jest": "^29.7.0",
 		"jest-cli": "^29.7.0",
 		"ts-jest": "^29.1.3",

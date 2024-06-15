@@ -1,8 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="reset + init + populate db" type="NodeJSConfigurationType" node-parameters="--loader ts-node/esm --trace-uncaught" path-to-js-file="src/scripts/populate-db.ts" working-dir="$PROJECT_DIR$">
-    <method v="2">
-      <option name="RunConfigurationTask" enabled="true" run_configuration_name="reset-db" run_configuration_type="NodeJSConfigurationType" />
-      <option name="RunConfigurationTask" enabled="true" run_configuration_name="init-db" run_configuration_type="NodeJSConfigurationType" />
-    </method>
-  </configuration>
-</component>

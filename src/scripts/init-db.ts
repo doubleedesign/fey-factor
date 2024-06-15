@@ -1,7 +1,6 @@
-import chalk from 'chalk';
 import { db } from '../common.ts';
 
-async function initDb() {
+export async function initDb() {
 	await db.createDatabase();
 	await db.createTables();
 	await db.createRole('cast');
@@ -19,14 +18,3 @@ async function initDb() {
 	await db.createRole('story_editor');
 	await db.createRole('executive_story_editor');
 }
-
-(async () => {
-	try {
-		await initDb();
-		console.log(chalk.green('Database initialised.'));
-		process.exit(0);
-	}
-	catch(error) {
-		console.log(chalk.red(error.message));
-	}
-})();
