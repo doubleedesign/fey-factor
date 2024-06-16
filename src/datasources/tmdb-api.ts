@@ -97,6 +97,12 @@ export class TmdbApi {
 		writeFileSync(`${fullPath}/${filename}`, JSON.stringify(data, null, 4));
 	}
 
+	async getPersonDetails(id: number) {
+		const data = await this.makeRequest(`${this.baseUrl}/person/${id}`, 'get');
+		this.savetoCache(`/person/${id}/`, 'index.json', data);
+
+		return data;
+	}
 
 	async getTvCreditsForPerson(id: number) {
 		const data = await this.makeRequest(`${this.baseUrl}/person/${id}/tv_credits`, 'get');
@@ -105,9 +111,9 @@ export class TmdbApi {
 		return data;
 	}
 
-	async getPersonDetails(id: number) {
-		const data = await this.makeRequest(`${this.baseUrl}/person/${id}`, 'get');
-		this.savetoCache(`/person/${id}/`, 'index.json', data);
+	async getFilmCreditsForPerson(id: number) {
+		const data = await this.makeRequest(`${this.baseUrl}/person/${id}/movie_credits`, 'get');
+		this.savetoCache(`/person/${id}/`, 'movie_credits.json', data);
 
 		return data;
 	}
@@ -122,6 +128,20 @@ export class TmdbApi {
 	async getTvShowCredits(id: number) {
 		const data = await this.makeRequest(`${this.baseUrl}/tv/${id}/aggregate_credits`, 'get');
 		this.savetoCache(`/tv/${id}/`, 'aggregate_credits.json', data);
+
+		return data;
+	}
+
+	async getFilmDetails(id: number) {
+		const data = await this.makeRequest(`${this.baseUrl}/movie/${id}`, 'get');
+		this.savetoCache(`/movie/${id}/`, 'index.json', data);
+
+		return data;
+	}
+
+	async getFilmCredits(id: number) {
+		const data = await this.makeRequest(`${this.baseUrl}/movie/${id}/credits`, 'get');
+		this.savetoCache(`/movie/${id}/`, 'credits.json', data);
 
 		return data;
 	}

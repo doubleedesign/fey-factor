@@ -273,21 +273,18 @@ export class DatabaseConnection {
 	async addOrUpdateMovie(work: Film) {
 		const response1 = await this.pgClient.query({
 			text: `INSERT INTO works(id, title, type) 
-					VALUES($1, $2, $3) 
-					ON CONFLICT (id) DO NOTHING
-					RETURNING id`,
+				VALUES($1, $2, $3) 
+				ON CONFLICT (id) DO NOTHING
+				`,
 			values: [work.id, work.name, 'FILM']
 		});
-		const workId = response1.rows[0]?.id;
 
 		const response2 = await this.pgClient.query({
 			text: `INSERT INTO movies(id, release_year)  
 				VALUES($1, $2)
-				ON CONFLICT (id) DO UPDATE
-					SET
-						release_year = COALESCE(NULLIF(movies.release_year, null), EXCLUDED.release_year, movies.release_year)
+				ON CONFLICT (id) DO NOTHING
 				`,
-			values: [work.id, work.release_year, workId]
+			values: [work.id, work.release_year]
 		});
 		if (response2.rowCount === 1) {
 			customConsole.success(`Successfully inserted or updated movie ${work.id}\t ${work.name}`);
@@ -314,9 +311,16 @@ export class DatabaseConnection {
 				values: [personId, workId, roleId, episodeCount]
 			});
 			if (response.rowCount === 1) {
-				customConsole.success(
-					`Successfully connected person ${personId} to work ${workId} with role ${roleId} for ${episodeCount} episodes`
-				);
+				if(episodeCount === null) {
+					customConsole.success(
+						`Successfully connected person ${personId} to movie ${workId} with role ${roleId}`
+					);
+				}
+				else {
+					customConsole.success(
+						`Successfully connected person ${personId} to work ${workId} with role ${roleId} for ${episodeCount} episodes`
+					);
+				}
 			}
 		}
 		catch (error) {

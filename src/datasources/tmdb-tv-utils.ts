@@ -1,5 +1,11 @@
-import { COMEDY_GENRE_ID, EXCLUDED_GENRE_IDS } from '../common.ts';
-import { PersonFormattedCredits, PersonMergedCredit, PersonMergedCredits, PersonRawCredits, PersonRoleSummary } from './types-person.ts';
+import { COMEDY_GENRE_ID, EXCLUDED_GENRE_IDS, START_YEAR } from '../common.ts';
+import {
+	PersonFormattedCredits,
+	PersonFormattedTVCredit,
+	PersonMergedCredit,
+	PersonMergedCredits,
+	PersonRawCredits,
+} from './types-person.ts';
 import { TmdbApi } from './tmdb-api.ts';
 import pkg from 'lodash';
 const { omit, pick, compact } = pkg;
@@ -14,10 +20,10 @@ export const tmdbTvData = {
 	filterCreditsByYearAndGenre: ({ id, cast, crew }: PersonRawCredits): PersonRawCredits => {
 		const includeCredit = (credit) => {
 			const timely =
-				// Shows that started in the last 20 years
-				new Date(credit.first_air_date).getFullYear() >= 2004
-				// or were running in the last 20 years even if they started earlier
-				|| new Date(credit?.last_air_date)?.getFullYear() >= 2004;
+				// Shows that started in the last x years
+				new Date(credit.first_air_date).getFullYear() >= START_YEAR
+				// or were running in the last x years even if they started earlier
+				|| new Date(credit?.last_air_date)?.getFullYear() >= START_YEAR;
 
 			return timely
 				&& credit.origin_country.includes('US')
@@ -57,7 +63,7 @@ export const tmdbTvData = {
 					roles: [...existing.roles, {
 						name: current.role,
 						type: current.type,
-						episode_count: current.episode_count
+						episode_count: (current as PersonFormattedTVCredit).episode_count
 					}]
 				});
 			}
@@ -67,7 +73,7 @@ export const tmdbTvData = {
 					roles: [{
 						name: current.role,
 						type: current.type,
-						episode_count: current.episode_count
+						episode_count: (current as PersonFormattedTVCredit).episode_count
 					}]
 				});
 			}

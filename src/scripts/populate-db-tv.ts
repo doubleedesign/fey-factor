@@ -4,8 +4,6 @@ import { db, customConsole, logToFile } from '../common.ts';
 import { TvShow } from '../database/types.ts';
 import { tmdbTvData } from '../datasources/tmdb-tv-utils.ts';
 import {
-	PersonFormattedFilmCredit,
-	PersonFormattedTVCredit,
 	PersonMergedCredit,
 	PersonMergedCredits,
 	PersonRoleSummary
@@ -17,6 +15,7 @@ import { PopulationScriptSettings } from './types.ts';
 
 class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 	cachedEpisodeCounts: { [key: string]: number };
+	RUN_TYPE = 'tv_shows';
 
 	constructor(settings: PopulationScriptSettings) {
 		super(settings);
@@ -30,9 +29,9 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 
 	async run() {
 		const showsInDb = await db.getAllTvShows();
-		showsInDb.forEach(show => this.worksAlreadyAdded.add(show.id));
+		showsInDb.length > 0 && showsInDb.forEach(show => this.worksAlreadyAdded.add(show.id));
 
-		await super.run();
+		await super.run(this.RUN_TYPE);
 	}
 
 
@@ -45,7 +44,7 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 	 * @return {Promise<number[]>} An array of show IDs to look up next
 	 */
 	async getAndProcessCreditsForPerson(personId: number, degree: number): Promise<number[]> {
-		if(this.peopleAlreadyAdded.has(personId)) {
+		if(this.peopleAlreadyAdded?.[this.RUN_TYPE]?.has(personId)) {
 			customConsole.warn(`Person ID ${personId} has already been processed, skipping.`, true);
 			return;
 		}
@@ -190,12 +189,11 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 	 * @return {Promise<number[]>} An array of person IDs to look up next
 	 */
 	async getAndProcessCreditsForWork(showId: number): Promise<number[]> {
+		const peopleIdsToReturn: number[] = [];
 		if(this.worksAlreadyAdded.has(showId)) {
 			customConsole.warn(`Show ID ${showId} has already been processed, skipping.`, true);
 			return;
 		}
-
-		const peopleIdsToReturn: number[] = [];
 
 		// Fetch and handle show details
 		const showDetails = await this.api.getTvShowDetails(showId);
@@ -230,7 +228,7 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 			// Crew members in included roles
 			// Note: Because someone can have multiple roles, but the format of the aggregate credits isn't ideal for processing that,
 			// their IDs are returned from here for processing but their inclusion gets decided based on cumulative episode count
-			// in the processTvShowsFromPerson() function
+			// in the getAndProcessCreditsForPerson function
 			const crewIds = showCredits.crew.filter(credit => {
 				return credit.jobs.some(job => this.includedRoles.includes(Case.snake(job.job)));
 			}).map(credit => credit.id);
@@ -243,12 +241,13 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 			logToFile(this.logFile, `Failed to fetch some data for show ID ${showId}, which may have impacted cast and crew inclusion.`);
 		}
 
-		return _.difference(_.uniq(peopleIdsToReturn), Array.from(this.peopleAlreadyAdded)) || [];
+		return _.uniq(peopleIdsToReturn);
 	}
 
 
 	/**
 	 * Utility function to handle adding a person and show to the database once it's been determined that they should be included
+	 * NOTE: This assumes TV show population is done from degree 0 and before movie population, so degree should not change.
 	 * @param personId
 	 * @param degree
 	 * @param workId
@@ -258,7 +257,7 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 	 */
 	async addPersonAndWorkToDatabase({ personId, degree, workId, workName }): Promise<void> {
 		// Add the person to the database if they don't already exist (because if we update them here their degree will be wrong)
-		if(!this.peopleAlreadyAdded.has(personId)) { // they were not added in this session
+		if(!this.peopleAlreadyAdded?.[this.RUN_TYPE]?.has(personId)) { // they were not added in this session
 			const personExists = await db.getPerson(personId); // ...and they also didn't already exist in the db
 			if (!personExists) {
 				const person = await this.api.getPersonDetails(personId);
@@ -269,11 +268,11 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 				});
 
 				// Record that is person has been added, so we don't add them again in this run
-				this.peopleAlreadyAdded.add(personId);
+				this.peopleAlreadyAdded[this.RUN_TYPE].add(personId);
 			}
 		}
 
-		if(!this.worksAlreadyAdded.has(workId)) {
+		if(!this.worksAlreadyAdded?.has(workId)) {
 			// Add the show to the db if we haven't already
 			// but don't add it to the array of shows that have been added, because it's not a full show object yet
 			await db.addOrUpdateTvShow({

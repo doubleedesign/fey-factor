@@ -49,6 +49,14 @@ async function getChoice() {
 				name: 'DANGER ZONE: Drop database without re-initialising',
 				value: 'reset',
 			},
+			{
+				name: 'Reset movie data',
+				value: 'reset-movies',
+			},
+			{
+				name: 'Reset TV data',
+				value: 'reset-tv',
+			},
 			new Separator(),
 			{
 				name: 'Exit',
@@ -87,6 +95,7 @@ async function start() {
 			default: 56323
 		},
 		// TODO: Add option to set database name
+		// TODO: Option to add start year/year range
 		{
 			type: 'input',
 			name: 'maxDegree',
@@ -138,6 +147,14 @@ async function start() {
 			case 'reset':
 				outputSeparator();
 				await resetDb();
+				break;
+			case 'reset-movies':
+				outputSeparator();
+				console.log(chalk.red('Not implemented yet.'));
+				break;
+			case 'reset-tv':
+				outputSeparator();
+				console.log(chalk.red('Not implemented yet.'));
 				break;
 			case 'exit':
 				outputSeparator();

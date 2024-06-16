@@ -6,12 +6,20 @@ import async from 'async';
 import _ from 'lodash';
 import { DataPopulatorCommon } from './DataPopulatorCommon.ts';
 
+type AddPersonAndWorkFields = {
+	personId: number;
+	degree: number;
+	workId: number;
+	workName: string;
+	releaseYear?: number;
+};
+
 // Fields/methods that must be implemented by child classes
 export interface DataPopulatorInterface {
-	run(): void;
+	run(RUN_TYPE: string): void;
 	getAndProcessCreditsForPerson(personId: number, degree: number): Promise<number[]>;
 	getAndProcessCreditsForWork(workId: number): Promise<number[]>;
-	addPersonAndWorkToDatabase({ personId, degree, workId, workName }): Promise<void>;
+	addPersonAndWorkToDatabase(data: AddPersonAndWorkFields): Promise<void>;
 }
 
 
@@ -26,13 +34,15 @@ export class DataPopulator extends DataPopulatorCommon implements DataPopulatorI
 	includedRoles: string[]; // Roles that are set in the database
 	// Keep a record of what's already been added, so we can check more efficiently than querying the db
 	worksAlreadyAdded: Set<number>;
-	peopleAlreadyAdded: Set<number>;
+	peopleAlreadyAdded: {
+		[key: string]: Set<number>,
+	};
 
 	constructor(settings: PopulationScriptSettings) {
 		super(settings);
 		this.roleIds = {}; // Role IDs for easy lookup. includedRoles can't be set here because it's async, so it's set in setup()
 		this.worksAlreadyAdded = new Set<number>();
-		this.peopleAlreadyAdded = new Set<number>();
+		this.peopleAlreadyAdded = {};
 		this.degree = 0;
 		this.maxDegree = settings.maxDegree;
 
@@ -46,14 +56,13 @@ export class DataPopulator extends DataPopulatorCommon implements DataPopulatorI
 		await super.setup();
 
 		this.includedRoles = (await db.getRoles()).map(role => Case.snake(role.name));
-		const peopleInDb = await db.getAllPeople();
-		peopleInDb.forEach(person => this.peopleAlreadyAdded.add(person.id));
 		// worksAlreadyAdded is populated by the child classes
 	}
 
-	async run() {
+	async run(RUN_TYPE: string) {
 		await this.setup();
 
+		this.peopleAlreadyAdded[RUN_TYPE] = new Set<number>();
 		let peopleIdsToProcessNext = [this.startPersonId];
 		let peopleProcessedCount = 0;
 
@@ -76,18 +85,22 @@ export class DataPopulator extends DataPopulatorCommon implements DataPopulatorI
 					return [];
 				}
 			}));
-			const workIdsToProcessNext: number[] = _.difference(_.uniq(workIds.flat()), Array.from(this.worksAlreadyAdded));
+			const workIdsToProcessNext: number[] = this.worksAlreadyAdded?.[RUN_TYPE]
+				? _.difference(_.uniq(workIds.flat()), Array.from(this.worksAlreadyAdded[RUN_TYPE]))
+				: _.uniq(workIds.flat());
 
 			customConsole.announce(
-				`${workIdsToProcessNext.length} shows to process at degree ${this.degree}.`, true
+				`${workIdsToProcessNext.length} ${Case.sentence(RUN_TYPE)} to process at degree ${this.degree}.`, true
 			);
 
-			const peopleIds = await async.mapSeries(workIdsToProcessNext, (async (showId: number) => {
-				const result = await this.getAndProcessCreditsForWork(showId);
-				customConsole.success(`Processed work ID ${showId}.\t Number of People IDs returned: ${result.length}`, true);
+			const peopleIds = await async.mapSeries(workIdsToProcessNext, (async (workId: number) => {
+				const result = await this.getAndProcessCreditsForWork(workId);
+				customConsole.success(`Processed work ID ${workId}.\t Number of People IDs returned: ${result?.length || 0}`, true);
 				return result;
 			}));
-			peopleIdsToProcessNext = _.difference(_.uniq(peopleIds.flat()), Array.from(this.peopleAlreadyAdded));
+			peopleIdsToProcessNext = this?.peopleAlreadyAdded?.[RUN_TYPE]
+				? _.difference(_.uniq(peopleIds.flat()), Array.from(this?.peopleAlreadyAdded?.[RUN_TYPE]))
+				: _.uniq(peopleIds.flat());
 
 			this.degree++;
 		}
@@ -104,7 +117,7 @@ export class DataPopulator extends DataPopulatorCommon implements DataPopulatorI
 			'This must be implemented by the child class you\'re using.');
 	}
 
-	addPersonAndWorkToDatabase({ personId, degree, workId, workName }): Promise<void> {
+	addPersonAndWorkToDatabase(data: AddPersonAndWorkFields): Promise<void> {
 		throw new Error('Method not implemented: addPersonAndWorkToDatabase. ' +
 			'This must be implemented by the child class you\'re using.');
 	}

@@ -24,14 +24,17 @@
 	// Note: Tests are not excluded here because if they are it messes up the syntax highlighting in WebStorm
 	"typechecker": {
 		"types": [
-			"PersonCastCredit", "PersonCrewCredit" ,"PersonFormattedCredit", "PersonMergedCredit",
+			"PersonCastCredit", "PersonCrewCredit" ,"PersonFormattedCredit",
+			"PersonMergedTVCredit", "PersonMergedFilmCredit", "PersonMergedCredit",
+			"PersonFormattedTVCredit", "PersonFormattedFilmCredit",
 			"PersonRawCredits", "PersonFormattedCredits", "PersonMergedCredits",
 			"ShowDetails", "ShowAggregateCredits",
 			"ShowCastCredit", "ShowCrewCredit",
 		],
 		"locations": [
 			"./src/datasources/types-person.ts",
-			"./src/datasources/types-show.ts"
+			"./src/datasources/types-show.ts",
+			"./src/datasources/types-film.ts",
 		]
 	}
 }
