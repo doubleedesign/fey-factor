@@ -55,8 +55,15 @@ class MoviePopulator extends DataPopulator implements DataPopulatorInterface {
 		// remembering that a person may have multiple roles within this movie, e.g., writer and director
 		await async.eachSeries(mergedCredits.credits, async (credit: PersonMergedCredit) => {
 			const includeAsCrew = credit.roles.some(role => this.includedRoles.includes(Case.snake(role.name)));
+			const continueFromCrew = credit.roles.some(role => {
+				return ['screenplay', 'director', 'producer', 'executive_producer', 'casting'].includes(Case.snake(role.name));
+			});
 			// TODO: Refine inclusion criteria and use/add to the tmbdTVData functions for this
-			const includeAsCast = credit.roles.some(role => role.type === 'cast' && role.order <= 12);
+			// include top 13 billed; this is a quick arbitrary choice
+			// based on Amy Poehler for original Mean Girls and Jon Hamm for the remake
+			const includeAsCast = credit.roles.some(role => role.type === 'cast' && role.order <= 13);
+			// continue the tree from the top 5
+			const continueFromCast = credit.roles.some(role => role.type === 'cast' && role.order <= 4);
 
 			if(includeAsCrew || includeAsCast) {
 				await this.addPersonAndWorkToDatabase({
@@ -75,7 +82,9 @@ class MoviePopulator extends DataPopulator implements DataPopulatorInterface {
 						count: null
 					});
 				});
+			}
 
+			if(continueFromCrew || continueFromCast) {
 				movieIdsToReturn.push(credit.id);
 			}
 
@@ -97,7 +106,7 @@ class MoviePopulator extends DataPopulator implements DataPopulatorInterface {
 	 * @param movieId
 	 */
 	async getAndProcessCreditsForWork(movieId: number): Promise<number[]> {
-		customConsole.info(`Processing movie ID ${movieId}.`, true);
+		customConsole.info(`Processing movie ID ${movieId}.`, false);
 		const peopleIdsToReturn: number[] = [];
 
 		// We shouldn't need to fetch movie details and immediately add/update them in the db here
@@ -109,12 +118,14 @@ class MoviePopulator extends DataPopulator implements DataPopulatorInterface {
 		const credits = await this.api.getFilmCredits(movieId);
 		if(credits) {
 			// Top 12 billed cast members
-			const relevantCastIds = credits.cast.length > 0 && credits.cast.filter(credit => credit.order <= 12).map(credit => credit.id);
+			const relevantCastIds = credits.cast
+				.filter(credit => credit.order <= 12)
+				.map(credit => credit.id) || [];
 
 			// Crew members in included roles
-			const crewIds = credits.crew.length > 0 && credits.crew.filter(credit => {
-				return this.includedRoles.includes(Case.snake(credit.job));
-			}).map(credit => credit.id);
+			const crewIds = credits.crew
+				.filter(credit => this.includedRoles.includes(Case.snake(credit.job)))
+				.map(credit => credit.id) || [];
 
 			peopleIdsToReturn.push(...relevantCastIds, ...crewIds);
 		}
