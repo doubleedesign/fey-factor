@@ -1,17 +1,19 @@
-import { DataPopulator, DataPopulatorInterface } from './DataPopulator.ts';
 import { db } from '../common.ts';
+import { PopulationScriptSettings } from './types.ts';
+import { DataPopulatorCommon } from './DataPopulatorCommon.ts';
 
-class Topper extends DataPopulator implements DataPopulatorInterface {
+class Topper extends DataPopulatorCommon {
 
-	constructor() {
-		super();
+	constructor(settings: PopulationScriptSettings) {
+		super(settings);
 	}
 
 	async run() {
-		super.runMessageQueue();
+		await super.setup();
+
 	}
 }
 
-export function topupDb({ count }) {
+export function topupDb({ count, ...settings }: PopulationScriptSettings & { count: number }) {
 
 }

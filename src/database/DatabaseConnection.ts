@@ -1,7 +1,7 @@
 import pg from 'pg';
 import chalk from 'chalk';
 import { Film, Person, TvShow } from './types.ts';
-import { customConsole, logToFile, wait } from '../common.ts';
+import { customConsole, logToFile } from '../common.ts';
 import { WriteStream, createWriteStream } from 'fs';
 
 const baseConfig = {
@@ -12,7 +12,7 @@ const baseConfig = {
 	password: 'root'
 };
 
-export class Database {
+export class DatabaseConnection {
 	dbName: string = 'feyfactor';
 	tempClient: pg.Pool = new pg.Pool(baseConfig); // No database selected
 	pgClient: pg.Pool; // Will be assigned with database selected
@@ -25,6 +25,7 @@ export class Database {
 		});
 		this.logFile = createWriteStream('./logs/database.log');
 	}
+
 
 	async createDatabase() {
 		const response = await this.tempClient.query(
@@ -98,12 +99,26 @@ export class Database {
 			console.log(chalk.yellow('People table already exists. Skipping.'));
 		}
 
+		if(!await this.tableExists('works')) {
+			console.log(chalk.cyan('Creating Works table...'));
+			await this.pgClient.query(`CREATE TABLE public.works
+	            (
+	                id             integer UNIQUE NOT NULL,
+	                title          varchar,
+	                type           varchar,
+		            PRIMARY KEY (id)
+	            );
+			`);
+		}
+		else {
+			console.log(chalk.yellow('Works table already exists. Skipping.'));
+		}
+
 		if(!await this.tableExists('tv_shows')) {
 			console.log(chalk.cyan('Creating TV Shows table...'));
 			await this.pgClient.query(`CREATE TABLE public.tv_shows
 	            (
-	                id             	integer UNIQUE NOT NULL,
-	                title          	varchar UNIQUE,
+                    id     			INTEGER UNIQUE NOT NULL REFERENCES works(id),
                 	start_year	    integer,
 	                end_year       	integer,
 	                season_count	integer,
@@ -114,6 +129,20 @@ export class Database {
 		}
 		else {
 			console.log(chalk.yellow('TV Shows table already exists. Skipping.'));
+		}
+
+		if(!await this.tableExists('movies')) {
+			console.log(chalk.cyan('Creating Movies table...'));
+			await this.pgClient.query(`CREATE TABLE public.movies
+	            (
+                    id     			INTEGER UNIQUE NOT NULL REFERENCES works(id),
+					release_year	integer,
+	                PRIMARY KEY (id)
+	            );
+			`);
+		}
+		else {
+			console.log(chalk.yellow('Movies table already exists. Skipping.'));
 		}
 
 		if(!await this.tableExists('roles')) {
@@ -130,14 +159,13 @@ export class Database {
 			console.log(chalk.yellow('Roles table already exists. Skipping.'));
 		}
 
-		// TODO: Account for movies
 		if (!await (this.tableExists('connections'))) {
 			console.log(chalk.cyan('Creating Connections table...'));
 			await this.pgClient.query(`CREATE TABLE public.connections
 	            (
 					id             	SERIAL PRIMARY KEY,
 	                person_id	  	integer NOT NULL REFERENCES people(id),
-	                work_id       	integer NOT NULL REFERENCES tv_shows(id),
+	                work_id       	integer NOT NULL REFERENCES works(id),
 	                role_id       	integer NOT NULL REFERENCES roles(id),
 	                episode_count	integer,
                     UNIQUE 			(person_id, work_id, role_id)
@@ -211,20 +239,28 @@ export class Database {
 
 	async addOrUpdateTvShow(work: TvShow) {
 		try {
-			const response = await this.pgClient.query({
-				text: `INSERT INTO tv_shows(id, title, start_year, end_year, season_count, episode_count)
-                    VALUES($1, $2, $3, $4, $5, $6)
+			const response1 = await this.pgClient.query({
+				text: `INSERT INTO works(id, title, type) 
+						VALUES($1, $2, $3) 
+						ON CONFLICT (id) DO NOTHING
+						RETURNING id`,
+				values: [work.id, work.name, 'TV']
+			});
+			const workId = response1.rows[0]?.id;
+
+			const response2 = await this.pgClient.query({
+				text: `INSERT INTO tv_shows(id, start_year, end_year, season_count, episode_count)  
+                    VALUES($1, $2, $3, $4, $5)
                     ON CONFLICT (id) DO UPDATE
                         SET
-                            title = COALESCE(NULLIF(tv_shows.title, null), EXCLUDED.title, tv_shows.title),
                             start_year = COALESCE(NULLIF(tv_shows.start_year, null), EXCLUDED.start_year, tv_shows.start_year),
                             end_year = COALESCE(NULLIF(tv_shows.end_year, null), EXCLUDED.end_year, tv_shows.end_year),
                             season_count = COALESCE(NULLIF(tv_shows.season_count, null), EXCLUDED.season_count, tv_shows.season_count),
                             episode_count = COALESCE(NULLIF(tv_shows.episode_count, null), EXCLUDED.episode_count, tv_shows.episode_count)
 					`,
-				values: [work.id, work.name, work.start_year, work.end_year, work.season_count, work.episode_count]
+				values: [work.id, work.start_year, work.end_year, work.season_count, work.episode_count]
 			});
-			if (response.rowCount === 1) {
+			if (response2.rowCount === 1) {
 				customConsole.success(`Successfully inserted or updated TV show ${work.id}\t ${work.name}`);
 			}
 		}
@@ -234,8 +270,37 @@ export class Database {
 		}
 	}
 
+	async addOrUpdateMovie(work: Film) {
+		const response1 = await this.pgClient.query({
+			text: `INSERT INTO works(id, title, type) 
+					VALUES($1, $2, $3) 
+					ON CONFLICT (id) DO NOTHING
+					RETURNING id`,
+			values: [work.id, work.name, 'FILM']
+		});
+		const workId = response1.rows[0]?.id;
+
+		const response2 = await this.pgClient.query({
+			text: `INSERT INTO movies(id, release_year)  
+				VALUES($1, $2)
+				ON CONFLICT (id) DO UPDATE
+					SET
+						release_year = COALESCE(NULLIF(movies.release_year, null), EXCLUDED.release_year, movies.release_year)
+				`,
+			values: [work.id, work.release_year, workId]
+		});
+		if (response2.rowCount === 1) {
+			customConsole.success(`Successfully inserted or updated movie ${work.id}\t ${work.name}`);
+		}
+	}
+
 	async getAllTvShows() {
 		const response = await this.pgClient.query('SELECT * FROM tv_shows');
+		return response.rows;
+	}
+
+	async getAllMovies() {
+		const response = await this.pgClient.query('SELECT * FROM movies');
 		return response.rows;
 	}
 

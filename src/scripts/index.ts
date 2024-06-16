@@ -2,11 +2,14 @@ import select, { Separator } from '@inquirer/select';
 import chalk from 'chalk';
 import { initDb } from './init-db.ts';
 import { resetDb } from './reset-db.ts';
-import { populateDb } from './populate-db.ts';
+import { populateDbTv } from './populate-db-tv.ts';
 import { db, customConsole, wait } from '../common.ts';
 import inquirer from 'inquirer';
 import { topupDb } from './topup-db.ts';
 import { gapFillDb } from './gapfill-db.ts';
+import { populateDbMovies } from './populate-db-movies.ts';
+import { PopulationScriptSettings } from './types.ts';
+
 
 function outputSeparator() {
 	console.log(chalk.magenta('\n==============================================='));
@@ -22,28 +25,28 @@ async function getChoice() {
 		message: 'What would you like to do?',
 		choices: [
 			{
-				name: 'Steps 1 and 2: Initialise and populate database (drops database if it already exists)',
-				value: 'reset-init-populate'
+				name: 'Step 1: Initialise empty database (drops database if it already exists)',
+				value: 'reset-init'
+			},
+			{
+				name: 'Step 2: Populate with initial TV show data',
+				value: 'populate-tv'
 			},
 			{
 				name: 'Step 3: Fill in missing TV show data after initial population',
 				value: 'gapfill',
 			},
 			{
-				name: 'Step 4: Top up database with complete data for top shows',
+				name: 'Step 4: Populate movie data',
+				value: 'populate-movies',
+			},
+			{
+				name: 'Step 5: Top up database with complete data for top TV shows',
 				value: 'top-up',
 			},
 			new Separator(),
 			{
-				name: 'Drop and re-initialise database',
-				value: 'reset-init',
-			},
-			{
-				name: 'Populate database that has already been initialised',
-				value: 'populate',
-			},
-			{
-				name: 'Drop database without re-initialising',
+				name: 'DANGER ZONE: Drop database without re-initialising',
 				value: 'reset',
 			},
 			new Separator(),
@@ -51,48 +54,12 @@ async function getChoice() {
 				name: 'Exit',
 				value: 'exit',
 			},
+			new Separator(),
 		],
 	});
 }
 
-async function doPopulate() {
-	const startPerson = await inquirer.prompt([
-		{
-			type: 'input',
-			name: 'id',
-			message: 'The Movie Database person ID to start from (default = Tina Fey):',
-			default: 56323
-		}
-	]);
-
-	const verboseLogging = await inquirer.prompt([
-		{
-			type: 'confirm',
-			name: 'verbose',
-			message: 'Use verbose logging?',
-			default: true
-		}
-	]);
-
-	customConsole.verbose = verboseLogging.verbose;
-	populateDb({ startPersonId: startPerson.id });
-}
-
-async function doGapFill() {
-	const verboseLogging = await inquirer.prompt([
-		{
-			type: 'confirm',
-			name: 'verbose',
-			message: 'Use verbose logging?',
-			default: true
-		}
-	]);
-
-	customConsole.verbose = verboseLogging.verbose;
-	gapFillDb();
-}
-
-async function doTopup() {
+async function doTvTopup(settings: PopulationScriptSettings & { count: number }) {
 	const numberOfShows = await inquirer.prompt([
 		{
 			type: 'input',
@@ -102,29 +69,46 @@ async function doTopup() {
 		}
 	]);
 
-	const verboseLogging = await inquirer.prompt([
-		{
-			type: 'confirm',
-			name: 'verbose',
-			message: 'Use verbose logging?',
-			default: true
-		}
-	]);
-
-	customConsole.verbose = verboseLogging.verbose;
-	topupDb({ count: numberOfShows.count });
+	topupDb({ count: numberOfShows.count, ...settings });
 }
 
 async function start() {
 	let answer = null;
 	outputSeparator();
 
+	console.log(chalk.yellow('If a success message appears after data population and then nothing seems to be happening, ' +
+		'press an arrow key. The menu will probably reappear then.'));
+
+	const settings = await inquirer.prompt([
+		{
+			type: 'input',
+			name: 'startPersonId',
+			message: 'The Movie Database person ID to start from:',
+			default: 56323
+		},
+		// TODO: Add option to set database name
+		{
+			type: 'input',
+			name: 'maxDegree',
+			message: 'Max degrees of separation to process:',
+			default: 2,
+		},
+		{
+			type: 'confirm',
+			name: 'verboseLogging',
+			message: 'Use verbose logging?',
+			default: true
+		}
+	]);
+
+	customConsole.verbose = settings.verboseLogging;
+
+
 	while (answer !== 'exit') {
 		answer = await getChoice();
 		switch (answer) {
 			case 'reset-init':
 			case 'reset-init-populate':
-				// TODO: Option to set db name here
 				// eslint-disable-next-line no-case-declarations
 				const dbExists = await db.databaseExists();
 				if (dbExists) {
@@ -134,25 +118,26 @@ async function start() {
 				else {
 					await initDb();
 				}
-				if (answer === 'reset-init-populate') {
-					await doPopulate();
-				}
+				break;
+			case 'populate-tv':
+				outputSeparator();
+				populateDbTv(settings);
+				break;
+			case 'populate-movies':
+				outputSeparator();
+				populateDbMovies(settings);
+				break;
+			case 'gapfill':
+				outputSeparator();
+				gapFillDb(settings);
+				break;
+			case 'top-up':
+				outputSeparator();
+				await doTvTopup(settings);
 				break;
 			case 'reset':
 				outputSeparator();
 				await resetDb();
-				break;
-			case 'populate':
-				outputSeparator();
-				await doPopulate();
-				break;
-			case 'gapfill':
-				outputSeparator();
-				await doGapFill();
-				break;
-			case 'top-up':
-				outputSeparator();
-				await doTopup();
 				break;
 			case 'exit':
 				outputSeparator();
