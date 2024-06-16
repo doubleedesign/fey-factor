@@ -1,14 +1,14 @@
+import inquirer from 'inquirer';
 import select, { Separator } from '@inquirer/select';
 import chalk from 'chalk';
-import { initDb } from './init-db.ts';
-import { resetDb } from './reset-db.ts';
-import { populateDbTv } from './populate-db-tv.ts';
-import { db, customConsole, wait } from '../common.ts';
-import inquirer from 'inquirer';
-import { topupDb } from './topup-db.ts';
-import { gapFillDb } from './gapfill-db.ts';
-import { populateDbMovies } from './populate-db-movies.ts';
-import { PopulationScriptSettings } from './types.ts';
+import { initDb } from './scripts/init-db.ts';
+import { resetDb } from './scripts/reset-db.ts';
+import { populateDbTv } from './scripts/populate-db-tv.ts';
+import { db, customConsole, wait } from './common.ts';
+import { topupDb } from './scripts/topup-db.ts';
+import { gapFillDb } from './scripts/gapfill-db.ts';
+import { populateDbMovies } from './scripts/populate-db-movies.ts';
+import { PopulationScriptSettings } from './scripts/types.ts';
 
 
 function outputSeparator() {

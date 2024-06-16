@@ -16,7 +16,7 @@ This is fairly well tested in terms of functionality, but the inclusion criteria
 
 ### Setup
 ```bash
-cd data-builder
+cd builder
 npm install
 ```
 - Postgres settings in `src/database/DatabaseConnection.ts`

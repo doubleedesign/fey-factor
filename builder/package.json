@@ -1,11 +1,12 @@
 {
-	"name": "fey-factor",
+	"name": "fey-factor-data-builder",
 	"author": "Leesa Ward",
 	"version": "0.0.1",
+	"private": true,
 	"description": "",
 	"type": "module",
 	"scripts": {
-		"start": "node --trace-uncaught --loader ts-node/esm src/scripts/index.ts"
+		"start": "node --trace-uncaught --loader ts-node/esm src/index.ts"
 	},
 	"dependencies": {
 		"@types/async": "^3.2.24",
