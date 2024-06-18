@@ -9,6 +9,7 @@
 			"DOM", // required to make WebStorm colour console.log as a global, not a module
 			"DOM.Iterable",
 		],
+		"noImplicitAny": false,
 		"allowJs": false,
 		"skipLibCheck": true,
 		"esModuleInterop": true,
@@ -19,9 +20,13 @@
 	},
 	"include": [
 		"src",
-		"jest.setup.ts"
+		"jest.setup.ts",
+		// Note: Tests are not excluded in tsconfig because if they are it messes up the syntax highlighting in WebStorm
 	],
-	// Note: Tests are not excluded here because if they are it messes up the syntax highlighting in WebStorm
+	"ts-node": {
+		"esm": true,
+		"experimentalSpecifierResolution": "node",
+	},
 	"typechecker": {
 		"types": [
 			"PersonCastCredit", "PersonCrewCredit" ,"PersonFormattedCredit",

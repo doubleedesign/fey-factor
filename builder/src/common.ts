@@ -1,9 +1,9 @@
 import { WriteStream } from 'fs';
 import { DatabaseConnection } from './database/DatabaseConnection.ts';
-import { CustomConsole } from './utils/CustomConsole/CustomConsole.ts';
+import { CustomConsole, LoggingType } from './utils/CustomConsole/CustomConsole.ts';
 
 export const db = new DatabaseConnection();
-export const customConsole = new CustomConsole({ verbose: false, speed: 50 });
+export const customConsole = new CustomConsole({ speed: 100, style: LoggingType.PRETTY });
 
 export const COMEDY_GENRE_ID = 35; // themoviedb.org genre id
 export const EXCLUDED_GENRE_IDS = [

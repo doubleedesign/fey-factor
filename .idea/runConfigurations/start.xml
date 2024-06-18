@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="start" type="NodeJSConfigurationType" node-parameters="--loader ts-node/esm --trace-uncaught" path-to-js-file="src/scripts/index.ts" working-dir="$PROJECT_DIR$">
+  <configuration default="false" name="start" type="NodeJSConfigurationType" node-parameters="--import ./loader.mjs" path-to-js-file="src/index.ts" working-dir="$PROJECT_DIR$/builder">
     <method v="2" />
   </configuration>
 </component>
