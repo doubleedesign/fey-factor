@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { DataPopulator, DataPopulatorInterface } from './DataPopulator.ts';
 import { db, customConsole, logToFile } from '../common.ts';
 import { TvShow } from '../database/types.ts';
@@ -8,9 +7,10 @@ import {
 	PersonMergedCredits,
 	PersonRoleSummary
 } from '../datasources/types-person.ts';
+import { PopulationScriptSettings } from './types.ts';
+import _ from 'lodash';
 import Case from 'case';
 import async from 'async';
-import { PopulationScriptSettings } from './types.ts';
 
 
 class TVPopulator extends DataPopulator implements DataPopulatorInterface {
@@ -46,7 +46,7 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 	async getAndProcessCreditsForPerson(personId: number, degree: number): Promise<number[]> {
 		if(this.peopleAlreadyAdded?.[this.RUN_TYPE]?.has(personId)) {
 			customConsole.warn(`Person ID ${personId} has already been processed, skipping.`, true);
-			return;
+			return [];
 		}
 
 		const showIdsToReturn: number[] = [];
@@ -55,7 +55,7 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 		const credits = await this.api.getTvCreditsForPerson(personId);
 		if(!credits) {
 			customConsole.warn(`Failed to fetch credits for person ID ${personId}, skipping.`, true);
-			return;
+			return [];
 		}
 
 		const mergedCredits: PersonMergedCredits = tmdbTvData.filterFormatAndMergeCredits(credits);
@@ -74,7 +74,8 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 
 			// If the person had a cast role for at least 50% of the episodes, include it
 			// TODO: Refine inclusion criteria and use/add to the tmbdTVData functions for this
-			if (credit.roles.some(role => role.type === 'cast' && role.episode_count / cachedEpisodeCount >= 0.5)) {
+			// eslint-disable-next-line max-len
+			if (credit.roles.some(role => role.type === 'cast' && role.episode_count && (role?.episode_count / cachedEpisodeCount >= 0.5))) {
 				await this.addPersonAndWorkToDatabase({
 					personId,
 					degree: degree,
@@ -192,7 +193,7 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 		const peopleIdsToReturn: number[] = [];
 		if(this.worksAlreadyAdded.has(showId)) {
 			customConsole.warn(`Show ID ${showId} has already been processed, skipping.`, true);
-			return;
+			return [];
 		}
 
 		// Fetch and handle show details
@@ -213,7 +214,7 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 			this.cachedEpisodeCounts[showId?.toString()] = showDetails?.number_of_episodes;
 
 			// Include the creator in the returned IDs
-			showDetails.created_by.forEach(creator => peopleIdsToReturn.push(creator.id));
+			showDetails.created_by.forEach((creator: { id: number; }) => peopleIdsToReturn.push(creator.id));
 		}
 
 		// Fetch and handle aggregate credits
@@ -222,14 +223,14 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 		if(showCredits && episodeCount) {
 			// Cast members who meet inclusion criteria
 			const relevantCastIds = showCredits.cast
-				.filter(credit => tmdbTvData.doesCumulativeCreditCount(credit, episodeCount).inclusion)
-				.map(credit => credit.id);
+				.filter((credit: PersonMergedCredit) => tmdbTvData.doesCumulativeCreditCount(credit, episodeCount).inclusion)
+				.map((credit: PersonMergedCredit) => credit.id);
 
 			// Crew members in included roles
 			// Note: Because someone can have multiple roles, but the format of the aggregate credits isn't ideal for processing that,
 			// their IDs are returned from here for processing but their inclusion gets decided based on cumulative episode count
 			// in the getAndProcessCreditsForPerson function
-			const crewIds = showCredits.crew.filter(credit => {
+			const crewIds = showCredits.crew.filter((credit) => {
 				return credit.jobs.some(job => this.includedRoles.includes(Case.snake(job.job)));
 			}).map(credit => credit.id);
 
@@ -286,8 +287,10 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 }
 
 
-export function populateDbTv({ startPersonId, maxDegree }) {
+export function populateDbTv({ startPersonId, maxDegree }: PopulationScriptSettings) {
 	new TVPopulator({ startPersonId, maxDegree }).run().then(() => {
+		customConsole.stopAllProgressBars();
+		customConsole.logProgress('TV show population complete.');
 		customConsole.success('Initial TV show population complete.', true);
 	});
 }

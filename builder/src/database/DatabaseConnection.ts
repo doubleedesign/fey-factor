@@ -208,7 +208,7 @@ export class DatabaseConnection {
 				text: `INSERT INTO people(id, name, degree) 
 						VALUES($1, $2, $3) 
                         ON CONFLICT (id) DO UPDATE
-						SET degree = COALESCE(NULLIF(people.degree, null), EXCLUDED.degree, people.degree)
+							SET degree = EXCLUDED.degree
 					`,
 				values: [person.id, person.name, person.degree],
 			});
@@ -219,7 +219,7 @@ export class DatabaseConnection {
 			}
 		}
 		catch (error) {
-			customConsole.error(`addPerson error for ${person.id} ${person.name}:\t ${error}`);
+			customConsole.error(`addOrUpdatePerson error for ${person.id} ${person.name}:\t ${error}`);
 			logToFile(this.logFile, `addPerson ${person.id}\t\t ${error}`);
 		}
 	}
@@ -246,7 +246,6 @@ export class DatabaseConnection {
 						RETURNING id`,
 				values: [work.id, work.name, 'TV']
 			});
-			const workId = response1.rows[0]?.id;
 
 			const response2 = await this.pgClient.query({
 				text: `INSERT INTO tv_shows(id, start_year, end_year, season_count, episode_count)  

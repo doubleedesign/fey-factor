@@ -45,6 +45,7 @@ export class DataPopulator extends DataPopulatorCommon implements DataPopulatorI
 		this.peopleAlreadyAdded = {};
 		this.degree = 0;
 		this.maxDegree = settings.maxDegree;
+		this.includedRoles = [];
 
 		// Bind methods to the class instance so the properties above are available to them
 		this.setup = this.setup.bind(this);
@@ -65,18 +66,22 @@ export class DataPopulator extends DataPopulatorCommon implements DataPopulatorI
 		this.peopleAlreadyAdded[RUN_TYPE] = new Set<number>();
 		let peopleIdsToProcessNext = [this.startPersonId];
 		let peopleProcessedCount = 0;
+		let worksProcessedCount = 0;
+		customConsole.addProgressBar('degrees', this.maxDegree);
 
 		while(this.degree < this.maxDegree + 1) {
 			customConsole.announce(`${peopleIdsToProcessNext.length} people to process at degree ${this.degree}`, true);
+			customConsole.addProgressBar(`people[${this.degree}]`, peopleIdsToProcessNext.length);
 
-			// Sequentially process the credits for each person at the current degree
+			// Sequentially process the credits for each person at the current degree and get the work IDs
 			// Doing things synchronously helps reduce duplicate requests and makes it easier to track progress and debug issues
 			const workIds: number[][] = await async.mapSeries(peopleIdsToProcessNext, (async (personId: number) => {
 				try {
 					const result = await this.getAndProcessCreditsForPerson(personId, this.degree);
-					// eslint-disable-next-line max-len
-					customConsole.success(`Processed ${peopleProcessedCount + 1} of ${peopleIdsToProcessNext.length} at degree ${this.degree}\t (Person ID ${personId})\t Work IDs returned: ${result}`, true);
 					peopleProcessedCount++;
+					// eslint-disable-next-line max-len
+					customConsole.success(`Processed ${peopleProcessedCount} of ${peopleIdsToProcessNext.length} at degree ${this.degree}\t (Person ID ${personId})\t Work IDs returned: ${result}`, true);
+					customConsole.updateProgress(`people[${this.degree}]`, peopleProcessedCount);
 					return result;
 				}
 				catch (error) {
@@ -89,20 +94,26 @@ export class DataPopulator extends DataPopulatorCommon implements DataPopulatorI
 				? _.difference(_.uniq(workIds.flat()), Array.from(this.worksAlreadyAdded[RUN_TYPE]))
 				: _.uniq(workIds.flat());
 
-			customConsole.announce(
-				`${workIdsToProcessNext.length} ${Case.sentence(RUN_TYPE)} to process at degree ${this.degree}.`, true
-			);
+
+			// Work IDs have been gathered, now process them and get the next level of people IDs
+			customConsole.announce(`${workIdsToProcessNext.length} ${Case.sentence(RUN_TYPE)} to process at degree ${this.degree}.`, true);
+			customConsole.addProgressBar(`${RUN_TYPE}[${this.degree}]`, workIdsToProcessNext.length);
 
 			const peopleIds = await async.mapSeries(workIdsToProcessNext, (async (workId: number) => {
 				const result = await this.getAndProcessCreditsForWork(workId);
+				worksProcessedCount++;
 				customConsole.success(`Processed work ID ${workId}.\t Number of People IDs returned: ${result?.length || 0}`, true);
+				customConsole.updateProgress(`${RUN_TYPE}[${this.degree}]`, worksProcessedCount);
 				return result;
 			}));
 			peopleIdsToProcessNext = this?.peopleAlreadyAdded?.[RUN_TYPE]
 				? _.difference(_.uniq(peopleIds.flat()), Array.from(this?.peopleAlreadyAdded?.[RUN_TYPE]))
 				: _.uniq(peopleIds.flat());
 
+			// We're done at this degree
 			this.degree++;
+			customConsole.updateProgress('degrees', this.degree);
+			customConsole.logProgress(`Processed ${peopleProcessedCount} people and ${worksProcessedCount} ${Case.sentence(RUN_TYPE)} at degree ${this.degree - 1}.`);
 		}
 	}
 

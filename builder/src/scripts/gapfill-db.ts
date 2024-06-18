@@ -68,6 +68,7 @@ export class GapFiller extends DataPopulatorCommon {
              	WHERE connections.episode_count is NULL
 		`);
 		const showIds = shows.rows.map(show => show.work_id);
+		customConsole.addProgressBar('gap_filling', showIds.length);
 
 		// For each show, get the total episode count and update the creator connection to use that
 		await async.eachSeries(showIds, async showId => {
@@ -81,6 +82,7 @@ export class GapFiller extends DataPopulatorCommon {
 				});
 
 				updated++;
+				customConsole.updateProgress('gap_filling', updated);
 			}
 			else {
 				customConsole.warn(`Could not find episode count for show ${showId} in database, querying API...`);
@@ -102,6 +104,7 @@ export class GapFiller extends DataPopulatorCommon {
 					});
 
 					updated++;
+					customConsole.updateProgress('gap_filling', updated);
 				}
 				else {
 					customConsole.error(`Could not find episode count for show ${showId}.`);
@@ -116,7 +119,9 @@ export class GapFiller extends DataPopulatorCommon {
 
 export function gapFillDb(settings: PopulationScriptSettings) {
 	new GapFiller(settings).run().then(updated => {
+		customConsole.stopAllProgressBars();
 		customConsole.success(`Gaps filled for ${updated.showsUpdated} shows.`, true);
 		customConsole.success(`${updated.creatorRolesFixed} creator episode counts fixed.`, true);
+		customConsole.logProgress(`Gap filled for ${updated.showsUpdated} shows. ${updated.creatorRolesFixed} creator episode counts fixed.`);
 	});
 }

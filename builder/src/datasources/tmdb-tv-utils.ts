@@ -1,16 +1,14 @@
 import { COMEDY_GENRE_ID, EXCLUDED_GENRE_IDS, START_YEAR } from '../common.ts';
 import {
+	PersonFormattedCredit,
 	PersonFormattedCredits,
 	PersonFormattedTVCredit,
 	PersonMergedCredit,
 	PersonMergedCredits,
 	PersonRawCredits,
 } from './types-person.ts';
-import { TmdbApi } from './tmdb-api.ts';
 import pkg from 'lodash';
-const { omit, pick, compact } = pkg;
-
-const api = new TmdbApi();
+const { omit, pick } = pkg;
 
 /**
  * Functions to process data fetched from the TMDB API
@@ -55,12 +53,12 @@ export const tmdbTvData = {
 	},
 
 	mergeFormattedCredits: ({ id, cast, crew }: PersonFormattedCredits): PersonMergedCredits => {
-		const merged: PersonMergedCredit[] = [...cast, ...crew].reduce((acc, current) => {
-			const existing = acc.find(item => item.id === current.id);
+		const merged: PersonMergedCredit[] = [...cast, ...crew].reduce((acc: PersonMergedCredit[], current: PersonFormattedCredit) => {
+			const existing: PersonMergedCredit | undefined = acc.find((item: PersonMergedCredit) => item.id === current.id);
 			if (existing) {
 				Object.assign(existing, {
 					...omit(current, ['role', 'episode_count', 'type']),
-					roles: [...existing.roles, {
+					roles: [...(existing as PersonMergedCredit).roles, {
 						name: current.role,
 						type: current.type,
 						episode_count: (current as PersonFormattedTVCredit).episode_count
@@ -75,7 +73,7 @@ export const tmdbTvData = {
 						type: current.type,
 						episode_count: (current as PersonFormattedTVCredit).episode_count
 					}]
-				});
+				} as PersonMergedCredit);
 			}
 			return acc;
 		}, []);
@@ -107,7 +105,7 @@ export const tmdbTvData = {
 	 * @returns object
 	 */
 	doesCumulativeCreditCount(credit: PersonMergedCredit, showEpisodeCount: number) {
-		const count = credit.roles.reduce((acc, role) => acc + role.episode_count, 0);
+		const count = credit.roles.reduce((acc, role) => acc + (role?.episode_count || 0), 0);
 		return {
 			inclusion: count / showEpisodeCount >= 0.25, // At least 25% of episodes
 			continuation: count / showEpisodeCount >= 0.5 // At least 50% of episodes

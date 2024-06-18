@@ -7,7 +7,7 @@ import { customConsole } from '../common.ts';
  * Top-level parent class for all data population script classes.
  */
 export class DataPopulatorCommon {
-	api = undefined;
+	api: TmdbApi;
 	logFile: WriteStream;
 	startPersonId: number;
 
@@ -30,15 +30,19 @@ export class DataPopulatorCommon {
 	 * NOTE: Using this custom logging in non-verbose mode means console messages are often far behind the actual processing status.
 	 */
 	runMessageQueue() {
-		if(!customConsole.verbose) {
+		if(customConsole.style === 'pretty') {
 			customConsole.warn('\nImportant warning: This custom console logging is designed for a human watching it, ' +
 				'with artificial delays to make it readable. This means it runs far behind the actual processing status.' +
 				'\nFor a more accurate view of the process, set `verbose` to true in the runMessageQueue() call.' +
 				'\nThis will log directly to the console without delays, and ignores persistent/transient message status.', true);
 		}
-		else {
+		else if(customConsole.style === 'verbose') {
 			customConsole.warn('\nRunning console logging in verbose mode.' +
 				'\nLogging will be instant and persistent/transient message status will be ignored.', true);
+		}
+		else if(customConsole.style === 'progress') {
+			customConsole.warn('\nRunning console logging in progress mode.' +
+				'\nOnly progress bars will be displayed, and all other messages will be ignored.', true);
 		}
 
 		setInterval(async () => {

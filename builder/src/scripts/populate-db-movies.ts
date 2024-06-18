@@ -1,9 +1,9 @@
 import { DataPopulator, DataPopulatorInterface } from './DataPopulator.ts';
 import { customConsole, db, logToFile } from '../common.ts';
 import { PopulationScriptSettings } from './types.ts';
-import async from 'async';
 import { PersonMergedCredit, PersonMergedCredits, PersonMergedFilmCredit } from '../datasources/types-person.ts';
 import { tmdbFilmData } from '../datasources/tmdb-film-utils.ts';
+import async from 'async';
 import Case from 'case';
 import _ from 'lodash';
 
@@ -162,12 +162,14 @@ class MoviePopulator extends DataPopulator implements DataPopulatorInterface {
 			// Record that is person has been added, so we don't add them again in this run
 			this.peopleAlreadyAdded[this.RUN_TYPE].add(personId);
 		}
-		else if(personExists && personExists.degree > this.degree) {
+		else if(personExists && personExists.degree > degree) {
 			await db.addOrUpdatePerson({
 				id: personId,
 				name: personExists.name,
-				degree: this.degree
+				degree: degree
 			});
+
+			customConsole.info(`Updating degree for ${personId} ${personExists.name} from ${personExists.degree} to ${degree}.`, true);
 
 			// Record that is person has been added, so we don't add them again in this run
 			this.peopleAlreadyAdded[this.RUN_TYPE].add(personId);
@@ -188,6 +190,8 @@ class MoviePopulator extends DataPopulator implements DataPopulatorInterface {
 
 export function populateDbMovies({ startPersonId, maxDegree }) {
 	new MoviePopulator({ startPersonId, maxDegree }).run().then(() => {
+		customConsole.stopAllProgressBars();
 		customConsole.success('Movie population complete.');
+		customConsole.logProgress('Movie population complete.');
 	});
 }

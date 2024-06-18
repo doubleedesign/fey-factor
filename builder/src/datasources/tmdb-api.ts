@@ -14,11 +14,11 @@ export class TmdbApi {
 	logFile: WriteStream;
 
 	constructor() {
-		this.authToken = process.env.TMDB_AUTH_TOKEN;
+		this.authToken = process.env.TMDB_AUTH_TOKEN as string;
 		this.logFile = createWriteStream('./logs/tmdb-api.log');
 	}
 
-	async makeRequest(url: string, method: string, data?: any, useCached = true) {
+	async makeRequest(url: string, method: string, data?: unknown, useCached = true) {
 		// If data is cached in a JSON file in src/cache, use that
 		const cachePath = this.getCachedFilePath(url);
 		if(useCached && existsSync(cachePath)) {
@@ -28,8 +28,8 @@ export class TmdbApi {
 				return JSON.parse(data);
 			}
 			catch (error) {
-				customConsole.error(`Error reading cached data from ${cachePath}: ${error.message}`);
-				logToFile(this.logFile, `Error reading cached data from ${cachePath}: ${error.message}`);
+				customConsole.error(`Error reading cached data from ${cachePath}: ${(error as Error).message}`);
+				logToFile(this.logFile, `Error reading cached data from ${cachePath}: ${(error as Error).message}`);
 				// Assume file is dodgy and delete it
 				unlinkSync(cachePath);
 

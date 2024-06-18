@@ -1,14 +1,15 @@
 import inquirer from 'inquirer';
 import select, { Separator } from '@inquirer/select';
 import chalk from 'chalk';
+import { db, customConsole, wait } from './common.ts';
 import { initDb } from './scripts/init-db.ts';
 import { resetDb } from './scripts/reset-db.ts';
 import { populateDbTv } from './scripts/populate-db-tv.ts';
-import { db, customConsole, wait } from './common.ts';
 import { topupDb } from './scripts/topup-db.ts';
 import { gapFillDb } from './scripts/gapfill-db.ts';
 import { populateDbMovies } from './scripts/populate-db-movies.ts';
 import { PopulationScriptSettings } from './scripts/types.ts';
+import { LoggingType } from './utils/CustomConsole/CustomConsole.ts';
 
 
 function outputSeparator() {
@@ -17,8 +18,8 @@ function outputSeparator() {
 
 async function getChoice() {
 	await customConsole.waitForQueue();
-	customConsole.info('\n', true);
 	await wait(1000);
+	customConsole.clearConsole();
 	outputSeparator();
 
 	return select({
@@ -77,11 +78,11 @@ async function doTvTopup(settings: PopulationScriptSettings & { count: number })
 		}
 	]);
 
-	topupDb({ count: numberOfShows.count, ...settings });
+	topupDb({ ...settings, count: numberOfShows.count });
 }
 
 async function start() {
-	let answer = null;
+	let answer = '';
 	outputSeparator();
 
 	console.log(chalk.yellow('If a success message appears after data population and then nothing seems to be happening, ' +
@@ -102,19 +103,31 @@ async function start() {
 			message: 'Max degrees of separation to process:',
 			default: 2,
 		},
-		{
-			type: 'confirm',
-			name: 'verboseLogging',
-			message: 'Use verbose logging?',
-			default: true
-		}
 	]);
 
-	customConsole.verbose = settings.verboseLogging;
+	const loggingStyle: LoggingType = await select({
+		message: 'Logging style:',
+		choices: [
+			{
+				name: 'Verbose',
+				value: LoggingType.VERBOSE
+			},
+			{
+				name: 'Pretty/transient',
+				value: LoggingType.PRETTY
+			},
+			{
+				name: 'Progress bars',
+				value: LoggingType.PROGRESS
+			}
+		]
+	});
 
+	customConsole.style = loggingStyle;
 
 	while (answer !== 'exit') {
 		answer = await getChoice();
+		customConsole.clearConsole();
 		switch (answer) {
 			case 'reset-init':
 			case 'reset-init-populate':
@@ -163,4 +176,5 @@ async function start() {
 	}
 }
 
+outputSeparator();
 await start();
