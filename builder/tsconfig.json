@@ -32,6 +32,7 @@
 			"PersonCastCredit", "PersonCrewCredit" ,"PersonFormattedCredit",
 			"PersonMergedTVCredit", "PersonMergedFilmCredit", "PersonMergedCredit",
 			"PersonFormattedTVCredit", "PersonFormattedFilmCredit",
+			"PersonTVRoleSummary", "PersonFilmRoleSummary", "PersonRoleSummary",
 			"PersonRawCredits", "PersonFormattedCredits", "PersonMergedCredits",
 			"ShowDetails", "ShowAggregateCredits",
 			"ShowCastCredit", "ShowCrewCredit",

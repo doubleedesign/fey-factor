@@ -12,7 +12,8 @@ type PersonTVCommon = PersonCreditCommon & {
 }
 
 type PersonFilmCommon = PersonCreditCommon & {
-	release_year: string;
+	release_year?: string;
+	order?: number; // crew roles only; TODO this could probably be improved given it's the "common" type
 }
 
 /**
@@ -70,12 +71,17 @@ export type PersonMergedFilmCredit = PersonCreditCommon & PersonFilmCommon & {
 }
 export type PersonMergedCredit = PersonMergedTVCredit | PersonMergedFilmCredit;
 
-export type PersonRoleSummary = {
+export type PersonRoleSummaryCommon = {
 	name: string;
 	type?: 'cast' | 'crew';
+}
+export type PersonTVRoleSummary = PersonRoleSummaryCommon & {
 	episode_count?: number; // Person's episode count for the role in a TV show
+}
+export type PersonFilmRoleSummary = PersonRoleSummaryCommon & {
 	order?: number; // Position of the person in the film cast list, where top billing is 0
 }
+export type PersonRoleSummary = PersonTVRoleSummary | PersonFilmRoleSummary;
 
 /**
  * All merged cast and crew credits for a person

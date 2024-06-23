@@ -34,7 +34,7 @@
 		"max-len": [
 			"warn",
 			{
-				"comments": 140,
+				"comments": 160,
 				"code": 140,
 				"tabWidth": 4
 			}

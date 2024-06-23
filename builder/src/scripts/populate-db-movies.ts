@@ -52,20 +52,11 @@ class MoviePopulator extends DataPopulator implements DataPopulatorInterface {
 		const mergedCredits: PersonMergedCredits = tmdbFilmData.filterFormatAndMergeCredits(credits);
 
 		// Loop through each credit (which here, is a movie)
-		// remembering that a person may have multiple roles within this movie, e.g., writer and director
+		// remembering that a person may have multiple roles within this movie, e.g., writer and director, director and producer
 		await async.eachSeries(mergedCredits.credits, async (credit: PersonMergedCredit) => {
-			const includeAsCrew = credit.roles.some(role => this.includedRoles.includes(Case.snake(role.name)));
-			const continueFromCrew = credit.roles.some(role => {
-				return ['screenplay', 'director', 'producer', 'executive_producer', 'casting'].includes(Case.snake(role.name));
-			});
-			// TODO: Refine inclusion criteria and use/add to the tmbdTVData functions for this
-			// include top 13 billed; this is a quick arbitrary choice
-			// based on Amy Poehler for original Mean Girls and Jon Hamm for the remake
-			const includeAsCast = credit.roles.some(role => role.type === 'cast' && role.order <= 13);
-			// continue the tree from the top 5
-			const continueFromCast = credit.roles.some(role => role.type === 'cast' && role.order <= 4);
+			const doesItCount = tmdbFilmData.doesItCount(credit, this.includedRoles);
 
-			if(includeAsCrew || includeAsCast) {
+			if(doesItCount.crew.include || doesItCount.cast.include) {
 				await this.addPersonAndWorkToDatabase({
 					personId,
 					degree,
@@ -84,15 +75,8 @@ class MoviePopulator extends DataPopulator implements DataPopulatorInterface {
 				});
 			}
 
-			if(continueFromCrew || continueFromCast) {
+			if(doesItCount.cast.continue || doesItCount.crew.continue) {
 				movieIdsToReturn.push(credit.id);
-			}
-
-			// Probably do not need to do anything else here as long as the person had no more than 1 cast roles,
-			// but let's see if there's any cases of multiple
-			if(credit.roles.filter(role => role.type === 'cast').length > 1) {
-				customConsole.warn(`Person ID ${personId} has multiple cast roles in movie ${credit.id} ${credit.name}.`, true);
-				logToFile(this.logFile, `Person ID ${personId} has multiple cast roles in movie ${credit.id} ${credit.name}.`);
 			}
 		});
 
@@ -168,8 +152,6 @@ class MoviePopulator extends DataPopulator implements DataPopulatorInterface {
 				name: personExists.name,
 				degree: degree
 			});
-
-			customConsole.info(`Updating degree for ${personId} ${personExists.name} from ${personExists.degree} to ${degree}.`, true);
 
 			// Record that is person has been added, so we don't add them again in this run
 			this.peopleAlreadyAdded[this.RUN_TYPE].add(personId);

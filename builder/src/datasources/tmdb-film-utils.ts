@@ -1,5 +1,13 @@
-import { PersonFormattedCredits, PersonFormattedFilmCredit, PersonMergedCredits, PersonRawCredits } from './types-person.ts';
+import {
+	PersonFilmRoleSummary,
+	PersonFormattedCredits,
+	PersonFormattedFilmCredit,
+	PersonMergedCredit,
+	PersonMergedCredits,
+	PersonRawCredits
+} from './types-person.ts';
 import { COMEDY_GENRE_ID, EXCLUDED_GENRE_IDS, START_YEAR } from '../common.ts';
+import Case from 'case';
 import pkg from 'lodash';
 const { pick } = pkg;
 
@@ -27,7 +35,7 @@ export const tmdbFilmData = {
 	formatCredits({ id, cast, crew }: PersonRawCredits): PersonFormattedCredits {
 		const formatCredit = (credit) => {
 			return {
-				...pick(credit, ['id']),
+				...pick(credit, ['id', 'order']),
 				name: credit.title,
 				release_year: new Date(credit.release_date).getFullYear().toString(),
 				role: credit.character || credit.job,
@@ -47,19 +55,21 @@ export const tmdbFilmData = {
 			const existing = acc.find(item => item.id === current.id);
 			if (existing) {
 				Object.assign(existing, {
-					...current,
+					...pick(current, ['id', 'name', 'release_year']),
 					roles: [...existing.roles, {
 						name: current.role,
 						type: current.type,
+						order: (current as PersonFormattedFilmCredit)?.order
 					}]
 				});
 			}
 			else {
 				acc.push({
-					...current,
+					...pick(current, ['id', 'name', 'release_year']),
 					roles: [{
 						name: current.role,
-						type: current.type
+						type: current.type,
+						order: (current as PersonFormattedFilmCredit)?.order
 					}]
 				});
 			}
@@ -77,5 +87,20 @@ export const tmdbFilmData = {
 		const formatted = tmdbFilmData.formatCredits(filtered);
 
 		return tmdbFilmData.mergeFormattedCredits(formatted);
-	}
+	},
+
+	doesItCount(credit: PersonMergedCredit, includedCrewRoles: string[]) {
+		return {
+			crew: {
+				include: credit.roles.some(role => includedCrewRoles.includes(Case.snake(role.name))),
+				continue: credit.roles.some(role => ['screenplay', 'director'].includes(Case.snake(role.name))),
+			},
+			cast: {
+				// include top 13 billed; this is a quick arbitrary choice based on Amy Poehler for original Mean Girls and Jon Hamm for the remake
+				include: credit.roles.some(role => role.type === 'cast' && (role as PersonFilmRoleSummary).order <= 13),
+				// continue the tree from the top 5
+				continue: credit.roles.some(role => role.type === 'cast' && (role as PersonFilmRoleSummary).order <= 4)
+			}
+		};
+	},
 };
