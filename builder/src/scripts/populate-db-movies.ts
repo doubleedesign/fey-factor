@@ -54,7 +54,7 @@ class MoviePopulator extends DataPopulator implements DataPopulatorInterface {
 		// Loop through each credit (which here, is a movie)
 		// remembering that a person may have multiple roles within this movie, e.g., writer and director, director and producer
 		await async.eachSeries(mergedCredits.credits, async (credit: PersonMergedCredit) => {
-			const doesItCount = tmdbFilmData.doesItCount(credit, this.includedRoles);
+			const doesItCount = tmdbFilmData.doesItCount(credit, this.includedRoles, degree);
 
 			if(doesItCount.crew.include || doesItCount.cast.include) {
 				await this.addPersonAndWorkToDatabase({
@@ -69,7 +69,7 @@ class MoviePopulator extends DataPopulator implements DataPopulatorInterface {
 					await this.connect({
 						personId: personId,
 						workId: credit.id,
-						roleName: role.name,
+						roleName: role.type === 'cast' ? 'cast' : role.name,
 						count: null
 					});
 				});

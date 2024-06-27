@@ -5,7 +5,7 @@ import { tmdbTvData } from '../datasources/tmdb-tv-utils.ts';
 import {
 	PersonMergedCredit,
 	PersonMergedCredits,
-	PersonRoleSummary
+	PersonRoleSummary, PersonTVRoleSummary
 } from '../datasources/types-person.ts';
 import { PopulationScriptSettings } from './types.ts';
 import _ from 'lodash';
@@ -75,7 +75,7 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 			// If the person had a cast role for at least 50% of the episodes, include it
 			// TODO: Refine inclusion criteria and use/add to the tmbdTVData functions for this
 			// eslint-disable-next-line max-len
-			if (credit.roles.some(role => role.type === 'cast' && role.episode_count && (role?.episode_count / cachedEpisodeCount >= 0.5))) {
+			if (credit.roles.some((role: PersonTVRoleSummary) => role.type === 'cast' && role.episode_count && (role?.episode_count / cachedEpisodeCount >= 0.5))) {
 				await this.addPersonAndWorkToDatabase({
 					personId,
 					degree: degree,
@@ -84,12 +84,12 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 				});
 
 				// Connect the person to the show with the appropriate role ID(s) and role-based episode counts for all roles they had
-				await async.eachSeries(credit.roles, async (role) => {
+				await async.eachSeries(credit.roles, async (role: PersonTVRoleSummary) => {
 					await this.connect({
 						personId: personId,
 						workId: credit.id,
-						roleName: role.name,
-						count: role.episode_count
+						roleName: role.type === 'cast' ? 'cast' : role.name,
+						count: role?.episode_count
 					});
 				});
 
@@ -115,7 +115,7 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 					});
 
 					// Connect the person to the show with the appropriate role IDs for the auto-included roles
-					await async.eachSeries(autoIncludedRoles, async (role) => {
+					await async.eachSeries(autoIncludedRoles, async (role: PersonTVRoleSummary) => {
 						// Some roles have their own episode count, but others such as Creator do not
 						// and should inherit the show's episode count
 						let episodeCountToUse = Number(role?.episode_count) && role.episode_count;
@@ -127,18 +127,18 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 						await this.connect({
 							personId: personId,
 							workId: credit.id,
-							roleName: role.name,
+							roleName: role.type === 'cast' ? 'cast' : role.name,
 							count: episodeCountToUse
 						});
 					});
 
 					// Add their other roles to the db
 					if(otherRoles.length > 0) {
-						await async.eachSeries(otherRoles, async (role) => {
+						await async.eachSeries(otherRoles, async (role: PersonTVRoleSummary) => {
 							await this.connect({
 								personId: personId,
 								workId: credit.id,
-								roleName: role.name,
+								roleName: role.type === 'cast' ? 'cast' : role.name,
 								count: role.episode_count
 							});
 						});
@@ -165,8 +165,8 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 							await this.connect({
 								personId: personId,
 								workId: credit.id,
-								roleName: role.name,
-								count: role.episode_count
+								roleName: role.type === 'cast' ? 'cast' : role.name,
+								count: (role as PersonTVRoleSummary)?.episode_count
 							});
 						}
 					}

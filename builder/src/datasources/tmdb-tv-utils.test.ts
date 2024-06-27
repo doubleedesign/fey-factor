@@ -29,7 +29,7 @@ describe('TV data processing', () => {
 		});
 	});
 
-	describe('With Tina Fey\'s real credits', () => {
+	describe('Tina Fey\'s real credits', () => {
 		const filtered = tmdbTvData.filterCreditsByYearAndGenre(tinaFey);
 		const formatted = tmdbTvData.formatCredits(filtered);
 		const merged = tmdbTvData.mergeFormattedCredits(formatted);

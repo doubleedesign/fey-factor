@@ -89,17 +89,29 @@ export const tmdbFilmData = {
 		return tmdbFilmData.mergeFormattedCredits(formatted);
 	},
 
-	doesItCount(credit: PersonMergedCredit, includedCrewRoles: string[]) {
+	doesItCount(credit: PersonMergedCredit, includedCrewRoles: string[], degree: number) {
 		return {
 			crew: {
 				include: credit.roles.some(role => includedCrewRoles.includes(Case.snake(role.name))),
-				continue: credit.roles.some(role => ['screenplay', 'director'].includes(Case.snake(role.name))),
+				continue: credit.roles.some(role => ['screenplay'].includes(Case.snake(role.name))),
 			},
 			cast: {
-				// include top 13 billed; this is a quick arbitrary choice based on Amy Poehler for original Mean Girls and Jon Hamm for the remake
-				include: credit.roles.some(role => role.type === 'cast' && (role as PersonFilmRoleSummary).order <= 13),
-				// continue the tree from the top 5
-				continue: credit.roles.some(role => role.type === 'cast' && (role as PersonFilmRoleSummary).order <= 4)
+
+				include: credit.roles.some(role => {
+					// include top 13 billed for degrees 0-1;
+					// this is a quick arbitrary choice based on Amy Poehler for original Mean Girls and Jon Hamm for the remake
+					return degree < 2
+						? role.type === 'cast' && (role as PersonFilmRoleSummary).order <= 13
+						// I was getting too many results, so reduced the criteria for degrees > 1 to the top 5
+						: role.type === 'cast' && (role as PersonFilmRoleSummary).order <= 4;
+				}),
+				continue: credit.roles.some(role => {
+					return degree < 2
+						// Top 5 billed cast members for degrees 0-1
+						? role.type === 'cast' && (role as PersonFilmRoleSummary).order <= 4
+						// Top 2 billed cast members for degrees > 1 because I was getting too many results otherwise
+						: role.type === 'cast' && (role as PersonFilmRoleSummary).order <= 1;
+				})
 			}
 		};
 	},

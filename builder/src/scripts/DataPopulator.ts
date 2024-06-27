@@ -151,5 +151,8 @@ export class DataPopulator extends DataPopulatorCommon implements DataPopulatorI
 			// Add the role to the local store for future lookups
 			this.roleIds[roleName] = roleId;
 		}
+		else {
+			customConsole.warn(`Failed to find role ID for ${roleName} in the database.`, true);
+		}
 	}
 }

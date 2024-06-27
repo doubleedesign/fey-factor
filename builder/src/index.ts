@@ -38,8 +38,8 @@ async function getChoice() {
 				value: 'gapfill',
 			},
 			{
-				name: 'Step 4: Populate movie data',
-				value: 'populate-movies',
+				name: 'Step 4: Populate movie data for degree 0-1 only',
+				value: 'populate-movies-degree-1',
 			},
 			{
 				name: 'Step 5: Top up database with complete data for top TV shows',
@@ -145,9 +145,14 @@ async function start() {
 				outputSeparator();
 				populateDbTv(settings);
 				break;
+			case 'populate-movies-degree-1':
+				outputSeparator();
+				populateDbMovies({ ...settings, maxDegree: 1 });
+				break;
 			case 'populate-movies':
 				outputSeparator();
-				populateDbMovies(settings);
+				console.log(chalk.red('This feature is not ready yet.'));
+				//populateDbMovies(settings);
 				break;
 			case 'gapfill':
 				outputSeparator();

@@ -5,7 +5,7 @@ import {
 	PersonFormattedTVCredit,
 	PersonMergedCredit,
 	PersonMergedCredits,
-	PersonRawCredits,
+	PersonRawCredits, PersonTVRoleSummary,
 } from './types-person.ts';
 import pkg from 'lodash';
 const { omit, pick } = pkg;
@@ -105,7 +105,7 @@ export const tmdbTvData = {
 	 * @returns object
 	 */
 	doesCumulativeCreditCount(credit: PersonMergedCredit, showEpisodeCount: number) {
-		const count = credit.roles.reduce((acc, role) => acc + (role?.episode_count || 0), 0);
+		const count = credit.roles.reduce((acc, role) => acc + ((role as PersonTVRoleSummary)?.episode_count || 0), 0);
 		return {
 			inclusion: count / showEpisodeCount >= 0.25, // At least 25% of episodes
 			continuation: count / showEpisodeCount >= 0.5 // At least 50% of episodes
