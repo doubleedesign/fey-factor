@@ -22,7 +22,7 @@ export const tmdbFilmData = {
 				// so for simplicity it's not used at this stage.
 				// If it becomes needed, it would need to be fetched and added to the object passed to this function
 				&& credit.genre_ids.includes(COMEDY_GENRE_ID)
-				&& !EXCLUDED_GENRE_IDS.includes(credit.genre_ids);
+				&& !credit.genre_ids.some((genreId: number) => EXCLUDED_GENRE_IDS.includes(genreId));
 		};
 
 		return {
