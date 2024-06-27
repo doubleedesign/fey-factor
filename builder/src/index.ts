@@ -26,37 +26,29 @@ async function getChoice() {
 		message: 'What would you like to do?',
 		choices: [
 			{
-				name: 'Step 1: Initialise empty database (drops database if it already exists)',
-				value: 'reset-init'
-			},
-			{
-				name: 'Step 2: Populate with initial TV show data',
+				name: 'Step 1: Populate with initial TV show data',
 				value: 'populate-tv'
 			},
 			{
-				name: 'Step 3: Fill in missing TV show data after initial population',
+				name: 'Step 2: Fill in missing TV show data after initial population',
 				value: 'gapfill',
 			},
 			{
-				name: 'Step 4: Populate movie data for degree 0-1 only',
+				name: 'Step 3: Populate movie data for degree 0-1 only',
 				value: 'populate-movies-degree-1',
 			},
 			{
-				name: 'Step 5: Top up database with complete data for top TV shows',
+				name: 'Step 4: Top up database with complete data for top TV shows',
 				value: 'top-up',
 			},
 			new Separator(),
 			{
+				name: 'DANGER ZONE: Initialise empty database (drops database if it already exists)',
+				value: 'reset-init'
+			},
+			{
 				name: 'DANGER ZONE: Drop database without re-initialising',
 				value: 'reset',
-			},
-			{
-				name: 'Reset movie data',
-				value: 'reset-movies',
-			},
-			{
-				name: 'Reset TV data',
-				value: 'reset-tv',
 			},
 			new Separator(),
 			{
