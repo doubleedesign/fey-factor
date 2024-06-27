@@ -4,8 +4,8 @@ import {
 	PersonFormattedCredits,
 	PersonFormattedTVCredit,
 	PersonMergedCredit,
-	PersonMergedCredits,
-	PersonRawCredits, PersonTVRoleSummary,
+	PersonMergedCredits, PersonMergedTVCredit,
+	PersonRawCredits, PersonRoleSummary, PersonTVRoleSummary,
 } from './types-person.ts';
 import pkg from 'lodash';
 const { omit, pick } = pkg;
@@ -111,4 +111,15 @@ export const tmdbTvData = {
 			continuation: count / showEpisodeCount >= 0.5 // At least 50% of episodes
 		};
 	},
+
+	/**
+	 * Determine if a credit should be counted for updating the degree of a person who is in the database after initial population,
+	 * but didn't meet inclusion criteria independently for the show in question during that process
+	 * Example: Elizabeth Banks in 30 Rock
+	 * @param roles
+	 */
+	doesCumulativeCreditCountForDegreeUpdate(roles: PersonTVRoleSummary[]) {
+		const count = roles.reduce((acc, role) => acc + ((role as PersonTVRoleSummary)?.episode_count || 0), 0);
+		return count >= 4;
+	}
 };

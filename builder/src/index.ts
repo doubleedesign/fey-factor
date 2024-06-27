@@ -10,6 +10,7 @@ import { gapFillDb } from './scripts/gapfill-db.ts';
 import { populateDbMovies } from './scripts/populate-db-movies.ts';
 import { PopulationScriptSettings } from './scripts/types.ts';
 import { LoggingType } from './utils/CustomConsole/CustomConsole.ts';
+import { degreeUpdate } from './scripts/degree-update-db.ts';
 
 
 function outputSeparator() {
@@ -19,7 +20,7 @@ function outputSeparator() {
 async function getChoice() {
 	await customConsole.waitForQueue();
 	await wait(1000);
-	customConsole.clearConsole();
+	//customConsole.clearConsole();
 	outputSeparator();
 
 	return select({
@@ -38,7 +39,11 @@ async function getChoice() {
 				value: 'populate-movies-degree-1',
 			},
 			{
-				name: 'Step 4: Top up database with complete data for top TV shows',
+				name: 'Step 4: Update degree 2 people who would be degree 1 if the inclusion threshold for TV shows was lower',
+				value: 'update-degree-2-people'
+			},
+			{
+				name: 'Step 5: Top up database with complete data for top TV shows',
 				value: 'top-up',
 			},
 			new Separator(),
@@ -119,7 +124,6 @@ async function start() {
 
 	while (answer !== 'exit') {
 		answer = await getChoice();
-		customConsole.clearConsole();
 		switch (answer) {
 			case 'reset-init':
 			case 'reset-init-populate':
@@ -153,6 +157,10 @@ async function start() {
 			case 'top-up':
 				outputSeparator();
 				await doTvTopup(settings);
+				break;
+			case 'update-degree-2-people':
+				outputSeparator();
+				degreeUpdate(settings);
 				break;
 			case 'reset':
 				outputSeparator();
