@@ -1,0 +1,33 @@
+{
+	"name": "fey-factor-server",
+	"author": "Leesa Ward",
+	"version": "0.0.1",
+	"private": true,
+	"description": "",
+	"type": "module",
+	"main": "index.ts",
+	"scripts": {
+		"start": "node --import ./loader.mjs ./src/index.ts",
+		"dev": "nodemon",
+		"generate": "node --import ./loader.mjs ./utils/generate.ts",
+		"lint": "eslint **/*.{js,ts,tsx} --fix"
+	},
+	"dependencies": {
+		"@graphql-yoga/node": "^3.9.1",
+		"chalk": "^5.3.0",
+		"dotenv": "^16.4.5",
+		"graphql-tag": "^2.12.6",
+		"pg": "^8.12.0",
+		"pg-to-ts": "^4.1.1"
+	},
+	"devDependencies": {
+		"@types/node": "^20.14.8",
+		"@types/pg": "^8.11.6",
+		"@typescript-eslint/eslint-plugin": "^7.7.1",
+		"@typescript-eslint/parser": "^7.7.1",
+		"eslint": "^8.57.0",
+		"nodemon": "^3.1.4",
+		"ts-node": "^10.9.2",
+		"typescript": "^5.5.2"
+	}
+}

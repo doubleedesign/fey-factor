@@ -32,7 +32,18 @@ For first run, arrow down to the "danger zone" and choose the "Initialise empty 
 
 ## 2. Back-end server
 
-To come.
+The back-end is a GraphQL server built with [Yoga](https://the-guild.dev/graphql/yoga-server) because I need more practice with GraphQL. ¯\\_(ツ)_/¯
+
+I have created a script to generate TypeScript types and GraphQL schema from the database, which should be run on fresh installs or if the database schema is changed.
+```bash
+npm run generate
+```
+Under the hood, this: 
+1. uses [pg-to-ts](https://www.npmjs.com/package/pg-to-ts) to do an initial generation of TypeScript interfaces from the database schema,
+2. does a manual find-and-replace for some known table name to entity name discrepancies (largely around the database tables being named as plurals like "people" and "roles" but because the code will refer to individual items, I want the types to be "person" and "role"), and
+3. does some manual processing of the types to create the matching definitions for GraphQL schema, and writes them to a separate file. 
+
+The generated files can then be found in `./src/generated`.
 
 ## 3. Front-end app
 

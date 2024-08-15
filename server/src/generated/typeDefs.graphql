@@ -1,0 +1,32 @@
+type Connection {
+	id: ID!
+	person_id: Int!
+	work_id: Int!
+	role_id: Int!
+	episode_count: String
+}
+type Movie {
+	id: ID!
+	release_year: String
+}
+type Person {
+	id: ID!
+	name: String
+	degree: String
+}
+type Role {
+	id: ID!
+	name: String
+}
+type TvShow {
+	id: ID!
+	start_year: String
+	end_year: String
+	season_count: String
+	episode_count: String
+}
+type Work {
+	id: ID!
+	title: String
+	type: String
+}
