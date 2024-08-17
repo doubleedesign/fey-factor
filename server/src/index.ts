@@ -4,7 +4,7 @@ import chalk from 'chalk';
 import { readFileSync } from 'fs';
 import { exec } from 'child_process';
 import gql from 'graphql-tag';
-import PersonResolvers from './resolvers/person';
+import resolvers from './resolvers';
 
 const schema = createSchema({
 	typeDefs: gql`
@@ -13,11 +13,7 @@ const schema = createSchema({
 		}
 		${readFileSync('./src/generated/typeDefs.graphql', 'utf8')}
 	`,
-	resolvers: {
-		Query: {
-			...PersonResolvers.Query
-		},
-	},
+	resolvers: resolvers
 });
 
 // Create the Yoga server

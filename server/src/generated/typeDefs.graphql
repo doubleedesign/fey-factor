@@ -4,6 +4,9 @@ type Connection {
 	work_id: Int!
 	role_id: Int!
 	episode_count: Int
+	person: Person
+	work: Work
+	role: Role
 }
 type Person {
 	id: ID!
@@ -16,7 +19,7 @@ type Role {
 	name: String
 	connections: [Connection]
 }
-type Work {
+interface Work {
 	id: ID!
 	title: String
 	type: String
@@ -27,6 +30,7 @@ type Movie implements Work {
 	title: String
 	type: String
 	release_year: Int
+	connections: [Connection]
 }
 type TvShow implements Work {
 	id: ID!
@@ -36,4 +40,5 @@ type TvShow implements Work {
 	end_year: Int
 	season_count: Int
 	episode_count: Int
+	connections: [Connection]
 }

@@ -10,6 +10,7 @@ import { tables } from '../src/generated/types';
 type TypeObject = {
 	fields: { fieldName: string, fieldType: any, required: boolean }[];
 	isSubtypeOf?: string;
+	isInterface?: boolean;
 }
 
 const destFile = './src/generated/typeDefs.graphql';
@@ -133,6 +134,7 @@ function detectSubtypes() {
 			// If the type being checked has all the fields of the other type, it is a subtype
 			if(fieldNames.every(fieldName => otherFieldNames.includes(fieldName))) {
 				typeObjects[otherTypeName].isSubtypeOf = typeName;
+				typeObjects[typeName].isInterface = true;
 			}
 		});
 	});
@@ -147,11 +149,27 @@ function detectSubtypes() {
  */
 function addForeignKeyFields() {
 	Object.values(tables).forEach(table => {
+		if(!table.foreignKeys || Object.keys(table.foreignKeys).length === 0) return; // No foreign keys? Get out of here now
+
 		const tableName = table.tableName;
 		const tableDataType = tableTypes.find(type => type.tableName === tableName)?.dataType;
 		const foreignKeys = table.foreignKeys;
 
-		// For each foreign key, find the corresponding type and add a field to it for an array of the foreign key's type
+		// For each foreign key in this table, find the types that it references and add a field to this type of them
+		// e.g., connections table (data type Connection) has foreign keys for person_id, work_id, and role_id,
+		// but I want the entire Person, Work, and Role objects to be able to be queried from the Connection type
+		// TODO: Should this be improved to have subtypes and group connections? e.g., when querying a Person, each Work would only appear once and multiple roles would be grouped
+		const thisType = tableTypes.find(type => type.tableName === tableName).dataType;
+		Object.entries(foreignKeys).forEach(([key, fk]) => {
+			typeObjects[thisType].fields.push({
+				// eslint-disable-next-line max-len
+				fieldName: key.replace('_id', ''), // using this instead of fk.table because they're things like "person_id" not "people" where I want "person"
+				fieldType: `${tableTypes.find(type => type.tableName === fk.table).dataType}`,
+				required: false
+			});
+		});
+
+		// For each foreign key, find the corresponding type(s) and add a field to it for an array of the foreign key's type
 		// e.g., connections table (data type Connection) has a foreign key person_id which maps to the People table (Person type)
 		// so the Person type should get a field connections: Connection[]
 		Object.values(foreignKeys).forEach(fk => {
@@ -160,6 +178,17 @@ function addForeignKeyFields() {
 				fieldName: tableName,
 				fieldType: `${tableDataType}[]`,
 				required: false
+			});
+
+			// Also add to any subtypes of this type
+			// eslint-disable-next-line max-len
+			const subtypesToAddTo = Object.entries(typeObjects).filter(([_, data]) => data.isSubtypeOf === typeToAddTo).map(([name, _]) => name);
+			subtypesToAddTo.forEach(subtype => {
+				typeObjects[subtype].fields.push({
+					fieldName: tableName,
+					fieldType: `${tableDataType}[]`,
+					required: false
+				});
 			});
 		});
 	});
@@ -176,8 +205,8 @@ function convertAndSaveTypes() {
 	// Process the root types first
 	rootTypes.forEach(([name, data]) => {
 		const stringParts = [];
-		// Open the declaration
-		stringParts.push(`type ${name} {`);
+		// Open the declaration; interface = has subtypes; type = standalone concrete type
+		data.isInterface ? stringParts.push(`interface ${name} {`) : stringParts.push(`type ${name} {`);
 
 		// Loop through the fields and add them in the correct format for GraphQL
 		stringParts.push(...processFields(data.fields));
@@ -191,7 +220,7 @@ function convertAndSaveTypes() {
 		appendFileSync(destFile, finalString);
 	});
 
-	// Then the subtypes that implement them
+	// Then the subtypes that implement some of them
 	subTypes.forEach(([name, data]) => {
 		const stringParts = [];
 		// Open the declaration - this is where it matters that it's a subtype
@@ -204,8 +233,6 @@ function convertAndSaveTypes() {
 		stringParts.push('}');
 		// Convert to a formatted string
 		const finalString = stringParts.join('\n').concat('\n');
-
-		console.log(stringParts);
 
 		// Write to file
 		appendFileSync(destFile, finalString);
@@ -227,6 +254,7 @@ function convertAndSaveTypes() {
 		return stringParts;
 	}
 }
+
 
 /**
  * Convert a TypeScript field type to a GraphQL field type
