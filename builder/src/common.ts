@@ -1,6 +1,8 @@
 import { WriteStream } from 'fs';
-import { DatabaseConnection } from './database/DatabaseConnection.ts';
-import { CustomConsole, LoggingType } from './utils/CustomConsole/CustomConsole.ts';
+// noinspection ES6PreferShortImport
+import { DatabaseConnection } from './database/index.ts';
+// noinspection ES6PreferShortImport
+import { CustomConsole, LoggingType } from './utils/CustomConsole/index.ts';
 
 export const db = new DatabaseConnection();
 export const customConsole = new CustomConsole({ speed: 100, style: LoggingType.PRETTY });

@@ -9,7 +9,8 @@ import { topupDb } from './scripts/topup-db.ts';
 import { gapFillDb } from './scripts/gapfill-db.ts';
 import { populateDbMovies } from './scripts/populate-db-movies.ts';
 import { PopulationScriptSettings } from './scripts/types.ts';
-import { LoggingType } from './utils/CustomConsole/CustomConsole.ts';
+// noinspection ES6PreferShortImport
+import { LoggingType } from './utils/CustomConsole/index.ts';
 //import { degreeUpdate } from './scripts/degree-update-db.ts';
 
 function outputSeparator() {
@@ -78,7 +79,6 @@ async function doTvTopup(settings: PopulationScriptSettings & { count: number })
 }
 
 async function start() {
-	let answer = '';
 	outputSeparator();
 
 	console.log(chalk.yellow('If a success message appears after data population and then nothing seems to be happening, ' +
@@ -119,6 +119,7 @@ async function start() {
 		]
 	});
 
+	let answer: string = '';
 	while (answer !== 'exit') {
 		answer = await getChoice();
 		switch (answer) {
@@ -145,7 +146,7 @@ async function start() {
 			case 'populate-movies':
 				outputSeparator();
 				console.log(chalk.red('This feature is not ready yet.'));
-				//populateDbMovies(settings);
+				populateDbMovies(settings);
 				break;
 			case 'gapfill':
 				outputSeparator();
@@ -179,5 +180,10 @@ async function start() {
 	}
 }
 
-outputSeparator();
-await start();
+try {
+	outputSeparator();
+	await start();
+}
+catch(error) {
+	console.error(error);
+}
