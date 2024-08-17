@@ -118,13 +118,12 @@ export class DatabaseConnection {
 			console.log(chalk.cyan('Creating TV Shows table...'));
 			await this.pgClient.query(`CREATE TABLE public.tv_shows
 	            (
-                    id     			INTEGER UNIQUE NOT NULL REFERENCES works(id),
+					id              integer UNIQUE NOT NULL,
                 	start_year	    integer,
 	                end_year       	integer,
 	                season_count	integer,
-	                episode_count	integer,
-	                PRIMARY KEY (id)
-	            );
+	                episode_count	integer
+	            ) INHERITS (public.works);
 			`);
 		}
 		else {
@@ -135,10 +134,9 @@ export class DatabaseConnection {
 			console.log(chalk.cyan('Creating Movies table...'));
 			await this.pgClient.query(`CREATE TABLE public.movies
 	            (
-                    id     			INTEGER UNIQUE NOT NULL REFERENCES works(id),
-					release_year	integer,
-	                PRIMARY KEY (id)
-	            );
+					id              integer UNIQUE NOT NULL,
+					release_year	integer
+	            ) INHERITS (public.works);
 			`);
 		}
 		else {
@@ -239,26 +237,32 @@ export class DatabaseConnection {
 
 	async addOrUpdateTvShow(work: TvShow) {
 		try {
-			const response1 = await this.pgClient.query({
+			// Insert into works, and handle conflicts
+			await this.pgClient.query({
 				text: `INSERT INTO works(id, title, type) 
-						VALUES($1, $2, $3) 
-						ON CONFLICT (id) DO NOTHING
-						RETURNING id`,
+                    VALUES($1, $2, $3) 
+                    ON CONFLICT (id) DO UPDATE
+                        SET
+                            title = EXCLUDED.title,
+                            type = EXCLUDED.type
+                    RETURNING id`,
 				values: [work.id, work.name, 'TV']
 			});
 
+			// Insert or update into tv_shows
 			const response2 = await this.pgClient.query({
 				text: `INSERT INTO tv_shows(id, start_year, end_year, season_count, episode_count)  
                     VALUES($1, $2, $3, $4, $5)
                     ON CONFLICT (id) DO UPDATE
                         SET
-                            start_year = COALESCE(NULLIF(tv_shows.start_year, null), EXCLUDED.start_year, tv_shows.start_year),
-                            end_year = COALESCE(NULLIF(tv_shows.end_year, null), EXCLUDED.end_year, tv_shows.end_year),
-                            season_count = COALESCE(NULLIF(tv_shows.season_count, null), EXCLUDED.season_count, tv_shows.season_count),
-                            episode_count = COALESCE(NULLIF(tv_shows.episode_count, null), EXCLUDED.episode_count, tv_shows.episode_count)
-					`,
+                            start_year = COALESCE(EXCLUDED.start_year, tv_shows.start_year),
+                            end_year = COALESCE(EXCLUDED.end_year, tv_shows.end_year),
+                            season_count = COALESCE(EXCLUDED.season_count, tv_shows.season_count),
+                            episode_count = COALESCE(EXCLUDED.episode_count, tv_shows.episode_count)
+                    `,
 				values: [work.id, work.start_year, work.end_year, work.season_count, work.episode_count]
 			});
+
 			if (response2.rowCount === 1) {
 				customConsole.success(`Successfully inserted or updated TV show ${work.id}\t ${work.name}`);
 			}
@@ -270,23 +274,35 @@ export class DatabaseConnection {
 	}
 
 	async addOrUpdateMovie(work: Film) {
-		const response1 = await this.pgClient.query({
-			text: `INSERT INTO works(id, title, type) 
-				VALUES($1, $2, $3) 
-				ON CONFLICT (id) DO NOTHING
-				`,
-			values: [work.id, work.name, 'FILM']
-		});
+		try {
+			// Insert into works, and handle conflicts
+			await this.pgClient.query({
+				text: `INSERT INTO works(id, title, type) 
+                    VALUES($1, $2, $3) 
+                    ON CONFLICT (id) DO UPDATE
+                        SET
+                            title = EXCLUDED.title,
+                            type = EXCLUDED.type`,
+				values: [work.id, work.name, 'FILM']
+			});
 
-		const response2 = await this.pgClient.query({
-			text: `INSERT INTO movies(id, release_year)  
-				VALUES($1, $2)
-				ON CONFLICT (id) DO NOTHING
-				`,
-			values: [work.id, work.release_year]
-		});
-		if (response2.rowCount === 1) {
-			customConsole.success(`Successfully inserted or updated movie ${work.id}\t ${work.name}`);
+			// Insert or update into movies
+			const response2 = await this.pgClient.query({
+				text: `INSERT INTO movies(id, release_year)  
+                    VALUES($1, $2)
+                    ON CONFLICT (id) DO UPDATE
+                        SET
+                            release_year = EXCLUDED.release_year`,
+				values: [work.id, work.release_year]
+			});
+
+			if (response2.rowCount === 1) {
+				customConsole.success(`Successfully inserted or updated movie ${work.id}\t ${work.name}`);
+			}
+		}
+        catch (error) {
+			customConsole.error(`addOrUpdateMovie error for \t ${work.id} ${work.name}:\t ${error}`);
+			logToFile(this.logFile, `addOrUpdateMovie ${work.id}\t\t ${error}`);
 		}
 	}
 

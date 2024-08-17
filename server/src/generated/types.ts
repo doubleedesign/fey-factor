@@ -45,18 +45,22 @@ const connections = {
 // Table movies
 export interface Movie {
 	id: number;
+	title: string | null;
+	type: string | null;
 	release_year: number | null;
 }
 export interface MovieInput {
 	id: number;
+	title?: string | null;
+	type?: string | null;
 	release_year?: number | null;
 }
 const movies = {
 	tableName: 'movies',
-	columns: ['id', 'release_year'],
+	columns: ['id', 'title', 'type', 'release_year'],
 	requiredForInsert: ['id'],
-	primaryKey: 'id',
-	foreignKeys: { id: { table: 'works', column: 'id', $type: null as unknown as Work }, },
+	primaryKey: null,
+	foreignKeys: {},
 	$type: null as unknown as Movie,
 	$input: null as unknown as MovieInput
 } as const;
@@ -104,6 +108,8 @@ const roles = {
 // Table tv_shows
 export interface TvShow {
 	id: number;
+	title: string | null;
+	type: string | null;
 	start_year: number | null;
 	end_year: number | null;
 	season_count: number | null;
@@ -111,6 +117,8 @@ export interface TvShow {
 }
 export interface TvShowInput {
 	id: number;
+	title?: string | null;
+	type?: string | null;
 	start_year?: number | null;
 	end_year?: number | null;
 	season_count?: number | null;
@@ -118,10 +126,10 @@ export interface TvShowInput {
 }
 const tv_shows = {
 	tableName: 'tv_shows',
-	columns: ['id', 'start_year', 'end_year', 'season_count', 'episode_count'],
+	columns: ['id', 'title', 'type', 'start_year', 'end_year', 'season_count', 'episode_count'],
 	requiredForInsert: ['id'],
-	primaryKey: 'id',
-	foreignKeys: { id: { table: 'works', column: 'id', $type: null as unknown as Work }, },
+	primaryKey: null,
+	foreignKeys: {},
 	$type: null as unknown as TvShow,
 	$input: null as unknown as TvShowInput
 } as const;

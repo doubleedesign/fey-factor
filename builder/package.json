@@ -1,7 +1,7 @@
 {
 	"name": "fey-factor-data-builder",
 	"author": "Leesa Ward",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"private": true,
 	"description": "",
 	"type": "module",

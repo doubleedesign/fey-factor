@@ -3,30 +3,37 @@ type Connection {
 	person_id: Int!
 	work_id: Int!
 	role_id: Int!
-	episode_count: String
-}
-type Movie {
-	id: ID!
-	release_year: String
+	episode_count: Int
 }
 type Person {
 	id: ID!
 	name: String
-	degree: String
+	degree: Int
+	connections: [Connection]
 }
 type Role {
 	id: ID!
 	name: String
-}
-type TvShow {
-	id: ID!
-	start_year: String
-	end_year: String
-	season_count: String
-	episode_count: String
+	connections: [Connection]
 }
 type Work {
 	id: ID!
 	title: String
 	type: String
+	connections: [Connection]
+}
+type Movie implements Work {
+	id: ID!
+	title: String
+	type: String
+	release_year: Int
+}
+type TvShow implements Work {
+	id: ID!
+	title: String
+	type: String
+	start_year: Int
+	end_year: Int
+	season_count: Int
+	episode_count: Int
 }

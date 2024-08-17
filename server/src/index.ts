@@ -4,17 +4,18 @@ import chalk from 'chalk';
 import { readFileSync } from 'fs';
 import { exec } from 'child_process';
 import gql from 'graphql-tag';
+import PersonResolvers from './resolvers/person';
 
 const schema = createSchema({
 	typeDefs: gql`
 		type Query {
-			person: ID!
+            person(id: ID!): Person
 		}
 		${readFileSync('./src/generated/typeDefs.graphql', 'utf8')}
 	`,
 	resolvers: {
 		Query: {
-			hello: () => 'Hello, Yoga!',
+			...PersonResolvers.Query
 		},
 	},
 });

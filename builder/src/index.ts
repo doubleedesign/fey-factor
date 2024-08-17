@@ -10,8 +10,7 @@ import { gapFillDb } from './scripts/gapfill-db.ts';
 import { populateDbMovies } from './scripts/populate-db-movies.ts';
 import { PopulationScriptSettings } from './scripts/types.ts';
 import { LoggingType } from './utils/CustomConsole/CustomConsole.ts';
-import { degreeUpdate } from './scripts/degree-update-db.ts';
-
+//import { degreeUpdate } from './scripts/degree-update-db.ts';
 
 function outputSeparator() {
 	console.log(chalk.magenta('\n==============================================='));
@@ -20,7 +19,7 @@ function outputSeparator() {
 async function getChoice() {
 	await customConsole.waitForQueue();
 	await wait(1000);
-	//customConsole.clearConsole();
+	customConsole.clearConsole();
 	outputSeparator();
 
 	return select({
@@ -102,7 +101,7 @@ async function start() {
 		},
 	]);
 
-	const loggingStyle: LoggingType = await select({
+	customConsole.style = await select({
 		message: 'Logging style:',
 		choices: [
 			{
@@ -119,8 +118,6 @@ async function start() {
 			}
 		]
 	});
-
-	customConsole.style = loggingStyle;
 
 	while (answer !== 'exit') {
 		answer = await getChoice();
@@ -160,7 +157,8 @@ async function start() {
 				break;
 			case 'update-degree-2-people':
 				outputSeparator();
-				degreeUpdate(settings);
+				console.log(chalk.red('Not implemented yet.'));
+				//degreeUpdate(settings);
 				break;
 			case 'reset':
 				outputSeparator();

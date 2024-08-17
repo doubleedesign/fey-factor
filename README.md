@@ -41,7 +41,8 @@ npm run generate
 Under the hood, this: 
 1. uses [pg-to-ts](https://www.npmjs.com/package/pg-to-ts) to do an initial generation of TypeScript interfaces from the database schema,
 2. does a manual find-and-replace for some known table name to entity name discrepancies (largely around the database tables being named as plurals like "people" and "roles" but because the code will refer to individual items, I want the types to be "person" and "role"), and
-3. does some manual processing of the types to create the matching definitions for GraphQL schema, and writes them to a separate file. 
+3. does some manual processing of the types to create the matching definitions for GraphQL schema, and writes them to a separate file.
+   - This includes assessing foreign keys in the database tables and adding fields to the GraphQL schema to allow for querying related data.
 
 The generated files can then be found in `./src/generated`.
 
