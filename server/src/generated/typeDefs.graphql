@@ -4,51 +4,81 @@ type Connection {
 	work_id: Int!
 	role_id: Int!
 	episode_count: Int
-	person: Person
-	work: Work
-	role: Role
+	person: PersonItem
+	work: WorkItem
+	role: RoleItem
+}
+type ConnectionItem {
+	id: ID!
+	person_id: Int!
+	work_id: Int!
+	role_id: Int!
+	episode_count: Int
 }
 type Person {
 	id: ID!
 	name: String
 	degree: Int
-	connections: [Connection]
-	works: [Work]
-	roles: [Role]
+	connections: [ConnectionItem]
+	works: [WorkItem]
+	roles: [RoleItem]
+}
+type PersonItem {
+	id: ID!
+	name: String
+	degree: Int
 }
 type Role {
 	id: ID!
 	name: String
-	connections: [Connection]
-	people: [Person]
-	works: [Work]
+	connections: [ConnectionItem]
+	people: [PersonItem]
+	works: [WorkItem]
+}
+type RoleItem {
+	id: ID!
+	name: String
 }
 interface Work {
 	id: ID!
 	title: String
-	type: String
-	connections: [Connection]
-	people: [Person]
-	roles: [Role]
+	connections: [ConnectionItem]
+	people: [PersonItem]
+	roles: [RoleItem]
+}
+interface WorkItem {
+	id: ID!
+	title: String
 }
 type Movie implements Work {
 	id: ID!
 	title: String
-	type: String
 	release_year: Int
-	connections: [Connection]
-	people: [Person]
-	roles: [Role]
+	connections: [ConnectionItem]
+	people: [PersonItem]
+	roles: [RoleItem]
+}
+type MovieItem implements WorkItem {
+	id: ID!
+	title: String
+	release_year: Int
 }
 type TvShow implements Work {
 	id: ID!
 	title: String
-	type: String
 	start_year: Int
 	end_year: Int
 	season_count: Int
 	episode_count: Int
-	connections: [Connection]
-	people: [Person]
-	roles: [Role]
+	connections: [ConnectionItem]
+	people: [PersonItem]
+	roles: [RoleItem]
+}
+type TvShowItem implements WorkItem {
+	id: ID!
+	title: String
+	start_year: Int
+	end_year: Int
+	season_count: Int
+	episode_count: Int
 }

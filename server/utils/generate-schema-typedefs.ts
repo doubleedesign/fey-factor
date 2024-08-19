@@ -6,6 +6,7 @@ import ts, { TypeLiteralNode } from 'typescript';
 import chalk from 'chalk';
 import { readFileSync, writeFileSync, appendFileSync } from 'fs';
 import { tables } from '../src/generated/types';
+import cloneDeep from 'lodash/cloneDeep';
 
 // The type of object we'll be collecting the processed types into for later processing into GraphQL type definition template literals
 type TypeObject = {
@@ -104,29 +105,37 @@ function processTableTypes(node: ts.InterfaceDeclaration) {
  */
 function processExportedType(node: ts.TypeAliasDeclaration | ts.InterfaceDeclaration) {
 	if (ts.isInterfaceDeclaration(node)) {
+		const fields = node.members.map(field => {
+			if (ts.isPropertySignature(field) && field.name) {
+				const fieldName = (field.name as ts.Identifier).text;
+				const fieldType = field.type ? field.type.getText() : 'unknown';
+				const optional = !!field.questionToken || fieldType.includes('null');
+				const required = !optional;
+				return {
+					fieldName,
+					fieldType: fieldType.replace('| null', '').trim(),
+					required };
+			}
+		});
+
+		// Create a GQL type object for the type with the same name
+		// (this one will have more fields added to it according to the table's foreign keys, in another function)
 		typeObjects[node.name.text] = {
-			fields: [
-				...node.members.map(field => {
-					if (ts.isPropertySignature(field) && field.name) {
-						const fieldName = (field.name as ts.Identifier).text;
-						const fieldType = field.type ? field.type.getText() : 'unknown';
-						const optional = !!field.questionToken || fieldType.includes('null');
-						const required = !optional;
-						return {
-							fieldName,
-							fieldType: fieldType.replace('| null', '').trim(),
-							required };
-					}
-				})
-			]
+			fields: fields
 		};
+
+		// Create another one that will keep just the same fields as the original TypeScript type/its database table
+		// that will be used for connected types e.g., a Person gets a works field added with a type of WorkItem[] rather than Work[]
+		// Note: cloneDeep is used to create a copy,
+		// otherwise it would be passed by reference and this type would also get the fields added to the GQL one above, defeating the purpose
+		typeObjects[`${node.name.text}Item`] = cloneDeep(typeObjects[node.name.text]);
 	}
 }
 
 
 /**
  * Loop through the typeObjects and determine if any types are subtypes of other types
- * (pg-to-ts doesn't generate inheritance relationships, so we have to infer them)
+ * (pg-to-ts doesn't generate inheritance relationships, but we can infer them rather than run an SQL query here)
  * Note: We can't do this in the previous step because we need all types to be available to be checked against
  */
 function detectSubtypes() {
@@ -137,12 +146,17 @@ function detectSubtypes() {
 		Object.entries(typeObjects).forEach(([otherTypeName, otherTypeData]) => {
 			if(typeName === otherTypeName) return; // skip self-comparison
 			if(knownToSkip.includes(typeName) || knownToSkip.includes(otherTypeName)) return; // skip known non-parent roles
+			if(typeName.includes('Item') || otherTypeName.includes('Item')) return; // skip the {Type}Item types
 
 			const otherFieldNames = otherTypeData.fields.map(field => field.fieldName);
 			// If the type being checked has all the fields of the other type, it is a subtype
 			if(fieldNames.every(fieldName => otherFieldNames.includes(fieldName))) {
 				typeObjects[otherTypeName].isSubtypeOf = typeName;
 				typeObjects[typeName].isInterface = true;
+
+				// Also handle the matching {Type}Item types
+				typeObjects[`${otherTypeName}Item`].isSubtypeOf = `${typeName}Item`;
+				typeObjects[`${typeName}Item`].isInterface = true;
 			}
 		});
 	});
@@ -168,34 +182,36 @@ function addForeignKeyFields() {
 			const foreignKeyFieldType = tableTypes.find(type => type.tableName === foreignKeyFieldName).dataType;
 			const subtypes = Object.keys(typeObjects).filter(name => typeObjects[name].isSubtypeOf === foreignKeyFieldType);
 
-			// For this table's type, add a field for the foreign key's type
+			// For this table's type, add a field for the foreign key's Item type
 			// e.g., connections table (data type Connection) has a foreign key person_id which maps to the People table (Person type)
 			// so the Connection type should get a field person: Person
 			typeObjects[tableDataType].fields.push({
 				// eslint-disable-next-line max-len
 				fieldName: key.replace('_id', ''), // using this instead of fk.table because they're things like "person_id" not "people" where I want "person"
-				fieldType: foreignKeyFieldType,
+				fieldType: `${foreignKeyFieldType}Item`,
 				required: false
 			});
 
-			// For the foreign key's type, add a field for an array of the current table's type
+			// For the foreign key's type, add a field for an array of the current table's Item type
 			// e.g., connections table (data type Connection) has a foreign key person_id which maps to the People table (Person type)
 			// so the Person type should get a field connections: Connection[]
 			typeObjects[foreignKeyFieldType].fields.push({
 				fieldName: table.tableName,
-				fieldType: `${tableDataType}[]`,
+				fieldType: `${tableDataType}Item[]`,
 				required: false
 			});
 
-			// Match up the types of all the foreign keys to each other so whole objects can be directly queried
+			// Match up the types of all the foreign keys to each other so {Type}Item objects can be directly queried
 			// This is based entirely on the Connections table, which has People, Works, and Roles
 			// The purpose of this is to add works and roles fields to People, people and roles fields to Works, etc.
-			// so you can, for example, query a Person and get all their Works without having to go through Connections
+			// so you can, for example, query a Person and get all their Works without having to go through Connections and process those
 			Object.values(foreignKeys).forEach((otherKeyObject) => {
 				if(otherKeyObject.table === foreignKeyFieldName) return; // skip self-comparison
+				if(typeObjects[foreignKeyFieldType].fields.find(field => field.fieldName === otherKeyObject.table)) return; // skip if it already exists
+
 				typeObjects[foreignKeyFieldType].fields.push({
 					fieldName: otherKeyObject.table,
-					fieldType: `${tableTypes.find(type => type.tableName === otherKeyObject.table).dataType}[]`,
+					fieldType: `${tableTypes.find(type => type.tableName === otherKeyObject.table).dataType}Item[]`,
 					required: false
 				});
 			});
@@ -203,20 +219,21 @@ function addForeignKeyFields() {
 			// If this type is a supertype, also add the other foreign key fields to the subtypes
 			subtypes.length > 0 && subtypes.forEach(subtype => {
 				// Add the field for the current table
-				// e.g., this will add connections: Connection[] to the Movie and TvShow types which are subtypes of Work
+				// e.g., this will add connections: ConnectionItem[] to the Movie and TvShow types which are subtypes of Work
 				typeObjects[subtype].fields.push({
 					fieldName: table.tableName,
-					fieldType: `${tableDataType}[]`,
+					fieldType: `${tableDataType}Item[]`,
 					required: false
 				});
 
-				// Add the other foreign key fields
-				// e.g., Work has subtypes of Movie and TvShow which I want to have a people field
+				// Add the other foreign key item fields
+				// e.g., Work has subtypes of Movie and TvShow which I want to have a people field with the type PersonItem[]
 				Object.values(foreignKeys).forEach((otherKeyObject) => {
 					if(otherKeyObject.table === foreignKeyFieldName) return; // skip self-comparison
+					if(typeObjects[subtype].fields.find(field => field.fieldName === otherKeyObject.table)) return; // skip if it already exists
 					typeObjects[subtype].fields.push({
 						fieldName: otherKeyObject.table,
-						fieldType: `${tableTypes.find(type => type.tableName === otherKeyObject.table).dataType}[]`,
+						fieldType: `${tableTypes.find(type => type.tableName === otherKeyObject.table).dataType}Item[]`,
 						required: false
 					});
 				});
@@ -332,5 +349,4 @@ function createAndSaveQueryType() {
 	writeFileSync(queryDestFile, queryType, 'utf8');
 	console.log(chalk.green(`Successfully generated GraphQL Query definition in ${queryDestFile}`));
 }
-
 

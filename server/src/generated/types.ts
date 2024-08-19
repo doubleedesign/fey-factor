@@ -1,7 +1,6 @@
 /* tslint:disable */
 
 
-
 /**
  * AUTO-GENERATED FILE - DO NOT EDIT!
  *
@@ -46,18 +45,16 @@ const connections = {
 export interface Movie {
 	id: number;
 	title: string | null;
-	type: string | null;
 	release_year: number | null;
 }
 export interface MovieInput {
 	id: number;
 	title?: string | null;
-	type?: string | null;
 	release_year?: number | null;
 }
 const movies = {
 	tableName: 'movies',
-	columns: ['id', 'title', 'type', 'release_year'],
+	columns: ['id', 'title', 'release_year'],
 	requiredForInsert: ['id'],
 	primaryKey: null,
 	foreignKeys: {},
@@ -109,7 +106,6 @@ const roles = {
 export interface TvShow {
 	id: number;
 	title: string | null;
-	type: string | null;
 	start_year: number | null;
 	end_year: number | null;
 	season_count: number | null;
@@ -118,7 +114,6 @@ export interface TvShow {
 export interface TvShowInput {
 	id: number;
 	title?: string | null;
-	type?: string | null;
 	start_year?: number | null;
 	end_year?: number | null;
 	season_count?: number | null;
@@ -126,7 +121,7 @@ export interface TvShowInput {
 }
 const tv_shows = {
 	tableName: 'tv_shows',
-	columns: ['id', 'title', 'type', 'start_year', 'end_year', 'season_count', 'episode_count'],
+	columns: ['id', 'title', 'start_year', 'end_year', 'season_count', 'episode_count'],
 	requiredForInsert: ['id'],
 	primaryKey: null,
 	foreignKeys: {},
@@ -138,16 +133,14 @@ const tv_shows = {
 export interface Work {
 	id: number;
 	title: string | null;
-	type: string | null;
 }
 export interface WorkInput {
 	id: number;
 	title?: string | null;
-	type?: string | null;
 }
 const works = {
 	tableName: 'works',
-	columns: ['id', 'title', 'type'],
+	columns: ['id', 'title'],
 	requiredForInsert: ['id'],
 	primaryKey: 'id',
 	foreignKeys: {},

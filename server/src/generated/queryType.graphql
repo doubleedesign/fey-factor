@@ -1,8 +1,14 @@
 type Query {
 	connection(id: ID!): Connection
+	connectionitem(id: ID!): ConnectionItem
 	movie(id: ID!): Movie
+	movieitem(id: ID!): MovieItem
 	person(id: ID!): Person
+	personitem(id: ID!): PersonItem
 	role(id: ID!): Role
+	roleitem(id: ID!): RoleItem
 	tvshow(id: ID!): TvShow
+	tvshowitem(id: ID!): TvShowItem
 	work(id: ID!): Work
+	workitem(id: ID!): WorkItem
 }
