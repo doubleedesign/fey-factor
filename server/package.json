@@ -9,7 +9,7 @@
 	"scripts": {
 		"dev": "nodemon",
 		"start": "node --enable-source-maps --import ./loader.mjs ./src/index.ts",
-		"generate:schema": "node --import ./loader.mjs utils/generate-schema.ts",
+		"generate:schema": "node --import ./loader.mjs utils/generate-types-and-schema.ts",
 		"generate:resolvers": "node --import ./loader.mjs utils/generate-resolver-skeleton.ts",
 		"lint": "eslint **/*.{js,ts,tsx} --fix"
 	},
