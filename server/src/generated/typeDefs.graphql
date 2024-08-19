@@ -13,17 +13,23 @@ type Person {
 	name: String
 	degree: Int
 	connections: [Connection]
+	works: [Work]
+	roles: [Role]
 }
 type Role {
 	id: ID!
 	name: String
 	connections: [Connection]
+	people: [Person]
+	works: [Work]
 }
 interface Work {
 	id: ID!
 	title: String
 	type: String
 	connections: [Connection]
+	people: [Person]
+	roles: [Role]
 }
 type Movie implements Work {
 	id: ID!
@@ -31,6 +37,8 @@ type Movie implements Work {
 	type: String
 	release_year: Int
 	connections: [Connection]
+	people: [Person]
+	roles: [Role]
 }
 type TvShow implements Work {
 	id: ID!
@@ -41,4 +49,6 @@ type TvShow implements Work {
 	season_count: Int
 	episode_count: Int
 	connections: [Connection]
+	people: [Person]
+	roles: [Role]
 }
