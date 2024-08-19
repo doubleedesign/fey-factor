@@ -1,7 +1,7 @@
 import { exec } from 'child_process';
 import { promises, readFileSync } from 'fs';
 import chalk from 'chalk';
-import { generateTypeDefs } from './generate-typedefs';
+import { generateSchemaTypedefs } from './generate-schema-typedefs';
 
 // TODO Replace creds with .env values
 const username = 'postgres';
@@ -114,7 +114,7 @@ function generateSchema() {
 	outputSeparator();
 	console.log('Generating GraphQL type definitions');
 
-	generateTypeDefs(typesOutputFile);
+	generateSchemaTypedefs(typesOutputFile);
 }
 
 /**

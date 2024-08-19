@@ -9,7 +9,7 @@
 	"scripts": {
 		"start": "node --import ./loader.mjs ./src/index.ts",
 		"dev": "nodemon",
-		"generate": "node --import ./loader.mjs ./utils/generate.ts",
+		"generate": "node --import ./loader.mjs utils/generate-schema.ts",
 		"lint": "eslint **/*.{js,ts,tsx} --fix"
 	},
 	"dependencies": {

@@ -24,7 +24,7 @@ const destFile = './src/generated/typeDefs.graphql';
 const typeObjects: { [key: string]: TypeObject } = {};
 const tableTypes: TableTypeObject[] = [];
 
-export function generateTypeDefs(file: string) {
+export function generateSchemaTypedefs(file: string) {
 	// Create or empty the GraphQL typeDefs file
 	writeFileSync(destFile, '', 'utf8');
 
