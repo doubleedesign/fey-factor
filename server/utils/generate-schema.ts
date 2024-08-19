@@ -100,7 +100,6 @@ async function formatFile() {
 				resolve(stdout);
 			});
 		});
-
 	}
 	catch (error) {
 		handleError(error);

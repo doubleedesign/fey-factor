@@ -1,0 +1,8 @@
+type Query {
+	connection(id: ID!): Connection
+	movie(id: ID!): Movie
+	person(id: ID!): Person
+	role(id: ID!): Role
+	tvshow(id: ID!): TvShow
+	work(id: ID!): Work
+}

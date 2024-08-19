@@ -7,9 +7,10 @@
 	"type": "module",
 	"main": "index.ts",
 	"scripts": {
-		"start": "node --import ./loader.mjs ./src/index.ts",
 		"dev": "nodemon",
-		"generate": "node --import ./loader.mjs utils/generate-schema.ts",
+		"start": "node --enable-source-maps --import ./loader.mjs ./src/index.ts",
+		"generate:schema": "node --import ./loader.mjs utils/generate-schema.ts",
+		"generate:resolvers": "node --import ./loader.mjs utils/generate-resolver-skeleton.ts",
 		"lint": "eslint **/*.{js,ts,tsx} --fix"
 	},
 	"dependencies": {
@@ -17,6 +18,7 @@
 		"chalk": "^5.3.0",
 		"dotenv": "^16.4.5",
 		"graphql-tag": "^2.12.6",
+		"graphql-tools": "^9.0.1",
 		"lodash": "^4.17.21",
 		"pg": "^8.12.0",
 		"pg-to-ts": "^4.1.1"

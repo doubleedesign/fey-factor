@@ -20,13 +20,14 @@ type TableTypeObject = {
 	dataType: string;
 }
 
-const destFile = './src/generated/typeDefs.graphql';
+const typesDestFile = './src/generated/typeDefs.graphql';
+const queryDestFile = './src/generated/queryType.graphql';
 const typeObjects: { [key: string]: TypeObject } = {};
 const tableTypes: TableTypeObject[] = [];
 
 export function generateSchemaTypedefs(file: string) {
 	// Create or empty the GraphQL typeDefs file
-	writeFileSync(destFile, '', 'utf8');
+	writeFileSync(typesDestFile, '', 'utf8');
 
 	// Get the content of the TypeScript types file
 	const fileContent = readFileSync(file, 'utf-8');
@@ -42,7 +43,7 @@ export function generateSchemaTypedefs(file: string) {
 		detectSubtypes();
 		addForeignKeyFields();
 		convertAndSaveTypes();
-		console.log(chalk.green(`Successfully generated GraphQL type definitions in ${destFile}`));
+		createAndSaveQueryType();
 	}
 	catch(error) {
 		console.error(chalk.red(`Error generating GraphQL type definitions: ${error.message}`));
@@ -249,7 +250,7 @@ function convertAndSaveTypes() {
 		const finalString = stringParts.join('\n').concat('\n');
 
 		// Write to file
-		appendFileSync(destFile, finalString);
+		appendFileSync(typesDestFile, finalString);
 	});
 
 	// Then the subtypes that implement some of them
@@ -267,7 +268,7 @@ function convertAndSaveTypes() {
 		const finalString = stringParts.join('\n').concat('\n');
 
 		// Write to file
-		appendFileSync(destFile, finalString);
+		appendFileSync(typesDestFile, finalString);
 	});
 
 
@@ -313,6 +314,23 @@ function convertAndSaveTypes() {
 				return required ? `${fieldType}!` : fieldType;
 		}
 	}
+
+	console.log(chalk.green(`Successfully generated GraphQL type definitions in ${typesDestFile}`));
+}
+
+/**
+ * Create and save the Query type to a separate file
+ */
+function createAndSaveQueryType() {
+	let queryType = 'type Query {\n';
+	const typeNames = Object.keys(typeObjects);
+	typeNames.forEach(typeName => {
+		queryType += `\t${typeName.toLowerCase()}(id: ID!): ${typeName}\n`;
+	});
+	queryType += '}';
+
+	writeFileSync(queryDestFile, queryType, 'utf8');
+	console.log(chalk.green(`Successfully generated GraphQL Query definition in ${queryDestFile}`));
 }
 
 

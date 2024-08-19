@@ -18,10 +18,10 @@
 		"skipLibCheck": true,
 		"allowSyntheticDefaultImports": true,
 		"noImplicitAny": false,
-		"allowJs": false
+		"allowJs": false,
+		"sourceMap": true,
 	},
 	"include": [
-		"./generate.ts",
 		"utils/**/*",
 		"src/**/*"
 	],

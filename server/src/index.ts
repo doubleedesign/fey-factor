@@ -3,14 +3,11 @@ import { createServer } from 'http';
 import chalk from 'chalk';
 import { readFileSync } from 'fs';
 import { exec } from 'child_process';
-import gql from 'graphql-tag';
 import resolvers from './resolvers';
 
 const schema = createSchema({
-	typeDefs: gql`
-		type Query {
-            person(id: ID!): Person
-		}
+	typeDefs: `
+		${readFileSync('./src/generated/queryType.graphql', 'utf8')}
 		${readFileSync('./src/generated/typeDefs.graphql', 'utf8')}
 	`,
 	resolvers: resolvers
@@ -22,6 +19,7 @@ const yoga = createYoga({ schema });
 // Create an HTTP server and attach the Yoga server to it
 const server = createServer(yoga);
 
+// Start the server
 server.listen(4000, () => {
 	const url = 'http://localhost:4000/graphql';
 
