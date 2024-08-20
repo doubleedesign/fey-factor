@@ -2,6 +2,7 @@ import { exec } from 'child_process';
 import { promises, readFileSync } from 'fs';
 import chalk from 'chalk';
 import { generateSchemaTypedefs } from './generate-schema-typedefs';
+import { generateGqlToTs } from './generate-gql-to-ts';
 
 // TODO Replace creds with .env values
 const username = 'postgres';
@@ -9,14 +10,28 @@ const password = 'root';
 const dbname = 'feyfactor';
 const dbConnectionString = `postgresql://${username}:${password}@localhost:5432/${dbname}`;
 const typesOutputFile = './src/generated/source-types.ts';
+const gqlTypesOutputFile = './src/generated/gql-types.ts';
+const gqlTypesReformattedOutputFile = './src/generated/gql-types-reformatted.ts';
 
 generate().then();
 
 async function generate() {
-	await generateTypes();
-	await renameTypes();
-	await formatFile();
-	generateSchema();
+	try {
+		await generateTypes();
+		await renameTypes();
+		await generateSchema();
+	}
+	catch (error) {
+		handleError(error);
+		console.log(chalk.yellow('Did you get the Punycode deprecation error? Try changing your Node version to the latest LTS one.'));
+	}
+
+	try {
+		await formatFiles();
+	}
+	catch (error) {
+		handleError(error);
+	}
 }
 
 
@@ -75,11 +90,11 @@ async function renameTypes() {
 }
 
 /**
- * Format the generated types file using ESLint
+ * Format the generated files using ESLint
  */
-async function formatFile() {
+async function formatFiles() {
 	outputSeparator();
-	console.log('Linting and formatting file with ESLint...');
+	console.log('Linting and formatting files with ESLint...');
 
 	try {
 		// Remove eslint-disable comment from the generated file
@@ -90,13 +105,13 @@ async function formatFile() {
 
 		// Run ESLint
 		return new Promise((resolve, reject) => {
-			exec(`eslint --fix ${typesOutputFile}`, (error, stdout, stderr) => {
+			exec('eslint --fix ./src/generated/', (error, stdout, stderr) => {
 				if(error || stderr) {
 					reject(error || stderr);
 					handleError(error || stderr);
 				}
 
-				console.log(chalk.green(`Successfully linted and formatted ${typesOutputFile}`));
+				console.log(chalk.green('Successfully linted and formatted generated files'));
 				resolve(stdout);
 			});
 		});
@@ -109,11 +124,15 @@ async function formatFile() {
 /**
  * Generate GraphQL type definitions from the TypeScript types
  */
-function generateSchema() {
+async function generateSchema() {
 	outputSeparator();
 	console.log('Generating GraphQL type definitions');
 
+	// Generate the schema type definitions from the pg-to-ts generated TypeScript interfaces + some manual additions
 	generateSchemaTypedefs(typesOutputFile);
+
+	// Go back the other way - run graphql-codegen to generate TypeScript types from the updated GraphQL schema
+	await generateGqlToTs(gqlTypesOutputFile, gqlTypesReformattedOutputFile);
 }
 
 /**

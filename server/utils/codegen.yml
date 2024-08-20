@@ -1,0 +1,18 @@
+schema: ./src/generated/typeDefs.graphql
+generates:
+  ./src/generated/gql-types.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+    config:
+      avoidOptionals: true
+      maybeValue: T | null
+      wrapEntireFieldDefinitions: false
+      scalars:
+        ID: number
+        String: string
+        Int: number
+        Boolean: boolean
+        Float: number
+      skipTypename: true
+      preResolveTypes: true

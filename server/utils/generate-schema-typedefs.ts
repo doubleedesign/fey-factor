@@ -33,7 +33,7 @@ export function generateSchemaTypedefs(file: string) {
 	// Get the content of the TypeScript types file
 	const fileContent = readFileSync(file, 'utf-8');
 	const sourceFile = ts.createSourceFile(
-		'types.ts',
+		'source-types.ts',
 		fileContent,
 		ts.ScriptTarget.Latest,
 		true
