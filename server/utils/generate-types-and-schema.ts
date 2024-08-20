@@ -8,7 +8,7 @@ const username = 'postgres';
 const password = 'root';
 const dbname = 'feyfactor';
 const dbConnectionString = `postgresql://${username}:${password}@localhost:5432/${dbname}`;
-const typesOutputFile = './src/generated/types.ts';
+const typesOutputFile = './src/generated/source-types.ts';
 
 generate().then();
 

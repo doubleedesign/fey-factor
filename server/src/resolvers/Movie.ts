@@ -1,5 +1,5 @@
 import { DatabaseConnection } from '../datasources/database';
-import { Movie } from '../generated/types';
+import { Movie } from '../generated/source-types';
 const db = new DatabaseConnection();
 
 export default {

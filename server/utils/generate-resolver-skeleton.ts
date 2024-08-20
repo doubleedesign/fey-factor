@@ -25,7 +25,7 @@ async function generateResolvers() {
 	const confirmed = await confirm('Do you want to continue?');
 	if (!confirmed) process.exit(0);
 
-	const tsTypes = readFileSync('./src/generated/types.ts', 'utf8');
+	const tsTypes = readFileSync('./src/generated/source-types.ts', 'utf8');
 	const gqlTypes = readFileSync('./src/generated/typeDefs.graphql', 'utf8');
 	// Parse the GraphQL schema
 	const parsedSchema = gql`${gqlTypes}`;

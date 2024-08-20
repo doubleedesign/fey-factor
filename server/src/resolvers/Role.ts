@@ -1,5 +1,5 @@
 import { DatabaseConnection } from '../datasources/database';
-import { Role } from '../generated/types';
+import { Role } from '../generated/source-types';
 const db = new DatabaseConnection();
 
 export default {

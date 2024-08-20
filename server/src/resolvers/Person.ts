@@ -1,5 +1,5 @@
 import { DatabaseConnection } from '../datasources/database';
-import { Person } from '../generated/types';
+import { Person } from '../generated/source-types';
 const db = new DatabaseConnection();
 
 export default {

@@ -5,7 +5,7 @@
 import ts, { TypeLiteralNode } from 'typescript';
 import chalk from 'chalk';
 import { readFileSync, writeFileSync, appendFileSync } from 'fs';
-import { tables } from '../src/generated/types';
+import { tables } from '../src/generated/source-types';
 import cloneDeep from 'lodash/cloneDeep';
 
 // The type of object we'll be collecting the processed types into for later processing into GraphQL type definition template literals

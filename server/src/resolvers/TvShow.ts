@@ -1,5 +1,5 @@
 import { DatabaseConnection } from '../datasources/database';
-import { TvShow } from '../generated/types';
+import { TvShow } from '../generated/source-types';
 const db = new DatabaseConnection();
 
 export default {
