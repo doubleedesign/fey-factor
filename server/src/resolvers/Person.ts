@@ -17,6 +17,6 @@ export default {
 		},
 		roles: async (person: Person) => {
 			return db.getRolesForPerson(person.id);
-		},
+		}, 
 	},
 };

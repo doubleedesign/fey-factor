@@ -10,5 +10,6 @@ export default {
 			return db.getTemplate(id);
 		}
 	},
-	Template: {}
+	Template: {},
+	TemplateItem: {}
 };

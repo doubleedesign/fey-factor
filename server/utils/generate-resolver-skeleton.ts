@@ -25,12 +25,12 @@ async function generateResolvers() {
 	const confirmed = await confirm('Do you want to continue?');
 	if (!confirmed) process.exit(0);
 
-	const tsTypes = readFileSync('./src/generated/source-types.ts', 'utf8');
-	const gqlTypes = readFileSync('./src/generated/typeDefs.graphql', 'utf8');
 	// Parse the GraphQL schema
+	const gqlTypes = readFileSync('./src/generated/typeDefs.graphql', 'utf8');
 	const parsedSchema = gql`${gqlTypes}`;
 
 	// Parse the TypeScript types
+	const tsTypes = readFileSync('./src/generated/source-types.ts', 'utf8');
 	const tsSourceFile = ts.createSourceFile(
 		'types.ts',
 		tsTypes,
@@ -39,15 +39,16 @@ async function generateResolvers() {
 	);
 
 	// Create a file for each GraphQL type based on the template and insert likely resolver functions
+	// (but do not create separate files for {Type}Item types - they will be handled in their associated type)
 	visit(parsedSchema, {
 		ObjectTypeDefinition(node) {
-			const typeName = node.name.value;
-			typeNames.push(typeName);
+			if(node.name.value.includes('Item')) return;
+			typeNames.push(node.name.value);
 			generateResolverFile(node, tsSourceFile);
 		},
 		InterfaceTypeDefinition(node) {
-			const typeName = node.name.value;
-			typeNames.push(typeName);
+			if(node.name.value.includes('Item')) return;
+			typeNames.push(node.name.value);
 			generateResolverFile(node, tsSourceFile);
 		},
 	});
@@ -113,6 +114,15 @@ function generateResolverFile(node: ObjectTypeDefinitionNode | InterfaceTypeDefi
 		// Add a comment to add the resolver functions
 		fileContent = fileContent.replace(`${typeName}: {}`, `${typeName}: {\n// TODO Add resolvers here\n},`);
 		console.log(chalk.yellow(`Please add resolver functions for the abstract interface ${typeName}`));
+	}
+
+	if(typeNames.includes(`${typeName}Item`)) {
+		// TODO What to replace this with?
+		fileContent = fileContent.replace(`${typeName}Item: {}`, `${typeName}Item: {}`);
+	}
+	else {
+		// Remove the Item type block if that type does not exist
+		fileContent = fileContent.replace(`${typeName}Item: {}`, '');
 	}
 
 	writeFileSync(filename, fileContent);

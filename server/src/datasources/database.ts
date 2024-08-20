@@ -64,8 +64,7 @@ export class DatabaseConnection {
 			const response = await this.pgClient.query({
 				text: `SELECT w.*, t.start_year, t.end_year, t.episode_count, t.season_count
                        FROM public.works w JOIN public.tv_shows t ON t.id = w.id
-                       WHERE w.type = 'TV'
-                         AND w.id IN (SELECT work_id FROM public.connections WHERE person_id = $1)
+                       WHERE w.id IN (SELECT work_id FROM public.connections WHERE person_id = $1)
 				`,
 				values: [id]
 			});
@@ -82,8 +81,7 @@ export class DatabaseConnection {
 			const response = await this.pgClient.query({
 				text: `SELECT w.*, t.release_year
                        FROM public.works w JOIN public.movies t ON t.id = w.id
-                       WHERE w.type = 'FILM'
-                         AND w.id IN (SELECT work_id FROM public.connections WHERE person_id = $1)
+                       WHERE w.id IN (SELECT work_id FROM public.connections WHERE person_id = $1)
 				`,
 				values: [id]
 			});
