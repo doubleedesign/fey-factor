@@ -186,7 +186,6 @@ function addForeignKeyFields() {
 			// e.g., connections table (data type Connection) has a foreign key person_id which maps to the People table (Person type)
 			// so the Connection type should get a field person: Person
 			typeObjects[tableDataType].fields.push({
-				// eslint-disable-next-line max-len
 				fieldName: key.replace('_id', ''), // using this instead of fk.table because they're things like "person_id" not "people" where I want "person"
 				fieldType: `${foreignKeyFieldType}Item`,
 				required: false
