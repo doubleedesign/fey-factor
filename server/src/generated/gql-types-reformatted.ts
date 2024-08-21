@@ -1,15 +1,15 @@
 export type Connection = {
 	episode_count?: number;
 	id: number;
-	person?: PersonItem;
+	person?: PersonContainer;
 	person_id: number;
-	role?: RoleItem;
+	role?: RoleContainer;
 	role_id: number;
-	work?: WorkItem;
+	work?: WorkContainer;
 	work_id: number;
 };
 
-export type ConnectionItem = {
+export type ConnectionContainer = {
 	episode_count?: number;
 	id: number;
 	person_id: number;
@@ -18,42 +18,42 @@ export type ConnectionItem = {
 };
 
 export type Person = {
-	connections?: ConnectionItem[];
+	connections?: ConnectionContainer[];
 	degree?: number;
 	id: number;
 	name?: string;
-	roles?: RoleItem[];
-	works?: WorkItem[];
+	roles?: RoleContainer[];
+	works?: WorkContainer[];
 };
 
-export type PersonItem = {
+export type PersonContainer = {
 	degree?: number;
 	id: number;
 	name?: string;
 };
 
 export type Role = {
-	connections?: ConnectionItem[];
+	connections?: ConnectionContainer[];
 	id: number;
 	name?: string;
-	people?: PersonItem[];
-	works?: WorkItem[];
+	people?: PersonContainer[];
+	works?: WorkContainer[];
 };
 
-export type RoleItem = {
+export type RoleContainer = {
 	id: number;
 	name?: string;
 };
 
 export type Work = {
-	connections?: ConnectionItem[];
+	connections?: ConnectionContainer[];
 	id: number;
-	people?: PersonItem[];
-	roles?: RoleItem[];
+	people?: PersonContainer[];
+	roles?: RoleContainer[];
 	title?: string;
 };
 
-export type WorkItem = {
+export type WorkContainer = {
 	id: number;
 	title?: string;
 };

@@ -4,11 +4,11 @@ type Connection {
 	work_id: Int!
 	role_id: Int!
 	episode_count: Int
-	person: PersonItem
-	work: WorkItem
-	role: RoleItem
+	person: PersonContainer
+	work: WorkContainer
+	role: RoleContainer
 }
-type ConnectionItem {
+type ConnectionContainer {
 	id: ID!
 	person_id: Int!
 	work_id: Int!
@@ -19,11 +19,11 @@ type Person {
 	id: ID!
 	name: String
 	degree: Int
-	connections: [ConnectionItem]
-	works: [WorkItem]
-	roles: [RoleItem]
+	connections: [ConnectionContainer]
+	works: [WorkContainer]
+	roles: [RoleContainer]
 }
-type PersonItem {
+type PersonContainer {
 	id: ID!
 	name: String
 	degree: Int
@@ -31,22 +31,22 @@ type PersonItem {
 type Role {
 	id: ID!
 	name: String
-	connections: [ConnectionItem]
-	people: [PersonItem]
-	works: [WorkItem]
+	connections: [ConnectionContainer]
+	people: [PersonContainer]
+	works: [WorkContainer]
 }
-type RoleItem {
+type RoleContainer {
 	id: ID!
 	name: String
 }
 interface Work {
 	id: ID!
 	title: String
-	connections: [ConnectionItem]
-	people: [PersonItem]
-	roles: [RoleItem]
+	connections: [ConnectionContainer]
+	people: [PersonContainer]
+	roles: [RoleContainer]
 }
-interface WorkItem {
+interface WorkContainer {
 	id: ID!
 	title: String
 }
@@ -54,11 +54,11 @@ type Movie implements Work {
 	id: ID!
 	title: String
 	release_year: Int
-	connections: [ConnectionItem]
-	people: [PersonItem]
-	roles: [RoleItem]
+	connections: [ConnectionContainer]
+	people: [PersonContainer]
+	roles: [RoleContainer]
 }
-type MovieItem implements WorkItem {
+type MovieContainer implements WorkContainer {
 	id: ID!
 	title: String
 	release_year: Int
@@ -70,11 +70,11 @@ type TvShow implements Work {
 	end_year: Int
 	season_count: Int
 	episode_count: Int
-	connections: [ConnectionItem]
-	people: [PersonItem]
-	roles: [RoleItem]
+	connections: [ConnectionContainer]
+	people: [PersonContainer]
+	roles: [RoleContainer]
 }
-type TvShowItem implements WorkItem {
+type TvShowContainer implements WorkContainer {
 	id: ID!
 	title: String
 	start_year: Int

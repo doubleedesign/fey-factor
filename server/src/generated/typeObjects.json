@@ -1,0 +1,356 @@
+{
+  "Connection": {
+    "fields": [
+      {
+        "fieldName": "id",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "person_id",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "work_id",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "role_id",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "episode_count",
+        "fieldType": "number",
+        "required": false
+      },
+      {
+        "fieldName": "person",
+        "fieldType": "PersonContainer",
+        "required": false
+      },
+      {
+        "fieldName": "work",
+        "fieldType": "WorkContainer",
+        "required": false
+      },
+      {
+        "fieldName": "role",
+        "fieldType": "RoleContainer",
+        "required": false
+      }
+    ]
+  },
+  "ConnectionContainer": {
+    "fields": [
+      {
+        "fieldName": "id",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "person_id",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "work_id",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "role_id",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "episode_count",
+        "fieldType": "number",
+        "required": false
+      }
+    ]
+  },
+  "Movie": {
+    "fields": [
+      {
+        "fieldName": "id",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "title",
+        "fieldType": "string",
+        "required": false
+      },
+      {
+        "fieldName": "release_year",
+        "fieldType": "number",
+        "required": false
+      },
+      {
+        "fieldName": "connections",
+        "fieldType": "ConnectionContainer[]",
+        "required": false
+      },
+      {
+        "fieldName": "people",
+        "fieldType": "PersonContainer[]",
+        "required": false
+      },
+      {
+        "fieldName": "roles",
+        "fieldType": "RoleContainer[]",
+        "required": false
+      }
+    ],
+    "isSubtypeOf": "Work"
+  },
+  "MovieContainer": {
+    "fields": [
+      {
+        "fieldName": "id",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "title",
+        "fieldType": "string",
+        "required": false
+      },
+      {
+        "fieldName": "release_year",
+        "fieldType": "number",
+        "required": false
+      }
+    ],
+    "isSubtypeOf": "WorkContainer"
+  },
+  "Person": {
+    "fields": [
+      {
+        "fieldName": "id",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "name",
+        "fieldType": "string",
+        "required": false
+      },
+      {
+        "fieldName": "degree",
+        "fieldType": "number",
+        "required": false
+      },
+      {
+        "fieldName": "connections",
+        "fieldType": "ConnectionContainer[]",
+        "required": false
+      },
+      {
+        "fieldName": "works",
+        "fieldType": "WorkContainer[]",
+        "required": false
+      },
+      {
+        "fieldName": "roles",
+        "fieldType": "RoleContainer[]",
+        "required": false
+      }
+    ]
+  },
+  "PersonContainer": {
+    "fields": [
+      {
+        "fieldName": "id",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "name",
+        "fieldType": "string",
+        "required": false
+      },
+      {
+        "fieldName": "degree",
+        "fieldType": "number",
+        "required": false
+      }
+    ]
+  },
+  "Role": {
+    "fields": [
+      {
+        "fieldName": "id",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "name",
+        "fieldType": "string",
+        "required": false
+      },
+      {
+        "fieldName": "connections",
+        "fieldType": "ConnectionContainer[]",
+        "required": false
+      },
+      {
+        "fieldName": "people",
+        "fieldType": "PersonContainer[]",
+        "required": false
+      },
+      {
+        "fieldName": "works",
+        "fieldType": "WorkContainer[]",
+        "required": false
+      }
+    ]
+  },
+  "RoleContainer": {
+    "fields": [
+      {
+        "fieldName": "id",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "name",
+        "fieldType": "string",
+        "required": false
+      }
+    ]
+  },
+  "TvShow": {
+    "fields": [
+      {
+        "fieldName": "id",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "title",
+        "fieldType": "string",
+        "required": false
+      },
+      {
+        "fieldName": "start_year",
+        "fieldType": "number",
+        "required": false
+      },
+      {
+        "fieldName": "end_year",
+        "fieldType": "number",
+        "required": false
+      },
+      {
+        "fieldName": "season_count",
+        "fieldType": "number",
+        "required": false
+      },
+      {
+        "fieldName": "episode_count",
+        "fieldType": "number",
+        "required": false
+      },
+      {
+        "fieldName": "connections",
+        "fieldType": "ConnectionContainer[]",
+        "required": false
+      },
+      {
+        "fieldName": "people",
+        "fieldType": "PersonContainer[]",
+        "required": false
+      },
+      {
+        "fieldName": "roles",
+        "fieldType": "RoleContainer[]",
+        "required": false
+      }
+    ],
+    "isSubtypeOf": "Work"
+  },
+  "TvShowContainer": {
+    "fields": [
+      {
+        "fieldName": "id",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "title",
+        "fieldType": "string",
+        "required": false
+      },
+      {
+        "fieldName": "start_year",
+        "fieldType": "number",
+        "required": false
+      },
+      {
+        "fieldName": "end_year",
+        "fieldType": "number",
+        "required": false
+      },
+      {
+        "fieldName": "season_count",
+        "fieldType": "number",
+        "required": false
+      },
+      {
+        "fieldName": "episode_count",
+        "fieldType": "number",
+        "required": false
+      }
+    ],
+    "isSubtypeOf": "WorkContainer"
+  },
+  "Work": {
+    "fields": [
+      {
+        "fieldName": "id",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "title",
+        "fieldType": "string",
+        "required": false
+      },
+      {
+        "fieldName": "connections",
+        "fieldType": "ConnectionContainer[]",
+        "required": false
+      },
+      {
+        "fieldName": "people",
+        "fieldType": "PersonContainer[]",
+        "required": false
+      },
+      {
+        "fieldName": "roles",
+        "fieldType": "RoleContainer[]",
+        "required": false
+      }
+    ],
+    "isInterface": true
+  },
+  "WorkContainer": {
+    "fields": [
+      {
+        "fieldName": "id",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "title",
+        "fieldType": "string",
+        "required": false
+      }
+    ],
+    "isInterface": true
+  }
+}

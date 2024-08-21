@@ -39,15 +39,15 @@ async function generateResolvers() {
 	);
 
 	// Create a file for each GraphQL type based on the template and insert likely resolver functions
-	// (but do not create separate files for {Type}Item types - they will be handled in their associated type)
+	// (but do not create separate files for {Type}Container types - they will be handled in their associated type)
 	visit(parsedSchema, {
 		ObjectTypeDefinition(node) {
-			if(node.name.value.includes('Item')) return;
+			if(node.name.value.includes('Container')) return;
 			typeNames.push(node.name.value);
 			generateResolverFile(node, tsSourceFile);
 		},
 		InterfaceTypeDefinition(node) {
-			if(node.name.value.includes('Item')) return;
+			if(node.name.value.includes('Container')) return;
 			typeNames.push(node.name.value);
 			generateResolverFile(node, tsSourceFile);
 		},
@@ -116,13 +116,13 @@ function generateResolverFile(node: ObjectTypeDefinitionNode | InterfaceTypeDefi
 		console.log(chalk.yellow(`Please add resolver functions for the abstract interface ${typeName}`));
 	}
 
-	if(typeNames.includes(`${typeName}Item`)) {
+	if(typeNames.includes(`${typeName}Container`)) {
 		// TODO What to replace this with?
-		fileContent = fileContent.replace(`${typeName}Item: {}`, `${typeName}Item: {}`);
+		fileContent = fileContent.replace(`${typeName}Container: {}`, `${typeName}Container: {}`);
 	}
 	else {
-		// Remove the Item type block if that type does not exist
-		fileContent = fileContent.replace(`${typeName}Item: {}`, '');
+		// Remove the Container type block if that type does not exist
+		fileContent = fileContent.replace(`${typeName}Container: {}`, '');
 	}
 
 	writeFileSync(filename, fileContent);

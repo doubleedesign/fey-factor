@@ -125,10 +125,10 @@ function processExportedType(node: ts.TypeAliasDeclaration | ts.InterfaceDeclara
 		};
 
 		// Create another one that will keep just the same fields as the original TypeScript type/its database table
-		// that will be used for connected types e.g., a Person gets a works field added with a type of WorkItem[] rather than Work[]
+		// that will be used for connected types e.g., a Person gets a works field added with a type of WorkContainer[] rather than Work[]
 		// Note: cloneDeep is used to create a copy,
 		// otherwise it would be passed by reference and this type would also get the fields added to the GQL one above, defeating the purpose
-		typeObjects[`${node.name.text}Item`] = cloneDeep(typeObjects[node.name.text]);
+		typeObjects[`${node.name.text}Container`] = cloneDeep(typeObjects[node.name.text]);
 	}
 }
 
@@ -146,7 +146,7 @@ function detectSubtypes() {
 		Object.entries(typeObjects).forEach(([otherTypeName, otherTypeData]) => {
 			if(typeName === otherTypeName) return; // skip self-comparison
 			if(knownToSkip.includes(typeName) || knownToSkip.includes(otherTypeName)) return; // skip known non-parent roles
-			if(typeName.includes('Item') || otherTypeName.includes('Item')) return; // skip the {Type}Item types
+			if(typeName.includes('Container') || otherTypeName.includes('Container')) return; // skip the {Type}Container types
 
 			const otherFieldNames = otherTypeData.fields.map(field => field.fieldName);
 			// If the type being checked has all the fields of the other type, it is a subtype
@@ -154,9 +154,9 @@ function detectSubtypes() {
 				typeObjects[otherTypeName].isSubtypeOf = typeName;
 				typeObjects[typeName].isInterface = true;
 
-				// Also handle the matching {Type}Item types
-				typeObjects[`${otherTypeName}Item`].isSubtypeOf = `${typeName}Item`;
-				typeObjects[`${typeName}Item`].isInterface = true;
+				// Also handle the matching {Type}Container types
+				typeObjects[`${otherTypeName}Container`].isSubtypeOf = `${typeName}Container`;
+				typeObjects[`${typeName}Container`].isInterface = true;
 			}
 		});
 	});
@@ -182,25 +182,25 @@ function addForeignKeyFields() {
 			const foreignKeyFieldType = tableTypes.find(type => type.tableName === foreignKeyFieldName).dataType;
 			const subtypes = Object.keys(typeObjects).filter(name => typeObjects[name].isSubtypeOf === foreignKeyFieldType);
 
-			// For this table's type, add a field for the foreign key's Item type
+			// For this table's type, add a field for the foreign key's Container type
 			// e.g., connections table (data type Connection) has a foreign key person_id which maps to the People table (Person type)
 			// so the Connection type should get a field person: Person
 			typeObjects[tableDataType].fields.push({
 				fieldName: key.replace('_id', ''), // using this instead of fk.table because they're things like "person_id" not "people" where I want "person"
-				fieldType: `${foreignKeyFieldType}Item`,
+				fieldType: `${foreignKeyFieldType}Container`,
 				required: false
 			});
 
-			// For the foreign key's type, add a field for an array of the current table's Item type
+			// For the foreign key's type, add a field for an array of the current table's Container type
 			// e.g., connections table (data type Connection) has a foreign key person_id which maps to the People table (Person type)
 			// so the Person type should get a field connections: Connection[]
 			typeObjects[foreignKeyFieldType].fields.push({
 				fieldName: table.tableName,
-				fieldType: `${tableDataType}Item[]`,
+				fieldType: `${tableDataType}Container[]`,
 				required: false
 			});
 
-			// Match up the types of all the foreign keys to each other so {Type}Item objects can be directly queried
+			// Match up the types of all the foreign keys to each other so {Type}Container objects can be directly queried
 			// This is based entirely on the Connections table, which has People, Works, and Roles
 			// The purpose of this is to add works and roles fields to People, people and roles fields to Works, etc.
 			// so you can, for example, query a Person and get all their Works without having to go through Connections and process those
@@ -210,7 +210,7 @@ function addForeignKeyFields() {
 
 				typeObjects[foreignKeyFieldType].fields.push({
 					fieldName: otherKeyObject.table,
-					fieldType: `${tableTypes.find(type => type.tableName === otherKeyObject.table).dataType}Item[]`,
+					fieldType: `${tableTypes.find(type => type.tableName === otherKeyObject.table).dataType}Container[]`,
 					required: false
 				});
 			});
@@ -218,21 +218,21 @@ function addForeignKeyFields() {
 			// If this type is a supertype, also add the other foreign key fields to the subtypes
 			subtypes.length > 0 && subtypes.forEach(subtype => {
 				// Add the field for the current table
-				// e.g., this will add connections: ConnectionItem[] to the Movie and TvShow types which are subtypes of Work
+				// e.g., this will add connections: ConnectionContainer[] to the Movie and TvShow types which are subtypes of Work
 				typeObjects[subtype].fields.push({
 					fieldName: table.tableName,
-					fieldType: `${tableDataType}Item[]`,
+					fieldType: `${tableDataType}Container[]`,
 					required: false
 				});
 
-				// Add the other foreign key item fields
-				// e.g., Work has subtypes of Movie and TvShow which I want to have a people field with the type PersonItem[]
+				// Add the other foreign key Container fields
+				// e.g., Work has subtypes of Movie and TvShow which I want to have a people field with the type PersonContainer[]
 				Object.values(foreignKeys).forEach((otherKeyObject) => {
 					if(otherKeyObject.table === foreignKeyFieldName) return; // skip self-comparison
 					if(typeObjects[subtype].fields.find(field => field.fieldName === otherKeyObject.table)) return; // skip if it already exists
 					typeObjects[subtype].fields.push({
 						fieldName: otherKeyObject.table,
-						fieldType: `${tableTypes.find(type => type.tableName === otherKeyObject.table).dataType}Item[]`,
+						fieldType: `${tableTypes.find(type => type.tableName === otherKeyObject.table).dataType}Container[]`,
 						required: false
 					});
 				});
@@ -250,6 +250,9 @@ function convertAndSaveTypes() {
 	const rootTypes = Object.entries(typeObjects).filter(([_, data]) => !data.isSubtypeOf);
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const subTypes = Object.entries(typeObjects).filter(([_, data]) => data.isSubtypeOf);
+
+	// Save the raw types object to a file that the docs can use
+	writeFileSync('./src/generated/typeObjects.json', JSON.stringify(typeObjects, null, 2), 'utf8');
 
 	// Process the root types first
 	rootTypes.forEach(([name, data]) => {
