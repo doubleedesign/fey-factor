@@ -8,6 +8,7 @@ import camelCase from 'lodash/camelCase';
 import upperFirst from 'lodash/upperFirst';
 import typeObjects from '../../../../server/src/generated/typeObjects.json';
 import { typeFormatToDbTableNameFormat } from '../../controllers/utils.ts';
+import { LinkToNode } from '../LinkToNode/LinkToNode.tsx';
 
 type EntityTableProps = {
 	table: Table;
@@ -59,6 +60,7 @@ function getTargetHandlePosition(tableName: string) {
 }
 
 export const EntityTable: FC<EntityTableProps> = ({ table, format }) => {
+	const allCustomTypeNames = Object.keys(typeObjects);
 
 	const processedRows = useMemo(() => {
 		const typeName =
@@ -113,6 +115,7 @@ export const EntityTable: FC<EntityTableProps> = ({ table, format }) => {
 				<tbody>
 					{processedRows.map((row) => {
 						const rowClass = row.isPrimaryKey ? 'primary-key' : row.isForeignKey ? 'foreign-key' : '';
+						const singularDataType = row.dataType.replace('[', '').replace(']', '');
 						return (
 							<tr key={row.columnName} className={rowClass}>
 								<td className="icon">
@@ -122,7 +125,11 @@ export const EntityTable: FC<EntityTableProps> = ({ table, format }) => {
 								</td>
 								<td>{row.columnName}</td>
 								<td className="data-type">
-									<span>{row.dataType}</span>
+									<span>{
+										allCustomTypeNames.includes(singularDataType)
+											? (<LinkToNode id={singularDataType}>{row.dataType}</LinkToNode>)
+											: row.dataType
+									}</span>
 								</td>
 							</tr>
 						);

@@ -1,26 +1,22 @@
-import { ReactFlow, type Node, type Edge } from '@xyflow/react';
-import typeObjects from '../../../server/src/generated/typeObjects.json';
-import { EntityGroup, SchemaObject, Table, TypeObject } from '../types.ts';
-import snakeCase from 'lodash/snakeCase';
-import { EntityTableGroup } from './EntityTableGroup/EntityTableGroup.tsx';
-import { dbTableNameFormatToTypeFormat, getSupertypeOfSubtype, typeFormatToDbTableNameFormat } from '../controllers/utils.ts';
-import { useMemo } from 'react';
+import { FC, useMemo } from 'react';
+import typeObjects from '../../../../server/src/generated/typeObjects.json';
+import { StyledSchemaDiagramWrapper } from './SchemaDiagramWrapper.style';
+import { dbTableNameFormatToTypeFormat, getSupertypeOfSubtype, typeFormatToDbTableNameFormat } from '../../controllers/utils.ts';
+import { EntityGroup, SchemaObject, Table, TypeObject, ForeignKey } from '../../types.ts';
+import type { Edge, Node } from '@xyflow/react';
+import { SchemaDiagram } from '../SchemaDiagram/SchemaDiagram.tsx';
+import { EntityTableGroup } from '../EntityTableGroup/EntityTableGroup.tsx';
 import uniq from 'lodash/uniq';
 import difference from 'lodash/difference';
+import snakeCase from 'lodash/snakeCase';
 
-type ForeignKey = {
-	table: string;
-	column: string;
-	$type: unknown;
-}
-
-type SchemaDiagramProps = {
+type SchemaDiagramWrapperProps = {
 	entities: SchemaObject;
 	format: 'database' | 'graphql';
 }
 
-export function SchemaDiagram({ entities, format }: SchemaDiagramProps) {
-	const boxWidth = 272;
+export const SchemaDiagramWrapper: FC<SchemaDiagramWrapperProps> = ({ entities, format }) => {
+	const boxWidth = 325;
 	const xOffset = 64;
 	const yOffset = 420;
 
@@ -33,7 +29,7 @@ export function SchemaDiagram({ entities, format }: SchemaDiagramProps) {
 		if(rowNumber === 0) {
 			return {
 				x: (noOfItemsInNextRow * boxWidth) + boxWidth,
-				y: yOffset / 4
+				y: 0
 			};
 		}
 
@@ -102,7 +98,7 @@ export function SchemaDiagram({ entities, format }: SchemaDiagramProps) {
 		return {
 			id: name,
 			type: 'entity',
-			data: { component: <EntityTableGroup entities={entities} format={format}/> },
+			data: { component: <EntityTableGroup entities={entities} format={format} id={name}/> },
 			position: calculatePosition(name),
 		};
 	});
@@ -141,12 +137,8 @@ export function SchemaDiagram({ entities, format }: SchemaDiagramProps) {
 	const edges: Edge[] = [...foreignKeyLinks, ...inheritanceLinks];
 
 	return (
-		<ReactFlow
-			nodes={nodes}
-			edges={edges}
-			nodeTypes={{
-				entity: ({ data }) => data.component,
-			}}
-		/>
+		<StyledSchemaDiagramWrapper data-testid="SchemaDiagramWrapper">
+			<SchemaDiagram nodes={nodes} edges={edges} />
+		</StyledSchemaDiagramWrapper>
 	);
-}
+};

@@ -34,6 +34,14 @@ export const StyledEntityTable = styled.table`
 					text-transform: uppercase;
 					font-size: 0.8em;
 					background: #EDEDED;
+					
+					&:has(a) {
+						padding: 0;
+						
+						a {
+							padding: 0.25rem;
+						}
+					}
 				}
 			}
 		}
