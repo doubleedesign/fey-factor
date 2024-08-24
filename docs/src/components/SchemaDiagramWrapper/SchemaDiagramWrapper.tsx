@@ -25,29 +25,36 @@ export const SchemaDiagramWrapper: FC<SchemaDiagramWrapperProps> = ({ entities, 
 		const itemIndex = rows[rowNumber].indexOf(tableName);
 		const noOfItemsInNextRow = rows[rowNumber + 1] ? rows[rowNumber + 1].length : 0;
 
-		// Connections row special handling
+		// Special handling for connections row and first row after that
 		if(rowNumber === 0) {
 			return {
 				x: (noOfItemsInNextRow * boxWidth) + boxWidth,
 				y: 0
 			};
 		}
-
-		// Position subtypes below their supertype
-		const supertype = getSupertypeOfSubtype(dbTableNameFormatToTypeFormat(tableName));
-		if(supertype) {
-			const supertypeIndex = rows[rowNumber - 1].indexOf(typeFormatToDbTableNameFormat(supertype));
-			const itemOffset = itemIndex - supertypeIndex;
+		else if(rowNumber === 1) {
 			return {
-				x: ((supertypeIndex * boxWidth) - (xOffset / 1.5)) + (itemOffset * (boxWidth + xOffset)),
-				y: rowNumber * yOffset
+				x: (boxWidth * itemIndex) + (xOffset * itemIndex),
+				y: yOffset / 2
 			};
 		}
+		else {
+		// Position subtypes below their supertype
+			const supertype = getSupertypeOfSubtype(dbTableNameFormatToTypeFormat(tableName));
+			if(supertype) {
+				const supertypeIndex = rows[rowNumber - 1].indexOf(typeFormatToDbTableNameFormat(supertype));
+				const itemOffset = itemIndex - supertypeIndex;
+				return {
+					x: ((supertypeIndex * boxWidth) - (xOffset / 1.5)) + (itemOffset * (boxWidth + xOffset)),
+					y: (rowNumber * yOffset) - (yOffset / 2)
+				};
+			}
 
-		return {
-			x: (boxWidth * itemIndex) + (xOffset * itemIndex),
-			y: rowNumber * yOffset
-		};
+			return {
+				x: (boxWidth * itemIndex) + (xOffset * itemIndex),
+				y: ((rowNumber - 1) * yOffset)
+			};
+		}
 	}
 
 	// Groupings based on the database schema

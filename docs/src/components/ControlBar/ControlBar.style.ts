@@ -4,7 +4,7 @@ export const StyledControlBar = styled.div`
 	background: #0b1c72;
 	position: fixed;
 	z-index: 500;
-	top: 0;
+	bottom: 0;
 	left: 0;
 	right: 0;
 	padding: 0.5rem;

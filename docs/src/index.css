@@ -1,11 +1,11 @@
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+	font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+	line-height: 1.5;
+	font-weight: 400;
+	font-synthesis: none;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 body {
@@ -26,30 +26,30 @@ body {
 	pointer-events: none;
 }
 
-.crossfade-enter {
-	opacity: 0;
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-}
+/*.crossfade-enter {*/
+/*	opacity: 0;*/
+/*	position: absolute;*/
+/*	top: 0;*/
+/*	left: 0;*/
+/*	right: 0;*/
+/*	bottom: 0;*/
+/*}*/
 
-.crossfade-enter-active {
-	opacity: 1;
-	transition: opacity 0.3s ease-in;
-}
+/*.crossfade-enter-active {*/
+/*	opacity: 1;*/
+/*	transition: opacity 0.3s ease-in;*/
+/*}*/
 
-.crossfade-exit {
-	opacity: 1;
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-}
+/*.crossfade-exit {*/
+/*	opacity: 1;*/
+/*	position: absolute;*/
+/*	top: 0;*/
+/*	left: 0;*/
+/*	right: 0;*/
+/*	bottom: 0;*/
+/*}*/
 
-.crossfade-exit-active {
-	opacity: 0;
-	transition: opacity 0.3s ease-in;
-}
+/*.crossfade-exit-active {*/
+/*	opacity: 0;*/
+/*	transition: opacity 0.3s ease-in;*/
+/*}*/
