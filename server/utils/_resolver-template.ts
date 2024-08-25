@@ -1,4 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { DatabaseConnection } from '../datasources/database';
 import { Template } from '../generated/source-types';

@@ -33,9 +33,15 @@ const connections = {
 	requiredForInsert: ['person_id', 'work_id', 'role_id'],
 	primaryKey: 'id',
 	foreignKeys: {
-		person_id: { table: 'people', column: 'id', $type: null as unknown as Person },
-		work_id: { table: 'works', column: 'id', $type: null as unknown as Work },
-		role_id: { table: 'roles', column: 'id', $type: null as unknown as Role },
+		person_id: {
+			table: 'people', column: 'id', $type: null as unknown as Person 
+		},
+		work_id: {
+			table: 'works', column: 'id', $type: null as unknown as Work 
+		},
+		role_id: {
+			table: 'roles', column: 'id', $type: null as unknown as Role 
+		},
 	},
 	$type: null as unknown as Connection,
 	$input: null as unknown as ConnectionInput

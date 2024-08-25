@@ -26,12 +26,13 @@
 	"devDependencies": {
 		"@graphql-codegen/cli": "^5.0.2",
 		"@graphql-codegen/typescript": "^4.0.9",
+		"@stylistic/eslint-plugin-ts": "^2.6.4",
 		"@types/lodash": "^4.17.7",
-		"@types/node": "^20.14.8",
+		"@types/node": "^22.5.0",
 		"@types/pg": "^8.11.6",
-		"@typescript-eslint/eslint-plugin": "^7.7.1",
-		"@typescript-eslint/parser": "^7.7.1",
-		"eslint": "^8.57.0",
+		"@typescript-eslint/eslint-plugin": "^8.2.0",
+		"@typescript-eslint/parser": "^8.2.0",
+		"eslint": "^9.9.1",
 		"nodemon": "^3.1.4",
 		"ts-node": "^10.9.2",
 		"typescript": "^5.5.2"

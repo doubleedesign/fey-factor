@@ -25,10 +25,12 @@ export class DatabaseConnection {
 				text: 'SELECT * FROM people WHERE id = $1',
 				values: [id]
 			});
+
 			return response.rows[0] ?? null;
 		}
 		catch(error) {
 			console.error(error);
+
 			return null;
 		}
 	}
@@ -39,10 +41,12 @@ export class DatabaseConnection {
 				text: 'SELECT * FROM connections WHERE person_id = $1',
 				values: [id]
 			});
+
 			return response.rows;
 		}
 		catch(error) {
 			console.error(error);
+
 			return null;
 		}
 	}
@@ -51,10 +55,12 @@ export class DatabaseConnection {
 		try {
 			const tvShows = await this.getTvShowsForPerson(id);
 			const movies = await this.getMoviesForPerson(id);
+
 			return [...tvShows, ...movies];
 		}
 		catch(error) {
 			console.error(error);
+
 			return null;
 		}
 	}
@@ -68,10 +74,12 @@ export class DatabaseConnection {
 				`,
 				values: [id]
 			});
+
 			return response.rows;
 		}
 		catch(error) {
 			console.error(error);
+
 			return null;
 		}
 	}
@@ -85,10 +93,12 @@ export class DatabaseConnection {
 				`,
 				values: [id]
 			});
+
 			return response.rows;
 		}
 		catch(error) {
 			console.error(error);
+
 			return null;
 		}
 	}
@@ -99,10 +109,12 @@ export class DatabaseConnection {
 				text: 'SELECT * FROM roles WHERE id IN (SELECT role_id FROM connections WHERE person_id = $1)',
 				values: [id]
 			});
+
 			return response.rows;
 		}
 		catch(error) {
 			console.error(error);
+
 			return null;
 		}
 	}
@@ -114,10 +126,12 @@ export class DatabaseConnection {
 				text: 'SELECT * FROM tv_shows WHERE id = $1',
 				values: [id]
 			});
+
 			return response.rows[0] ?? null;
 		}
 		catch(error) {
 			console.error(error);
+
 			return null;
 		}
 	}
@@ -128,10 +142,12 @@ export class DatabaseConnection {
 				text: 'SELECT * FROM movies WHERE id = $1',
 				values: [id]
 			});
+
 			return response.rows[0] ?? null;
 		}
 		catch (error) {
 			console.error(error);
+
 			return null;
 		}
 	}
@@ -142,10 +158,12 @@ export class DatabaseConnection {
 				text: 'SELECT * FROM connections WHERE work_id = $1',
 				values: [id]
 			});
+
 			return response.rows;
 		}
 		catch(error) {
 			console.error(error);
+
 			return null;
 		}
 	}
@@ -164,10 +182,12 @@ export class DatabaseConnection {
 				text: 'SELECT * FROM people WHERE id IN (SELECT person_id FROM connections WHERE work_id = $1)',
 				values: [id]
 			});
+
 			return response.rows;
 		}
 		catch(error) {
 			console.error(error);
+
 			return null;
 		}
 	}
@@ -186,10 +206,12 @@ export class DatabaseConnection {
 				text: 'SELECT * FROM roles WHERE id IN (SELECT role_id FROM connections WHERE work_id = $1)',
 				values: [id]
 			});
+
 			return response.rows;
 		}
 		catch(error) {
 			console.error(error);
+
 			return null;
 		}
 	}
@@ -208,10 +230,12 @@ export class DatabaseConnection {
 				text: 'SELECT * FROM connections WHERE id = $1',
 				values: [id]
 			});
+
 			return response.rows[0] ?? null;
 		}
 		catch(error) {
 			console.error(error);
+
 			return null;
 		}
 	}
@@ -222,10 +246,12 @@ export class DatabaseConnection {
 				text: 'SELECT * FROM people WHERE id = (SELECT person_id FROM connections WHERE id = $1)',
 				values: [id]
 			});
+
 			return response.rows[0] ?? null;
 		}
 		catch(error) {
 			console.error(error);
+
 			return null;
 		}
 	}
@@ -236,10 +262,12 @@ export class DatabaseConnection {
 				text: 'SELECT * FROM works WHERE id = (SELECT work_id FROM connections WHERE id = $1)',
 				values: [id]
 			});
+
 			return response.rows[0] ?? null;
 		}
 		catch(error) {
 			console.error(error);
+
 			return null;
 		}
 	}
@@ -250,10 +278,12 @@ export class DatabaseConnection {
 				text: 'SELECT * FROM roles WHERE id = (SELECT role_id FROM connections WHERE id = $1)',
 				values: [id]
 			});
+
 			return response.rows[0] ?? null;
 		}
 		catch(error) {
 			console.error(error);
+
 			return null;
 		}
 	}
@@ -264,10 +294,12 @@ export class DatabaseConnection {
 				text: 'SELECT * FROM roles WHERE id = $1',
 				values: [id]
 			});
+
 			return response.rows[0] ?? null;
 		}
 		catch(error) {
 			console.error(error);
+
 			return null;
 		}
 	}
@@ -278,10 +310,12 @@ export class DatabaseConnection {
 				text: 'SELECT * FROM connections WHERE role_id = $1',
 				values: [id]
 			});
+
 			return response.rows;
 		}
 		catch(error) {
 			console.error(error);
+
 			return null;
 		}
 	}
@@ -292,10 +326,12 @@ export class DatabaseConnection {
 				text: 'SELECT * FROM people WHERE id IN (SELECT person_id FROM connections WHERE role_id = $1)',
 				values: [id]
 			});
+
 			return response.rows;
 		}
 		catch(error) {
 			console.error(error);
+
 			return null;
 		}
 	}
@@ -306,10 +342,12 @@ export class DatabaseConnection {
 				text: 'SELECT * FROM works WHERE id IN (SELECT work_id FROM connections WHERE role_id = $1) AND type IS NOT NULL',
 				values: [id]
 			});
+
 			return response.rows;
 		}
 		catch(error) {
 			console.error(error);
+
 			return null;
 		}
 	}
