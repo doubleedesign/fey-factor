@@ -9,6 +9,6 @@ export default {
 			return db.getTemplate(id);
 		}
 	},
-	Template: {},
-	TemplateContainer: {}
+	TemplateContainer: {},
+	Template: {}
 };

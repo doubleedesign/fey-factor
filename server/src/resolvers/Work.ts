@@ -4,6 +4,8 @@ const db = new DatabaseConnection();
 
 export default {
 	Work: {
-		// TODO Add resolvers here
+		__resolveType(work) {
+			return work.episode_count ? 'TvShow' : 'Movie';
+		}
 	},
 };

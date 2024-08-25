@@ -34,9 +34,9 @@ For first run, arrow down to the "danger zone" and choose the "Initialise empty 
 
 The back-end is a GraphQL server built with [Yoga](https://the-guild.dev/graphql/yoga-server) because I need more practice with GraphQL. ¯\\_(ツ)_/¯
 
-I have created a script to generate TypeScript types and GraphQL schema from the database, which should be run on fresh installs or if the database schema is changed.
+I have created a script to generate TypeScript types and GraphQL schema from the database which should be run on fresh installs or if the database schema is changed.
 ```bash
-npm run generate
+npm run generate:schema
 ```
 Under the hood, this: 
 1. uses [pg-to-ts](https://www.npmjs.com/package/pg-to-ts) to do an initial generation of TypeScript interfaces from the database schema,
@@ -45,6 +45,19 @@ Under the hood, this:
    - This includes assessing foreign keys in the database tables and adding fields to the GraphQL schema to allow for querying related data.
 
 The generated files can then be found in `./src/generated`.
+
+I have also created a script to generate skeletons of resolvers for the GraphQL server based on the generated schema and likely function names. (**Note:** This overwrites any existing resolvers in the `./src/resolvers` folder.)
+```bash
+npm run generate:resolvers
+```
+
+### Troubleshooting
+
+Exception thrown about Punycode when running scripts on Node 21.
+: Change Node version to 20 LTS (`nvm use lts/iron`).
+
+After deleting resolver files to re-create them, the script says it's created them and `existsSync` returns `true`, but the files aren't actually there. `unlinkSync` throws an error.
+: Try killing all Node processes, restarting WSL, and/or restarting computer.
 
 ## 3. Front-end app
 

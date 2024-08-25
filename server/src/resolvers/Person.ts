@@ -5,18 +5,23 @@ const db = new DatabaseConnection();
 export default {
 	Query: {
 		person: async (_, { id }) => {
-			return db.getPerson(id);
+			return db.people.getPerson(id);
 		}
 	},
 	Person: {
 		connections: async (person: Person) => {
-			return db.getConnectionsForPerson(person.id);
+			return db.people.getConnectionsForPerson(person.id);
 		},
 		works: async (person: Person) => {
-			return db.getWorksForPerson(person.id);
+			return db.people.getWorksForPerson(person.id);
 		},
 		roles: async (person: Person) => {
-			return db.getRolesForPerson(person.id);
+			return db.people.getRolesForPerson(person.id);
 		}, 
 	},
+	PersonContainer: {
+		person: async (id) => {
+			return db.people.getPerson(id);
+		}
+	}
 };

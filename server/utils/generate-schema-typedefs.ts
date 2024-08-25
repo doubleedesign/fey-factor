@@ -7,19 +7,20 @@ import chalk from 'chalk';
 import { readFileSync, writeFileSync, appendFileSync } from 'fs';
 import { tables } from '../src/generated/source-types';
 import cloneDeep from 'lodash/cloneDeep';
+import { getTypeForContainerType } from './utils';
 
 // The type of object we'll be collecting the processed types into for later processing into GraphQL type definition template literals
 type TypeObject = {
 	fields: { fieldName: string, fieldType: any, required: boolean }[];
 	isSubtypeOf?: string;
 	isInterface?: boolean;
-}
+};
 
 // The type of object we'll be collecting the processed table types into to enable lookup of table names and their data type names as strings
 type TableTypeObject = {
 	tableName: string;
 	dataType: string;
-}
+};
 
 const typesDestFile = './src/generated/typeDefs.graphql';
 const queryDestFile = './src/generated/queryType.graphql';
@@ -88,6 +89,7 @@ function processTableTypes(node: ts.InterfaceDeclaration) {
 			const tableName = (member.name as ts.Identifier).text;
 			const column: Partial<ts.PropertySignature> = (member.type as TypeLiteralNode).members.find((member: ts.PropertySignature) => {
 				const columnName = (member.name as ts.Identifier).text;
+
 				return columnName === 'select';
 			}) as ts.PropertySignature;
 
@@ -111,6 +113,7 @@ function processExportedType(node: ts.TypeAliasDeclaration | ts.InterfaceDeclara
 				const fieldType = field.type ? field.type.getText() : 'unknown';
 				const optional = !!field.questionToken || fieldType.includes('null');
 				const required = !optional;
+
 				return {
 					fieldName,
 					fieldType: fieldType.replace('| null', '').trim(),
@@ -315,10 +318,11 @@ function convertAndSaveTypes() {
 	 * @param fieldType
 	 * @param required
 	 */
-	function convertTsFieldTypeToGql({ fieldType, required }: {fieldType: string, required: boolean}) {
+	function convertTsFieldTypeToGql({ fieldType, required }: { fieldType: string, required: boolean }) {
 		// Handle arrays - convert from Type[] to [Type] (or [Type]! for required fields)
 		if(fieldType.includes('[]')) {
 			const innerType = fieldType.replace('[]', '');
+
 			return required ? `[${innerType}!]!` : `[${innerType}]`;
 		}
 
@@ -341,14 +345,20 @@ function convertAndSaveTypes() {
  * Create and save the Query type to a separate file
  */
 function createAndSaveQueryType() {
-	let queryType = 'type Query {\n';
-	const typeNames = Object.keys(typeObjects);
-	typeNames.forEach(typeName => {
-		queryType += `\t${typeName.toLowerCase()}(id: ID!): ${typeName}\n`;
+	let queryObject = 'type Query {\n';
+	const queryableTypes = Object.keys(typeObjects).filter(name => name.endsWith('Container'));
+	const types = queryableTypes.map(type => {
+		return {
+			queryType: getTypeForContainerType(type).toLowerCase(),
+			returnType: type
+		};
 	});
-	queryType += '}';
+	types.forEach(({ queryType, returnType }) => {
+		queryObject += `\t${queryType}(id: ID!): ${returnType}\n`;
+	});
+	queryObject += '}';
 
-	writeFileSync(queryDestFile, queryType, 'utf8');
+	writeFileSync(queryDestFile, queryObject, 'utf8');
 	console.log(chalk.green(`Successfully generated GraphQL Query definition in ${queryDestFile}`));
 }
 

@@ -5,18 +5,23 @@ const db = new DatabaseConnection();
 export default {
 	Query: {
 		connection: async (_, { id }) => {
-			return db.getConnection(id);
+			return db.connections.getConnection(id);
 		}
 	},
 	Connection: {
 		person: async (connection: Connection) => {
-			return db.getPersonForConnection(connection.id);
+			return db.connections.getPersonForConnection(connection.id);
 		},
 		work: async (connection: Connection) => {
-			return db.getWorkForConnection(connection.id);
+			return db.connections.getWorkForConnection(connection.id);
 		},
 		role: async (connection: Connection) => {
-			return db.getRoleForConnection(connection.id);
+			return db.connections.getRoleForConnection(connection.id);
 		}, 
 	},
+	ConnectionContainer: {
+		connection: async (id) => {
+			return db.connections.getConnection(id);
+		}
+	}
 };
