@@ -1,8 +1,8 @@
 type Query {
-	connection(id: ID!): ConnectionContainer
-	movie(id: ID!): MovieContainer
-	person(id: ID!): PersonContainer
-	role(id: ID!): RoleContainer
-	tvshow(id: ID!): TvShowContainer
-	work(id: ID!): WorkContainer
+	Connection(id: ID!): Connection
+	Movie(id: ID!): Movie
+	Person(id: ID!): Person
+	Role(id: ID!): Role
+	TvShow(id: ID!): TvShow
+	Work(id: ID!): Work
 }

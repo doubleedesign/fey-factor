@@ -105,7 +105,6 @@ export class DatabaseConnection {
 	            (
 	                id             integer UNIQUE NOT NULL,
 	                title          varchar,
-	                type           varchar,
 		            PRIMARY KEY (id)
 	            );
 			`);

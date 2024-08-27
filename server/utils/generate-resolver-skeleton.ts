@@ -7,7 +7,7 @@ import gql from 'graphql-tag';
 import ts from 'typescript';
 import difference from 'lodash/difference';
 import capitalize from 'lodash/capitalize';
-import { getSupertypeOfSubtype, getTypeForContainerType, typeFormatToDbTableNameFormat } from './utils';
+import { getSubtypesOfSupertype, getSupertypeOfSubtype, typeFormatToDbTableNameFormat } from './utils';
 
 const rl = readline.createInterface({
 	input: process.stdin,
@@ -15,7 +15,6 @@ const rl = readline.createInterface({
 });
 
 const typeNames = [];
-const template = readFileSync('./utils/_resolver-template.ts', 'utf8');
 
 generateResolvers().then();
 
@@ -41,28 +40,18 @@ async function generateResolvers() {
 	);
 
 	// Create a file for each GraphQL type based on the template and insert likely resolver functions
-	// (but do not create separate files for {Type}Container types - they will be handled in their associated type)
+	// (but do not create separate files for {Type}Container types - they will be handled in their associated type's file)
 	visit(parsedSchema, {
 		ObjectTypeDefinition(node) {
-			try {
-				typeNames.push(node.name.value);
-				if(!node.name.value.endsWith('Container')) {
-					generateResolverFile(node, tsSourceFile, parsedSchema);
-				}
-			}
-			catch (error) {
-				console.error(chalk.red(`Error generating resolver file for ${node.name.value}: ${error}`));
+			typeNames.push(node.name.value);
+			if(!node.name.value.endsWith('Container')) {
+				generateResolverForType(node, tsSourceFile, parsedSchema);
 			}
 		},
 		InterfaceTypeDefinition(node) {
-			try {
-				typeNames.push(node.name.value);
-				if(!node.name.value.endsWith('Container')) {
-					generateResolverFile(node, tsSourceFile, parsedSchema);
-				}
-			}
-			catch (error) {
-				console.error(chalk.red(`Error generating resolver file for ${node.name.value}: ${error}`));
+			typeNames.push(node.name.value);
+			if(!node.name.value.endsWith('Container')) {
+				generateResolverForInterface(node, tsSourceFile);
 			}
 		},
 	});
@@ -91,17 +80,21 @@ async function generateResolvers() {
 	rl.close();
 }
 
-
 /**
- * Function to generate a resolver file for a given GraphQL type
+ * Function to generate a resolver file for a concrete type
  * @param node
  * @param tsSourceFile
+ * @param parsedSchema
  */
-function generateResolverFile(node: ObjectTypeDefinitionNode | InterfaceTypeDefinitionNode, tsSourceFile: ts.SourceFile, parsedSchema) {
+function generateResolverForType(node: ObjectTypeDefinitionNode, tsSourceFile: ts.SourceFile, parsedSchema) {
+	const template = readFileSync('./utils/_resolver-template-type.ts', 'utf8');
 	const typeName = node.name.value;
 	const filename = `./src/resolvers/${typeName}.ts`;
 	const supertype = getSupertypeOfSubtype(typeName);
 	const groupName = typeFormatToDbTableNameFormat(supertype || typeName);
+	const hasContainerType = doesTypeExist(`${typeName}Container`, parsedSchema);
+	const tsFields = getSourceFields(typeName, tsSourceFile);
+	const gqlFields = node.fields.map(field => field.name.value);
 
 	let fileContent = template
 		.replace('// eslint-disable-next-line @typescript-eslint/ban-ts-comment', '')
@@ -110,73 +103,97 @@ function generateResolverFile(node: ObjectTypeDefinitionNode | InterfaceTypeDefi
 		.replaceAll('Template', typeName)
 		.replaceAll('template', typeName.toLowerCase());
 
-
-	if(node.kind === 'ObjectTypeDefinition') {
-		// The fields in the TS type are generated directly from the database, so should be covered by the initial Query
-		// Get the fields that are in the GQL type but not the TS type, because those need to be added to the second section
-		const tsFields = getInterfaceFields(typeName, tsSourceFile);
-		const gqlFields = node.fields.map(field => field.name.value);
-
-		const diff = difference(gqlFields, tsFields);
-		if (diff.length > 0) {
-			const resolverFunctions = diff.map(field => {
-				const functionName = `db.${groupName}.get${capitalize(field)}For${capitalize(typeName)}`;
-				const arg = field === 'id' ? 'id' : `${typeName.toLowerCase()}.id`;
-
-				return `${field}: async (${typeName.toLowerCase()}: ${typeName}) => {\nreturn ${functionName}(${arg});\n},`;
-			});
-
-			// TODO: These need to resolve whole extended objects, not just containers
-			fileContent = fileContent.replace(`${typeName}: {}`, `${typeName}: {\n ${resolverFunctions.join('\n')} \n}`);
-		}
-	}
-
-	if(node.kind === 'InterfaceTypeDefinition') {
-		// Remove the query function for the interface
-		fileContent = removeQueryBlock(fileContent);
-		// Add comments to add the resolver functions
-		fileContent = fileContent.replace(`${typeName}: {}`, `${typeName}: {
-			__resolveType(${typeName.toLowerCase()}) {
-				// TODO Add logic here to determine the subtype to return
-			}
-			// TODO Add any additional resolvers here
-		}`);
-		console.log(chalk.yellow(`Please add resolver functions for the abstract interface ${typeName}`));
-	}
-
-	if(doesTypeExist(`${typeName}Container`, parsedSchema)) {
-		// TODO: return container fields correctly
-		fileContent = fileContent.replace(`${typeName}Container: {}`, `${typeName}Container: {
-			${typeName.toLowerCase()}: async (id) => {
-				return db.${groupName}.get${typeName}(id);
-			}
-		}`);
-	}
-	else {
+	// If this type does not have a corresponding Container type, remove that section from the resolver
+	if(!hasContainerType) {
 		fileContent = fileContent.replace(`${typeName}Container: {}`, '');
 	}
 
-	try {
-		writeFileSync(filename, fileContent);
-		if(existsSync(filename)) {
-			console.log(chalk.green(`Successfully created resolver file for ${typeName} at ${filename}`));
-		}
-		else {
-			console.error(chalk.red(`Error creating resolver file for ${typeName}`));
-		}
+	// The Container entities match the original TS types generated from the database; this is to resolve those fields
+	if(hasContainerType) {
+		fileContent = fileContent.replace(
+			`${typeName}Container: {}`,
+			`${typeName}Container: {
+				${tsFields.map(field => `${field}: async (${typeName.toLowerCase()}: ${typeName}) => {
+					return ${typeName.toLowerCase()}.${field};
+				},`).join('\n')}
+			}`
+		);
 	}
-	catch (error) {
-		console.error(chalk.red(`Error creating resolver file for ${typeName}: ${error}`));
+
+	// Get the fields that are in the GQL type but not the TS type, because those need to be added to the second section (the extended entity)
+	// If there are fields in the GQL type that are not in the TS type, add resolver functions for them here
+	const diff = difference(gqlFields, tsFields);
+	if (diff.length > 0) {
+		const resolverFunctions = diff.map(field => {
+			const functionName = `db.${groupName}.get${capitalize(field)}For${capitalize(typeName)}`;
+			const arg = field === 'id' ? 'id' : `${typeName.toLowerCase()}.id`;
+
+			return `${field}: async (${typeName.toLowerCase()}: ${typeName}) => {
+						return ${functionName}(${arg});
+					},`;
+		});
+
+		fileContent = fileContent.replace(
+			`${typeName}: {}`,
+			`${typeName}: {
+				${resolverFunctions.join('\n')}
+			}`
+		);
 	}
+
+	writeFileSync(filename, fileContent);
+	console.log(chalk.green(`Successfully generated resolver file for ${typeName}`));
 }
 
+/**
+ * Function to generate a resolver file for an abstract interface type
+ * @param node
+ * @param tsSourceFile
+ */
+function generateResolverForInterface(node: InterfaceTypeDefinitionNode, tsSourceFile: ts.SourceFile) {
+	const template = readFileSync('./utils/_resolver-template-interface.ts', 'utf8');
+	const typeName = node.name.value;
+	const filename = `./src/resolvers/${typeName}.ts`;
+
+	const subtypes = getSubtypesOfSupertype(typeName);
+	const subtypeFields = subtypes.map(subtype => {
+		return getSourceFields(subtype, tsSourceFile);
+	});
+
+	// Flatten the subtype field arrays and count occurrences of each field,
+	// and then filter unique fields for each subtype while keeping them in separate arrays per subtype
+	// The unique fields are used below to determine the content of the __resolveType functions
+	const fieldCounts = subtypeFields.flat().reduce((acc, field) => {
+		acc[field] = (acc[field] || 0) + 1;
+
+		return acc;
+	}, {});
+	const uniqueFields = subtypeFields.map(subArray => subArray.filter(field => fieldCounts[field] === 1));
+
+	const fileContent = template
+		.replace('// eslint-disable-next-line @typescript-eslint/ban-ts-comment', '')
+		.replace('// @ts-nocheck', '')
+		.replaceAll('Template', typeName)
+		.replaceAll('template', typeName.toLowerCase())
+		.replace(
+			'// TODO: Add logic here to determine the subtype to return for the container type',
+			`return container.${uniqueFields[0][0]} ? '${subtypes[0]}Container' : '${subtypes[1]}Container'`
+		)
+		.replace(
+			'// TODO: Add logic here to determine the subtype to return for the extended type',
+			`return ${typeName.toLowerCase()}.${uniqueFields[0][0]} ? '${subtypes[0]}' : '${subtypes[1]}'`
+		);
+
+	writeFileSync(filename, fileContent);
+	console.log(chalk.green(`Successfully generated resolver file for ${typeName}`));
+}
 
 /**
  * Function to find an interface by name in the TypeScript types file and get its fields
  * @param sourceFile
  * @param interfaceName
  */
-function getInterfaceFields(interfaceName: string, sourceFile: ts.SourceFile, ) {
+function getSourceFields(interfaceName: string, sourceFile: ts.SourceFile, ) {
 	const fields = [];
 
 	function visit(node) {
@@ -194,21 +211,6 @@ function getInterfaceFields(interfaceName: string, sourceFile: ts.SourceFile, ) 
 	visit(sourceFile);
 
 	return fields;
-}
-
-/**
- * Function to remove the Query block from a resolver if it is not needed
- * @param content
- */
-function removeQueryBlock(content) {
-	const regex = /Query:\s*\{([^{}]*|\{[^{}]*\})*\},\s*\n?/g;
-	let match;
-
-	while ((match = regex.exec(content)) !== null) {
-		content = content.replace(match[0], '');
-	}
-
-	return content.trim();
 }
 
 /**

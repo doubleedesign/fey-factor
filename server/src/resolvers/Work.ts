@@ -1,11 +1,12 @@
-import { DatabaseConnection } from '../datasources/database';
-import { Work } from '../generated/source-types';
-const db = new DatabaseConnection();
-
 export default {
-	Work: {
-		__resolveType(work) {
-			return work.episode_count ? 'TvShow' : 'Movie';
+	WorkContainer: {
+		__resolveType: (container) => {
+			return container.release_year ? 'MovieContainer' : 'TvShowContainer';
 		}
 	},
+	Work: {
+		__resolveType: (work) => {
+			return work.release_year ? 'Movie' : 'TvShow';
+		}
+	}
 };

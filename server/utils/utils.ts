@@ -67,6 +67,13 @@ export function getSupertypeOfSubtype(subtypeName: string) {
 }
 
 
+export function getSubtypesOfSupertype(supertypeName: string) {
+	return Object.entries(typeObjects as Record<string, TypeObject>).filter(([key, value]) => {
+		return value.isSubtypeOf === supertypeName;
+	}).map(([key]) => key);
+}
+
+
 export function getTypeForContainerType(containerType: string) {
 	return containerType.endsWith('Container')
 		? containerType.replace('Container', '')

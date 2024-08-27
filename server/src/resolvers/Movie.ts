@@ -4,9 +4,26 @@ const db = new DatabaseConnection();
 
 export default {
 	Query: {
-		movie: async (_, { id }) => {
-			return db.works.getMovie(id);
+		Movie: async (_, { id }): Promise<Movie> => {
+			const coreFields = await db.works.getMovie(id);
+
+			return {
+				...coreFields,
+				// The rest of the fields for the Movie type become available here as if by magic
+				// because the Query type in the schema expects the Movie type and so will use the Movie resolver below
+			};
 		}
+	},
+	MovieContainer: {
+		id: async (movie: Movie) => {
+			return movie.id;
+		},
+		title: async (movie: Movie) => {
+			return movie.title;
+		},
+		release_year: async (movie: Movie) => {
+			return movie.release_year;
+		},
 	},
 	Movie: {
 		connections: async (movie: Movie) => {
@@ -17,11 +34,6 @@ export default {
 		},
 		roles: async (movie: Movie) => {
 			return db.works.getRolesForMovie(movie.id);
-		}, 
-	},
-	MovieContainer: {
-		movie: async (id) => {
-			return db.works.getMovie(id);
-		}
+		},
 	}
 };

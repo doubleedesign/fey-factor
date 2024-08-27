@@ -1,14 +1,15 @@
 import { createYoga, createSchema } from 'graphql-yoga';
 import { createServer } from 'http';
-import chalk from 'chalk';
 import { readFileSync } from 'fs';
 import { exec } from 'child_process';
+import gql from 'graphql-tag';
+import chalk from 'chalk';
 import resolvers from './resolvers';
 
 const schema = createSchema({
-	typeDefs: `
-		${readFileSync('./src/generated/queryType.graphql', 'utf8')}
-		${readFileSync('./src/generated/typeDefs.graphql', 'utf8')}
+	typeDefs: gql`
+        ${readFileSync('./src/generated/queryType.graphql', 'utf8')}
+        ${readFileSync('./src/generated/typeDefs.graphql', 'utf8')}
 	`,
 	resolvers: resolvers
 });

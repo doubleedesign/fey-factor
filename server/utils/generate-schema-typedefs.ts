@@ -346,10 +346,10 @@ function convertAndSaveTypes() {
  */
 function createAndSaveQueryType() {
 	let queryObject = 'type Query {\n';
-	const queryableTypes = Object.keys(typeObjects).filter(name => name.endsWith('Container'));
+	const queryableTypes = Object.keys(typeObjects).filter(name => !name.endsWith('Container'));
 	const types = queryableTypes.map(type => {
 		return {
-			queryType: getTypeForContainerType(type).toLowerCase(),
+			queryType: type,
 			returnType: type
 		};
 	});

@@ -53,9 +53,11 @@ export class DbPeople {
 	async getTvShowsForPerson(id: number): Promise<TvShowContainer[]> {
 		try {
 			const response = await this.pgClient.query({
-				text: `SELECT w.*, t.start_year, t.end_year, t.episode_count, t.season_count
-                       FROM public.works w JOIN public.tv_shows t ON t.id = w.id
-                       WHERE w.id IN (SELECT work_id FROM public.connections WHERE person_id = $1)
+				text: `SELECT DISTINCT ON (w.id) w.id, w.title, t.start_year, t.end_year, t.episode_count, t.season_count
+                       FROM public.tv_shows t
+                           JOIN public.works w ON t.id = w.id
+                    	WHERE w.id IN (SELECT work_id FROM public.connections WHERE person_id = $1)
+                          AND w.title IS NOT NULL
 				`,
 				values: [id]
 			});
@@ -72,9 +74,10 @@ export class DbPeople {
 	async getMoviesForPerson(id: number): Promise<MovieContainer[]> {
 		try {
 			const response = await this.pgClient.query({
-				text: `SELECT w.*, t.release_year
+				text: `SELECT DISTINCT ON (w.id) w.*, t.release_year
                        FROM public.works w JOIN public.movies t ON t.id = w.id
                        WHERE w.id IN (SELECT work_id FROM public.connections WHERE person_id = $1)
+						AND w.title IS NOT NULL
 				`,
 				values: [id]
 			});
