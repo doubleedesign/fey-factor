@@ -1,9 +1,10 @@
 import pg from 'pg';
+import { ConnectionContainer, MovieContainer, PersonContainer, RoleContainer, TvShowContainer, WorkContainer } from '../../generated/gql-types';
 
 export class DbPeople {
 	constructor(private pgClient: pg.Pool) {}
 
-	async getPerson(id: number) {
+	async getPerson(id: number): Promise<PersonContainer> {
 		try {
 			const response = await this.pgClient.query({
 				text: 'SELECT * FROM people WHERE id = $1',
@@ -19,7 +20,7 @@ export class DbPeople {
 		}
 	}
 
-	async getConnectionsForPerson(id: number) {
+	async getConnectionsForPerson(id: number): Promise<ConnectionContainer[]> {
 		try {
 			const response = await this.pgClient.query({
 				text: 'SELECT * FROM connections WHERE person_id = $1',
@@ -35,7 +36,7 @@ export class DbPeople {
 		}
 	}
 
-	async getWorksForPerson(id: number) {
+	async getWorksForPerson(id: number): Promise<WorkContainer[]> {
 		try {
 			const tvShows = await this.getTvShowsForPerson(id);
 			const movies = await this.getMoviesForPerson(id);
@@ -49,7 +50,7 @@ export class DbPeople {
 		}
 	}
 
-	async getTvShowsForPerson(id: number) {
+	async getTvShowsForPerson(id: number): Promise<TvShowContainer[]> {
 		try {
 			const response = await this.pgClient.query({
 				text: `SELECT w.*, t.start_year, t.end_year, t.episode_count, t.season_count
@@ -68,7 +69,7 @@ export class DbPeople {
 		}
 	}
 
-	async getMoviesForPerson(id: number) {
+	async getMoviesForPerson(id: number): Promise<MovieContainer[]> {
 		try {
 			const response = await this.pgClient.query({
 				text: `SELECT w.*, t.release_year
@@ -87,7 +88,7 @@ export class DbPeople {
 		}
 	}
 
-	async getRolesForPerson(id: number) {
+	async getRolesForPerson(id: number): Promise<RoleContainer[]> {
 		try {
 			const response = await this.pgClient.query({
 				text: 'SELECT * FROM roles WHERE id IN (SELECT role_id FROM connections WHERE person_id = $1)',

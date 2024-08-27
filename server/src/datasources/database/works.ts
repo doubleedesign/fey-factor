@@ -1,5 +1,5 @@
 import pg from 'pg';
-import { TvShowContainer, WorkContainer } from '../../generated/gql-types';
+import { ConnectionContainer, MovieContainer, PersonContainer, RoleContainer, TvShowContainer, WorkContainer } from '../../generated/gql-types';
 
 export class DbWorks  {
 	constructor(private pgClient: pg.Pool) {}
@@ -36,7 +36,7 @@ export class DbWorks  {
 		}
 	}
 
-	async getMovie(id: number) {
+	async getMovie(id: number): Promise<MovieContainer> {
 		try {
 			const response = await this.pgClient.query({
 				text: 'SELECT * FROM movies WHERE id = $1',
@@ -52,7 +52,7 @@ export class DbWorks  {
 		}
 	}
 
-	async getPeopleForWork(id: number) {
+	async getPeopleForWork(id: number): Promise<PersonContainer[]> {
 		try {
 			const response = await this.pgClient.query({
 				text: 'SELECT * FROM people WHERE id IN (SELECT person_id FROM connections WHERE work_id = $1)',
@@ -68,7 +68,7 @@ export class DbWorks  {
 		}
 	}
 
-	async getRolesForWork(id: number) {
+	async getRolesForWork(id: number): Promise<RoleContainer[]> {
 		try {
 			const response = await this.pgClient.query({
 				text: 'SELECT * FROM roles WHERE id IN (SELECT role_id FROM connections WHERE work_id = $1)',
@@ -84,7 +84,7 @@ export class DbWorks  {
 		}
 	}
 
-	async getConnectionsForWork(id: number) {
+	async getConnectionsForWork(id: number): Promise<ConnectionContainer[]> {
 		try {
 			const response = await this.pgClient.query({
 				text: 'SELECT * FROM connections WHERE work_id = $1',
@@ -100,27 +100,27 @@ export class DbWorks  {
 		}
 	}
 
-	async getPeopleForTvshow(id: number) {
+	async getPeopleForTvshow(id: number): Promise<PersonContainer[]> {
 		return this.getPeopleForWork(id);
 	}
 
-	async getPeopleForMovie(id: number) {
+	async getPeopleForMovie(id: number): Promise<PersonContainer[]> {
 		return this.getPeopleForWork(id);
 	}
 
-	async getRolesForTvshow(id: number) {
+	async getRolesForTvshow(id: number): Promise<RoleContainer[]> {
 		return this.getRolesForWork(id);
 	}
 
-	async getRolesForMovie(id: number) {
+	async getRolesForMovie(id: number): Promise<RoleContainer[]> {
 		return this.getRolesForWork(id);
 	}
 
-	async getConnectionsForTvshow(id: number) {
+	async getConnectionsForTvshow(id: number): Promise<ConnectionContainer[]> {
 		return this.getConnectionsForWork(id);
 	}
 
-	async getConnectionsForMovie(id: number) {
+	async getConnectionsForMovie(id: number): Promise<ConnectionContainer[]> {
 		return this.getConnectionsForWork(id);
 	}
 }
