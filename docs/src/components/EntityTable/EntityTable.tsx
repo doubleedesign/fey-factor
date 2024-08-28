@@ -7,8 +7,9 @@ import { PrimaryKeyIcon, PrimaryKeyInheritedIcon, ForeignKeyIcon } from '../Icon
 import camelCase from 'lodash/camelCase';
 import upperFirst from 'lodash/upperFirst';
 import typeObjects from '../../../../server/src/generated/typeObjects.json';
-import { typeFormatToDbTableNameFormat } from '../../controllers/utils.ts';
+import { dbTableNameFormatToTypeFormat, getSupertypeOfSubtype, typeFormatToDbTableNameFormat } from '../../controllers/utils.ts';
 import { LinkToNode } from '../LinkToNode/LinkToNode.tsx';
+import { GraphQLIcon } from '../Icon/GraphQLIcon.tsx';
 
 type EntityTableProps = {
 	table: Table;
@@ -31,8 +32,9 @@ function getDataType(typeName: string, columnName: string, format: 'database'|'g
 	}
 }
 
-function isSubtype(tableName: string) {
-	return ['tv_shows', 'movies'].includes(tableName); // TODO: Match these properly
+function isSubtype(typeName: string) {
+	// @ts-expect-error TS7053: Element implicitly has an any type because expression of type string can't be used to index type
+	return (typeObjects[dbTableNameFormatToTypeFormat(typeName)] as TypeObject)?.isSubtypeOf;
 }
 
 function isConnectionTable(tableName: string) {
@@ -42,7 +44,15 @@ function isConnectionTable(tableName: string) {
 }
 
 function getParentTable(tableName: string) {
-	return ['tv_shows', 'movies'].includes(tableName) ? tables.works : undefined; // TODO: Match these properly
+	const supertype = getSupertypeOfSubtype(dbTableNameFormatToTypeFormat(tableName)) || getSupertypeOfSubtype(tableName);
+	if(!supertype) {
+		return false;
+	}
+
+	const parent = typeFormatToDbTableNameFormat(supertype);
+
+	// @ts-expect-error TS7053: Element implicitly has an any type because expression of type string can't be used to index type
+	return tables[parent];
 }
 
 function getSourceHandlePosition(tableName: string) {
@@ -68,7 +78,6 @@ export const EntityTable: FC<EntityTableProps> = ({ table, format }) => {
 				? 'Person'
 				: upperFirst(camelCase(table.tableName.endsWith('s') ? table.tableName.slice(0, -1) : table.tableName));
 
-
 		return table.columns.map((columnName) => {
 			return {
 				columnName,
@@ -76,20 +85,24 @@ export const EntityTable: FC<EntityTableProps> = ({ table, format }) => {
 				isPrimaryKey: table.primaryKey === columnName,
 				isInheritedPrimaryKey: isSubtype(table.tableName) && getParentTable(table.tableName)?.primaryKey === columnName,
 				isForeignKey: table.foreignKeys[columnName] !== undefined,
+				isGqlAddedField: table?.gqlOnlyFields?.includes(columnName) ?? false,
 			};
 		}).sort((a, b) => {
-			if (a.isPrimaryKey && !b.isPrimaryKey) {
-				return -1;
-			}
-			if (!a.isPrimaryKey && b.isPrimaryKey) {
-				return 1;
-			}
-			if (a.isForeignKey && !b.isForeignKey) {
-				return 1;
-			}
-			if (!a.isForeignKey && b.isForeignKey) {
-				return -1;
-			}
+			// Sort by primary key
+			if (a.isPrimaryKey && !b.isPrimaryKey) return -1;
+			if (!a.isPrimaryKey && b.isPrimaryKey) return 1;
+			if (a.isInheritedPrimaryKey && !b.isInheritedPrimaryKey ) return -1;
+			if (!a.isInheritedPrimaryKey  && b.isInheritedPrimaryKey ) return 1;
+
+			// Sort by foreign key
+			if (a.isForeignKey && !b.isForeignKey) return -1;
+			if (!a.isForeignKey && b.isForeignKey) return 1;
+
+			// Place gqlAddedFields at the bottom
+			if (!a.isPrimaryKey && !a.isForeignKey && !b.isGqlAddedField) return -1;
+			if (!b.isPrimaryKey && !b.isForeignKey && a.isGqlAddedField) return 1;
+
+			// If they are the same in all respects, maintain their current order
 			return 0;
 		});
 	}, [table.columns, table.primaryKey, table.foreignKeys]);
@@ -114,7 +127,16 @@ export const EntityTable: FC<EntityTableProps> = ({ table, format }) => {
 				</thead>
 				<tbody>
 					{processedRows.map((row) => {
-						const rowClass = row.isPrimaryKey ? 'primary-key' : row.isForeignKey ? 'foreign-key' : '';
+						let rowClass = '';
+						if(row.isPrimaryKey || row.isInheritedPrimaryKey) {
+							rowClass = 'primary-key';
+						}
+						else if(row.isForeignKey) {
+							rowClass = 'foreign-key';
+						}
+						else if(row.isGqlAddedField) {
+							rowClass = 'gql-added-field';
+						}
 						const singularDataType = row.dataType.replace('[', '').replace(']', '');
 						return (
 							<tr key={row.columnName} className={rowClass}>
@@ -122,6 +144,7 @@ export const EntityTable: FC<EntityTableProps> = ({ table, format }) => {
 									{row.isPrimaryKey && <PrimaryKeyIcon/>}
 									{row.isInheritedPrimaryKey && <PrimaryKeyInheritedIcon/>}
 									{row.isForeignKey && <ForeignKeyIcon/>}
+									{row.isGqlAddedField && <GraphQLIcon/>}
 								</td>
 								<td>{row.columnName}</td>
 								<td className="data-type">

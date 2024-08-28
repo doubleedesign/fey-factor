@@ -14,7 +14,7 @@ export default {
 			};
 		}
 	},
-	TvShowContainer: {
+	TvShow: {
 		id: async (tvshow: TvShow) => {
 			return tvshow.id;
 		},
@@ -33,16 +33,18 @@ export default {
 		episode_count: async (tvshow: TvShow) => {
 			return tvshow.episode_count;
 		},
-	},
-	TvShow: {
 		connections: async (tvshow: TvShow) => {
 			return db.works.getConnectionsForTvshow(tvshow.id);
 		},
 		people: async (tvshow: TvShow) => {
 			return db.works.getPeopleForTvshow(tvshow.id);
 		},
-		roles: async (tvshow: TvShow) => {
-			return db.works.getRolesForTvshow(tvshow.id);
+		roles: async (parent: TvShow & { personId?: number }, args, context) => {
+			if(parent.personId) {
+				return db.works.getPersonsRolesForWork(parent.personId, parent.id);
+			}
+
+			return db.works.getRolesForTvshow(parent.id);
 		},
 	}
 };

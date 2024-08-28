@@ -14,98 +14,43 @@ export type Scalars = {
 	Float: { input: number; output: number; }
 };
 
-export type Connection = {
-	episode_count: Maybe<Scalars['Int']['output']>;
-	id: Scalars['ID']['output'];
-	person: Maybe<PersonContainer>;
-	person_id: Scalars['Int']['output'];
-	role: Maybe<RoleContainer>;
-	role_id: Scalars['Int']['output'];
-	work: Maybe<WorkContainer>;
-	work_id: Scalars['Int']['output'];
-};
-
-export type ConnectionContainer = {
-	episode_count: Maybe<Scalars['Int']['output']>;
-	id: Scalars['ID']['output'];
-	person_id: Scalars['Int']['output'];
-	role_id: Scalars['Int']['output'];
-	work_id: Scalars['Int']['output'];
-};
-
 export type Movie = Work & {
-	connections: Maybe<Array<Maybe<ConnectionContainer>>>;
 	id: Scalars['ID']['output'];
-	people: Maybe<Array<Maybe<PersonContainer>>>;
+	people: Maybe<Array<Maybe<Person>>>;
 	release_year: Maybe<Scalars['Int']['output']>;
-	roles: Maybe<Array<Maybe<RoleContainer>>>;
-	title: Maybe<Scalars['String']['output']>;
-};
-
-export type MovieContainer = WorkContainer & {
-	id: Scalars['ID']['output'];
-	release_year: Maybe<Scalars['Int']['output']>;
+	roles: Maybe<Array<Maybe<Role>>>;
 	title: Maybe<Scalars['String']['output']>;
 };
 
 export type Person = {
-	connections: Maybe<Array<Maybe<ConnectionContainer>>>;
 	degree: Maybe<Scalars['Int']['output']>;
 	id: Scalars['ID']['output'];
-	name: Maybe<Scalars['String']['output']>;
-	roles: Maybe<Array<Maybe<RoleContainer>>>;
-	works: Maybe<Array<Maybe<WorkContainer>>>;
-};
-
-export type PersonContainer = {
-	degree: Maybe<Scalars['Int']['output']>;
-	id: Scalars['ID']['output'];
-	name: Maybe<Scalars['String']['output']>;
+	name: Scalars['String']['output'];
+	roles: Maybe<Array<Maybe<Role>>>;
+	works: Maybe<Array<Maybe<Work>>>;
 };
 
 export type Role = {
-	connections: Maybe<Array<Maybe<ConnectionContainer>>>;
 	id: Scalars['ID']['output'];
 	name: Maybe<Scalars['String']['output']>;
-	people: Maybe<Array<Maybe<PersonContainer>>>;
-	works: Maybe<Array<Maybe<WorkContainer>>>;
-};
-
-export type RoleContainer = {
-	id: Scalars['ID']['output'];
-	name: Maybe<Scalars['String']['output']>;
+	people: Maybe<Array<Maybe<Person>>>;
+	works: Maybe<Array<Maybe<Work>>>;
 };
 
 export type TvShow = Work & {
-	connections: Maybe<Array<Maybe<ConnectionContainer>>>;
 	end_year: Maybe<Scalars['Int']['output']>;
 	episode_count: Maybe<Scalars['Int']['output']>;
 	id: Scalars['ID']['output'];
-	people: Maybe<Array<Maybe<PersonContainer>>>;
-	roles: Maybe<Array<Maybe<RoleContainer>>>;
-	season_count: Maybe<Scalars['Int']['output']>;
-	start_year: Maybe<Scalars['Int']['output']>;
-	title: Maybe<Scalars['String']['output']>;
-};
-
-export type TvShowContainer = WorkContainer & {
-	end_year: Maybe<Scalars['Int']['output']>;
-	episode_count: Maybe<Scalars['Int']['output']>;
-	id: Scalars['ID']['output'];
+	people: Maybe<Array<Maybe<Person>>>;
+	roles: Maybe<Array<Maybe<Role>>>;
 	season_count: Maybe<Scalars['Int']['output']>;
 	start_year: Maybe<Scalars['Int']['output']>;
 	title: Maybe<Scalars['String']['output']>;
 };
 
 export type Work = {
-	connections: Maybe<Array<Maybe<ConnectionContainer>>>;
 	id: Scalars['ID']['output'];
-	people: Maybe<Array<Maybe<PersonContainer>>>;
-	roles: Maybe<Array<Maybe<RoleContainer>>>;
-	title: Maybe<Scalars['String']['output']>;
-};
-
-export type WorkContainer = {
-	id: Scalars['ID']['output'];
+	people: Maybe<Array<Maybe<Person>>>;
+	roles: Maybe<Array<Maybe<Role>>>;
 	title: Maybe<Scalars['String']['output']>;
 };

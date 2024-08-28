@@ -32,15 +32,12 @@ function toSingular(str: string) {
 
 /**
  * Converts a singular type name to the plural format used for database table names
- * Also accounts for {Type}Container types not being directly in the database, instead returning the table their types originally came from
- * @param typeName
+` * @param typeName
  *
  * @return string
  */
 export function typeFormatToDbTableNameFormat(typeName: string) {
-	return typeName.endsWith('Container')
-		? toPlural(snakeCase(typeName.replace('Container', '')))
-		: toPlural(snakeCase(typeName));
+	return toPlural(snakeCase(typeName));
 }
 
 /**
@@ -71,11 +68,4 @@ export function getSubtypesOfSupertype(supertypeName: string) {
 	return Object.entries(typeObjects as Record<string, TypeObject>).filter(([key, value]) => {
 		return value.isSubtypeOf === supertypeName;
 	}).map(([key]) => key);
-}
-
-
-export function getTypeForContainerType(containerType: string) {
-	return containerType.endsWith('Container')
-		? containerType.replace('Container', '')
-		: containerType;
 }

@@ -5,6 +5,7 @@ export const StyledEntityTable = styled.table`
 	width: 100%;
 	border-collapse: collapse;
 	font-size: 0.9rem;
+	cursor: default;
 
 	th {
 		text-align: center;
@@ -54,14 +55,16 @@ export const StyledEntityTable = styled.table`
 
 		&.primary-key {
 		}
-
-		&.foreign-key {
+		
+		&.foreign-key,
+		&.gql-added-field {
 			td {
-				border-top-color: #CCC;
+				border-top-color: #AAA; // Darker border on the first row
 			}
 
-			+ tr.foreign-key td {
-				border-top-color: #EDEDED; // hack to reset the other row
+			+ tr.foreign-key td,
+			+ tr.gql-added-field td {
+				border-top-color: #EDEDED; // hack to reset the other rows
 			}
 		}
 	}

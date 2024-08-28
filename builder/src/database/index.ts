@@ -89,7 +89,7 @@ export class DatabaseConnection {
 			await this.pgClient.query(`CREATE TABLE public.people
 	            (
 	                id             integer UNIQUE NOT NULL,
-	                name           varchar,
+	                name           varchar NOT NULL,
 	                degree  	   integer,
 	                PRIMARY KEY (id)
 	            );
@@ -104,7 +104,7 @@ export class DatabaseConnection {
 			await this.pgClient.query(`CREATE TABLE public.works
 	            (
 	                id             integer UNIQUE NOT NULL,
-	                title          varchar,
+	                title          varchar NOT NULL,
 		            PRIMARY KEY (id)
 	            );
 			`);

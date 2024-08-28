@@ -29,5 +29,5 @@ server.listen(4000, () => {
 	console.log(chalk.magenta('==================================================================='));
 
 	// Automatically open the default browser
-	exec(`explorer.exe ${url.replace(/&/g, '^&')}`);
+	//exec(`explorer.exe ${url.replace(/&/g, '^&')}`);
 });

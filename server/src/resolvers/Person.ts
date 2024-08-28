@@ -14,7 +14,7 @@ export default {
 			};
 		}
 	},
-	PersonContainer: {
+	Person: {
 		id: async (person: Person) => {
 			return person.id;
 		},
@@ -24,13 +24,18 @@ export default {
 		degree: async (person: Person) => {
 			return person.degree;
 		},
-	},
-	Person: {
 		connections: async (person: Person) => {
 			return db.people.getConnectionsForPerson(person.id);
 		},
-		works: async (person: Person) => {
-			return db.people.getWorksForPerson(person.id);
+		works: async (person: Person, args, context) => {
+			const works = await db.people.getWorksForPerson(person.id);
+
+			return works.map(work => {
+				return {
+					...work,
+					personId: person.id // Add this field for contextual resolving further down the chain
+				};
+			});
 		},
 		roles: async (person: Person) => {
 			return db.people.getRolesForPerson(person.id);

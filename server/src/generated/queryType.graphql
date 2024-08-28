@@ -1,5 +1,4 @@
 type Query {
-	Connection(id: ID!): Connection
 	Movie(id: ID!): Movie
 	Person(id: ID!): Person
 	Role(id: ID!): Role

@@ -3,18 +3,7 @@ import { Connection } from '../generated/source-types';
 const db = new DatabaseConnection();
 
 export default {
-	Query: {
-		Connection: async (_, { id }): Promise<Connection> => {
-			const coreFields = await db.connections.getConnection(id);
-
-			return {
-				...coreFields,
-				// The rest of the fields for the Connection type become available here as if by magic
-				// because the Query type in the schema expects the Connection type and so will use the Connection resolver below
-			};
-		}
-	},
-	ConnectionContainer: {
+	Connection: {
 		id: async (connection: Connection) => {
 			return connection.id;
 		},
@@ -30,8 +19,6 @@ export default {
 		episode_count: async (connection: Connection) => {
 			return connection.episode_count;
 		},
-	},
-	Connection: {
 		person: async (connection: Connection) => {
 			return db.connections.getPersonForConnection(connection.id);
 		},

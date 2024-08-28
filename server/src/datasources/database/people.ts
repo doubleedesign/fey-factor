@@ -1,10 +1,10 @@
 import pg from 'pg';
-import { ConnectionContainer, MovieContainer, PersonContainer, RoleContainer, TvShowContainer, WorkContainer } from '../../generated/gql-types';
+import { Connection, Movie, Person, Role, TvShow, Work } from '../../generated/source-types';
 
 export class DbPeople {
 	constructor(private pgClient: pg.Pool) {}
 
-	async getPerson(id: number): Promise<PersonContainer> {
+	async getPerson(id: number): Promise<Person> {
 		try {
 			const response = await this.pgClient.query({
 				text: 'SELECT * FROM people WHERE id = $1',
@@ -20,7 +20,7 @@ export class DbPeople {
 		}
 	}
 
-	async getConnectionsForPerson(id: number): Promise<ConnectionContainer[]> {
+	async getConnectionsForPerson(id: number): Promise<Connection[]> {
 		try {
 			const response = await this.pgClient.query({
 				text: 'SELECT * FROM connections WHERE person_id = $1',
@@ -36,7 +36,7 @@ export class DbPeople {
 		}
 	}
 
-	async getWorksForPerson(id: number): Promise<WorkContainer[]> {
+	async getWorksForPerson(id: number): Promise<Work[]> {
 		try {
 			const tvShows = await this.getTvShowsForPerson(id);
 			const movies = await this.getMoviesForPerson(id);
@@ -50,7 +50,7 @@ export class DbPeople {
 		}
 	}
 
-	async getTvShowsForPerson(id: number): Promise<TvShowContainer[]> {
+	async getTvShowsForPerson(id: number): Promise<TvShow[]> {
 		try {
 			const response = await this.pgClient.query({
 				text: `SELECT DISTINCT ON (w.id) w.id, w.title, t.start_year, t.end_year, t.episode_count, t.season_count
@@ -71,7 +71,7 @@ export class DbPeople {
 		}
 	}
 
-	async getMoviesForPerson(id: number): Promise<MovieContainer[]> {
+	async getMoviesForPerson(id: number): Promise<Movie[]> {
 		try {
 			const response = await this.pgClient.query({
 				text: `SELECT DISTINCT ON (w.id) w.*, t.release_year
@@ -91,7 +91,7 @@ export class DbPeople {
 		}
 	}
 
-	async getRolesForPerson(id: number): Promise<RoleContainer[]> {
+	async getRolesForPerson(id: number): Promise<Role[]> {
 		try {
 			const response = await this.pgClient.query({
 				text: 'SELECT * FROM roles WHERE id IN (SELECT role_id FROM connections WHERE person_id = $1)',

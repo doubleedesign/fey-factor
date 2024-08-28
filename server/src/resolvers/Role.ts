@@ -14,15 +14,13 @@ export default {
 			};
 		}
 	},
-	RoleContainer: {
+	Role: {
 		id: async (role: Role) => {
 			return role.id;
 		},
 		name: async (role: Role) => {
 			return role.name;
 		},
-	},
-	Role: {
 		connections: async (role: Role) => {
 			return db.roles.getConnectionsForRole(role.id);
 		},

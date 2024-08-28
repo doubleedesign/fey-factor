@@ -16,7 +16,11 @@ const rl = readline.createInterface({
 
 const typeNames = [];
 
-generateResolvers().then();
+generateResolvers().then(() => {
+	console.log('===================================================================================');
+	console.log(chalk.green('Successfully generated resolver templates.'));
+	console.log(chalk.yellow('You probably still need to fill in a bunch of code for everything to actually work how you want, though.\n'));
+});
 
 async function generateResolvers() {
 	console.log(chalk.red('==================================================================================='));
@@ -40,19 +44,14 @@ async function generateResolvers() {
 	);
 
 	// Create a file for each GraphQL type based on the template and insert likely resolver functions
-	// (but do not create separate files for {Type}Container types - they will be handled in their associated type's file)
 	visit(parsedSchema, {
 		ObjectTypeDefinition(node) {
 			typeNames.push(node.name.value);
-			if(!node.name.value.endsWith('Container')) {
-				generateResolverForType(node, tsSourceFile, parsedSchema);
-			}
+			generateResolverForType(node, tsSourceFile, parsedSchema);
 		},
 		InterfaceTypeDefinition(node) {
 			typeNames.push(node.name.value);
-			if(!node.name.value.endsWith('Container')) {
-				generateResolverForInterface(node, tsSourceFile);
-			}
+			generateResolverForInterface(node, tsSourceFile);
 		},
 	});
 
@@ -69,13 +68,13 @@ async function generateResolvers() {
 	let indexContent = 'import merge from \'lodash/merge\';\n';
 	let exportLine = 'export default merge({}';
 	typeNames.forEach(typeName => {
-		if(!typeName.endsWith('Container')) {
-			indexContent += `import ${typeName}Resolvers from './${typeName}';\n`;
-			exportLine += `, ${typeName}Resolvers`;
-		}
+		indexContent += `import ${typeName}Resolvers from './${typeName}';\n`;
+		exportLine += `, ${typeName}Resolvers`;
 	});
 	indexContent += `\n\n${exportLine})`;
 	writeFileSync('./src/resolvers/index.ts', indexContent);
+	console.log(chalk.green('Successfully generated index file for resolvers'));
+
 
 	rl.close();
 }
@@ -92,54 +91,44 @@ function generateResolverForType(node: ObjectTypeDefinitionNode, tsSourceFile: t
 	const filename = `./src/resolvers/${typeName}.ts`;
 	const supertype = getSupertypeOfSubtype(typeName);
 	const groupName = typeFormatToDbTableNameFormat(supertype || typeName);
-	const hasContainerType = doesTypeExist(`${typeName}Container`, parsedSchema);
 	const tsFields = getSourceFields(typeName, tsSourceFile);
 	const gqlFields = node.fields.map(field => field.name.value);
+	const resolverFunctions = [];
 
-	let fileContent = template
-		.replace('// eslint-disable-next-line @typescript-eslint/ban-ts-comment', '')
-		.replace('// @ts-nocheck', '')
-		.replace('db.getTemplate', `db.${groupName}.get${typeName}`)
-		.replaceAll('Template', typeName)
-		.replaceAll('template', typeName.toLowerCase());
+	// The core entities match the original TS types generated from the database; this is to resolve those fields
+	tsFields.forEach(field => {
+		resolverFunctions.push(`${field}: async (${typeName.toLowerCase()}: ${typeName}) => {
+			return ${typeName.toLowerCase()}.${field};
+		},`);
+	});
 
-	// If this type does not have a corresponding Container type, remove that section from the resolver
-	if(!hasContainerType) {
-		fileContent = fileContent.replace(`${typeName}Container: {}`, '');
-	}
-
-	// The Container entities match the original TS types generated from the database; this is to resolve those fields
-	if(hasContainerType) {
-		fileContent = fileContent.replace(
-			`${typeName}Container: {}`,
-			`${typeName}Container: {
-				${tsFields.map(field => `${field}: async (${typeName.toLowerCase()}: ${typeName}) => {
-					return ${typeName.toLowerCase()}.${field};
-				},`).join('\n')}
-			}`
-		);
-	}
 
 	// Get the fields that are in the GQL type but not the TS type, because those need to be added to the second section (the extended entity)
 	// If there are fields in the GQL type that are not in the TS type, add resolver functions for them here
 	const diff = difference(gqlFields, tsFields);
 	if (diff.length > 0) {
-		const resolverFunctions = diff.map(field => {
+		diff.forEach(field => {
 			const functionName = `db.${groupName}.get${capitalize(field)}For${capitalize(typeName)}`;
 			const arg = field === 'id' ? 'id' : `${typeName.toLowerCase()}.id`;
 
-			return `${field}: async (${typeName.toLowerCase()}: ${typeName}) => {
-						return ${functionName}(${arg});
-					},`;
+			resolverFunctions.push(`${field}: async (${typeName.toLowerCase()}: ${typeName}) => {
+				return ${functionName}(${arg});
+			},`);
 		});
+	}
 
-		fileContent = fileContent.replace(
+	const fileContent = template
+		.replace('// eslint-disable-next-line @typescript-eslint/ban-ts-comment', '')
+		.replace('// @ts-nocheck', '')
+		.replace('db.getTemplate', `db.${groupName}.get${typeName}`)
+		.replaceAll('Template', typeName)
+		.replaceAll('template', typeName.toLowerCase())
+		.replace(
 			`${typeName}: {}`,
 			`${typeName}: {
 				${resolverFunctions.join('\n')}
 			}`
 		);
-	}
 
 	writeFileSync(filename, fileContent);
 	console.log(chalk.green(`Successfully generated resolver file for ${typeName}`));
@@ -175,10 +164,6 @@ function generateResolverForInterface(node: InterfaceTypeDefinitionNode, tsSourc
 		.replace('// @ts-nocheck', '')
 		.replaceAll('Template', typeName)
 		.replaceAll('template', typeName.toLowerCase())
-		.replace(
-			'// TODO: Add logic here to determine the subtype to return for the container type',
-			`return container.${uniqueFields[0][0]} ? '${subtypes[0]}Container' : '${subtypes[1]}Container'`
-		)
 		.replace(
 			'// TODO: Add logic here to determine the subtype to return for the extended type',
 			`return ${typeName.toLowerCase()}.${uniqueFields[0][0]} ? '${subtypes[0]}' : '${subtypes[1]}'`

@@ -18,7 +18,7 @@ type SchemaDiagramWrapperProps = {
 export const SchemaDiagramWrapper: FC<SchemaDiagramWrapperProps> = ({ entities, format }) => {
 	const boxWidth = 325;
 	const xOffset = 64;
-	const yOffset = 420;
+	const yOffset = 300;
 
 	function calculatePosition(tableName: string) {
 		const rowNumber = rows.findIndex(row => row.includes(tableName));

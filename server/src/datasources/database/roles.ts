@@ -1,10 +1,10 @@
 import pg from 'pg';
-import { ConnectionContainer, PersonContainer, RoleContainer, WorkContainer } from '../../generated/gql-types';
+import { Connection, Person, Role, Work } from '../../generated/source-types';
 
 export class DbRoles {
 	constructor(private pgClient: pg.Pool) {}
 
-	async getRole(id: number): Promise<RoleContainer> {
+	async getRole(id: number): Promise<Role> {
 		try {
 			const response = await this.pgClient.query({
 				text: 'SELECT * FROM roles WHERE id = $1',
@@ -20,7 +20,7 @@ export class DbRoles {
 		}
 	}
 
-	async getConnectionsForRole(id: number): Promise<ConnectionContainer[]> {
+	async getConnectionsForRole(id: number): Promise<Connection[]> {
 		try {
 			const response = await this.pgClient.query({
 				text: 'SELECT * FROM connections WHERE role_id = $1',
@@ -36,7 +36,7 @@ export class DbRoles {
 		}
 	}
 
-	async getPeopleForRole(id: number): Promise<PersonContainer[]> {
+	async getPeopleForRole(id: number): Promise<Person[]> {
 		try {
 			const response = await this.pgClient.query({
 				text: 'SELECT * FROM people WHERE id IN (SELECT person_id FROM connections WHERE role_id = $1)',
@@ -52,7 +52,7 @@ export class DbRoles {
 		}
 	}
 
-	async getWorksForRole(id: number): Promise<WorkContainer[]> {
+	async getWorksForRole(id: number): Promise<Work[]> {
 		try {
 			const response = await this.pgClient.query({
 				text: 'SELECT * FROM works WHERE id IN (SELECT work_id FROM connections WHERE role_id = $1) AND type IS NOT NULL',

@@ -2,6 +2,7 @@ import { tables } from '../../../server/src/generated/source-types';
 import typeObjects from '../../../server/src/generated/typeObjects.json';
 import { ForeignKey, SchemaObject, Table } from '../types.ts';
 import { typeFormatToDbTableNameFormat, dbTableNameFormatToTypeFormat, getTypeForContainerType } from './utils';
+import difference from 'lodash/difference';
 
 export const dbEntities: SchemaObject = Object.entries(tables).reduce((acc, [tableName, table]) => {
 	acc[tableName] = {
@@ -35,12 +36,12 @@ export const gqlEntities: SchemaObject = Object.entries(typeObjects).reduce((acc
 			};
 			return acc;
 		}, {} as {[key: string]: ForeignKey}),
+		gqlOnlyFields: difference(typeObject.fields.map((field) => field.fieldName), originalDbTable.columns),
 		$type: typeName,
 	};
 
 	if(acc[likelyTableName]) {
-		// Put {Type}Container at the top of the group, otherwise add to the bottom
-		typeName.endsWith('Container') ? acc[likelyTableName].entities.unshift(thisEntity) : acc[likelyTableName].entities.push(thisEntity);
+		acc[likelyTableName].entities.push(thisEntity);
 		return acc;
 	}
 	else {

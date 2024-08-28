@@ -6,6 +6,7 @@ export type Table = {
 	readonly foreignKeys: Record<string, object>;
 	readonly $type: unknown;
 	readonly $input: unknown;
+	gqlOnlyFields?: string[];
 };
 
 export type ForeignKey = {

@@ -15,6 +15,5 @@ export default {
 			};
 		}
 	},
-	TemplateContainer: {},
 	Template: {}
 };

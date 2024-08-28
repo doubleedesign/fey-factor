@@ -1,67 +1,28 @@
-type Connection {
-	id: ID!
-	person_id: Int!
-	work_id: Int!
-	role_id: Int!
-	episode_count: Int
-	person: PersonContainer
-	work: WorkContainer
-	role: RoleContainer
-}
-type ConnectionContainer {
-	id: ID!
-	person_id: Int!
-	work_id: Int!
-	role_id: Int!
-	episode_count: Int
-}
 type Person {
 	id: ID!
-	name: String
+	name: String!
 	degree: Int
-	connections: [ConnectionContainer]
-	works: [WorkContainer]
-	roles: [RoleContainer]
-}
-type PersonContainer {
-	id: ID!
-	name: String
-	degree: Int
+	works: [Work]
+	roles: [Role]
 }
 type Role {
 	id: ID!
 	name: String
-	connections: [ConnectionContainer]
-	people: [PersonContainer]
-	works: [WorkContainer]
-}
-type RoleContainer {
-	id: ID!
-	name: String
+	people: [Person]
+	works: [Work]
 }
 interface Work {
 	id: ID!
 	title: String
-	connections: [ConnectionContainer]
-	people: [PersonContainer]
-	roles: [RoleContainer]
-}
-interface WorkContainer {
-	id: ID!
-	title: String
+	people: [Person]
+	roles: [Role]
 }
 type Movie implements Work {
 	id: ID!
 	title: String
 	release_year: Int
-	connections: [ConnectionContainer]
-	people: [PersonContainer]
-	roles: [RoleContainer]
-}
-type MovieContainer implements WorkContainer {
-	id: ID!
-	title: String
-	release_year: Int
+	people: [Person]
+	roles: [Role]
 }
 type TvShow implements Work {
 	id: ID!
@@ -70,15 +31,6 @@ type TvShow implements Work {
 	end_year: Int
 	season_count: Int
 	episode_count: Int
-	connections: [ConnectionContainer]
-	people: [PersonContainer]
-	roles: [RoleContainer]
-}
-type TvShowContainer implements WorkContainer {
-	id: ID!
-	title: String
-	start_year: Int
-	end_year: Int
-	season_count: Int
-	episode_count: Int
+	people: [Person]
+	roles: [Role]
 }

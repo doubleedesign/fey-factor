@@ -14,7 +14,7 @@ export default {
 			};
 		}
 	},
-	MovieContainer: {
+	Movie: {
 		id: async (movie: Movie) => {
 			return movie.id;
 		},
@@ -24,8 +24,6 @@ export default {
 		release_year: async (movie: Movie) => {
 			return movie.release_year;
 		},
-	},
-	Movie: {
 		connections: async (movie: Movie) => {
 			return db.works.getConnectionsForMovie(movie.id);
 		},

@@ -65,18 +65,18 @@ const movies = {
 // Table people
 export interface Person {
 	id: number;
-	name: string | null;
+	name: string;
 	degree: number | null;
 }
 export interface PersonInput {
 	id: number;
-	name?: string | null;
+	name: string;
 	degree?: number | null;
 }
 const people = {
 	tableName: 'people',
 	columns: ['id', 'name', 'degree'],
-	requiredForInsert: ['id'],
+	requiredForInsert: ['id', 'name'],
 	primaryKey: 'id',
 	foreignKeys: {},
 	$type: null as unknown as Person,
