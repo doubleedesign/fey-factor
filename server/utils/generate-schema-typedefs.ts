@@ -266,12 +266,21 @@ function convertAndSaveTypes() {
 	writeFileSync('./src/generated/typeObjects.json', JSON.stringify(typeObjects, null, 2), 'utf8');
 	console.log(chalk.green('Successfully saved type objects to JSON file'));
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const rootTypes = Object.entries(typeObjects).filter(([_, data]) => !data.isSubtypeOf);
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const subTypes = Object.entries(typeObjects).filter(([_, data]) => data.isSubtypeOf);
+	const rootTypes = Object.entries(typeObjects).filter(([, data]) => !data.isSubtypeOf);
+	const subTypes = Object.entries(typeObjects).filter(([, data]) => data.isSubtypeOf);
+	const interfaces = Object.entries(typeObjects).filter(([, data]) => data.isInterface).map(([name]) => name);
 
-	// Process the root types first
+	// Add filter inputs for interfaces
+	interfaces.forEach((name) => {
+		const stringParts = [];
+		stringParts.push(`input ${name}Filter {`);
+		stringParts.push('\ttype: String');
+		stringParts.push('}');
+		const finalString = stringParts.join('\n').concat('\n');
+		appendFileSync(typesDestFile, finalString);
+	});
+
+	// Process the root types
 	rootTypes.forEach(([name, data]) => {
 		if(!data.isGqlEntity) return;
 
@@ -284,6 +293,7 @@ function convertAndSaveTypes() {
 
 		// Close the declaration
 		stringParts.push('}');
+
 		// Convert to a formatted string
 		const finalString = stringParts.join('\n').concat('\n');
 
@@ -304,6 +314,7 @@ function convertAndSaveTypes() {
 
 		// Close the declaration
 		stringParts.push('}');
+
 		// Convert to a formatted string
 		const finalString = stringParts.join('\n').concat('\n');
 
@@ -319,11 +330,15 @@ function convertAndSaveTypes() {
 	function processFields(fields: TypeObject['fields']) {
 		const stringParts = [];
 		fields.forEach(({ fieldName, fieldType, required }) => {
-			if(fieldName === 'id' || fieldName === 'ID') {
+			const gqlFieldType = convertTsFieldTypeToGql({ fieldType, required });
+			const typeName = dbTableNameFormatToTypeFormat(fieldName);
+			if(interfaces.includes(typeName)) {
+				stringParts.push(`\t${fieldName}(filter: ${typeName}Filter): ${gqlFieldType}`);
+			}
+			else if(fieldName === 'id' || fieldName === 'ID') {
 				stringParts.push(`\t${fieldName}: ID!`);
 			}
 			else {
-				const gqlFieldType = convertTsFieldTypeToGql({ fieldType, required });
 				stringParts.push(`\t${fieldName}: ${gqlFieldType}`);
 			}
 		});

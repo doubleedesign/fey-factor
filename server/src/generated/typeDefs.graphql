@@ -1,8 +1,11 @@
+input WorkFilter {
+	type: String
+}
 type Person {
 	id: ID!
 	name: String!
 	degree: Int
-	works: [Work]
+	works(filter: WorkFilter): [Work]
 	roles: [Role]
 }
 type Role {

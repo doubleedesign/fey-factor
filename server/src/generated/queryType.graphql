@@ -2,6 +2,6 @@ type Query {
 	Movie(id: ID!): Movie
 	Person(id: ID!): Person
 	Role(id: ID!): Role
-	TvShow(id: ID!): TvShow
 	Work(id: ID!): Work
+	TvShow(id: ID!): TvShow
 }

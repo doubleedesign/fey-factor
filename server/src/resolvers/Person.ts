@@ -25,7 +25,18 @@ export default {
 			return person.degree;
 		},
 		works: async (person: Person, args, context) => {
-			const works = await db.people.getWorksForPerson(person.id);
+			const { type } = args?.filter;
+			let works = [];
+			if(type === 'TvShow') {
+				works = await db.people.getTvShowsForPerson(person.id);
+			}
+			else if(type === 'Movie') {
+				works = await db.people.getMoviesForPerson(person.id);
+			}
+			else {
+				works = await db.people.getWorksForPerson(person.id);
+				console.warn('No valid type filter provided for works, returning all works for person');
+			}
 
 			return works.map(work => {
 				return {
