@@ -1,3 +1,6 @@
+input TvShowFilter {
+	type: String
+}
 input WorkFilter {
 	type: String
 }
@@ -33,6 +36,20 @@ type TvShow implements Work {
 	end_year: Int
 	season_count: Int
 	episode_count: Int
+	people: [Person]
+	roles: [Role]
+}
+type TvShowWithRankingData implements Work {
+	id: ID!
+	title: String
+	start_year: Int
+	end_year: Int
+	season_count: Int
+	episode_count: Int
+	total_connections: Int
+	average_degree: Float
+	aggregate_episode_count: Int
+	weighted_score: Float!
 	people: [Person]
 	roles: [Role]
 }

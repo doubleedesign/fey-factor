@@ -1,26 +1,9 @@
 import pg from 'pg';
-import { Connection, Movie, Person, Role, TvShow, Work } from '../../generated/source-types';
-
-type RoleWithEpisodeCount = Role & { episode_count?: Connection['episode_count'] };
+import { Movie, Person, Role, TvShow } from '../../generated/source-types';
+import { TvShowWithRankingData } from '../../types';
 
 export class DbWorks  {
 	constructor(private pgClient: pg.Pool) {}
-
-	async getWork(id: number): Promise<Work> {
-		try {
-			const response = await this.pgClient.query({
-				text: 'SELECT * FROM works WHERE id = $1',
-				values: [id]
-			});
-
-			return response.rows[0] ?? null;
-		}
-		catch(error) {
-			console.error(error);
-
-			return null;
-		}
-	}
 
 	async getTvShow(id: number): Promise<TvShow> {
 		try {
@@ -102,22 +85,6 @@ export class DbWorks  {
 		}
 	}
 
-	async getConnectionsForWork(id: number): Promise<Connection[]> {
-		try {
-			const response = await this.pgClient.query({
-				text: 'SELECT * FROM connections WHERE work_id = $1',
-				values: [id]
-			});
-
-			return response.rows;
-		}
-		catch(error) {
-			console.error(error);
-
-			return null;
-		}
-	}
-
 	async getPeopleForTvshow(id: number): Promise<Person[]> {
 		return this.getPeopleForWork(id);
 	}
@@ -134,15 +101,7 @@ export class DbWorks  {
 		return this.getRolesForWork(id);
 	}
 
-	async getConnectionsForTvshow(id: number): Promise<Connection[]> {
-		return this.getConnectionsForWork(id);
-	}
-
-	async getConnectionsForMovie(id: number): Promise<Connection[]> {
-		return this.getConnectionsForWork(id);
-	}
-
-	async getPersonsRolesForWork(personId: number, workId: number): Promise<RoleWithEpisodeCount[]> {
+	async getPersonsRolesForWork(personId: number, workId: number): Promise<Role[]> {
 		try {
 			const response = await this.pgClient.query({
 				text: `SELECT role_id, roles.name, episode_count FROM connections
@@ -155,6 +114,66 @@ export class DbWorks  {
 			return response.rows;
 		}
 		catch(error) {
+			console.error(error);
+
+			return null;
+		}
+	}
+
+	/**
+	 * Get a list of tv shows ranked by a weighted score
+	 * based on number of connections, how many episodes each connection has, and the average degree of all the connected people
+	 * @param limit
+	 */
+	async getRankedListOfTvShows(limit: number): Promise<TvShowWithRankingData[]> {
+		try {
+			const response = await this.pgClient.query({
+				text:`
+                    WITH aggregated_data as (SELECT tv_shows.id,
+                                                    works.title                               AS title,
+                                                    tv_shows.episode_count,
+                                                    COUNT(connections.person_id)::INTEGER     AS total_connections,
+                                                    ROUND(AVG(people.degree), 2)::DECIMAL     AS average_degree,
+                                                    2 - ROUND(AVG(people.degree), 2)::DECIMAL AS inverted_average_degree,
+                                                    SUM(connections.episode_count)::INTEGER   AS aggregate_episode_count
+                                             FROM tv_shows
+                                                      INNER JOIN
+                                                  connections ON tv_shows.id = connections.work_id
+                                                      INNER JOIN
+                                                  people ON connections.person_id = people.id
+                                                      INNER JOIN
+                                                  works ON tv_shows.id = works.id
+                                             WHERE works.title IS NOT NULL
+                                             GROUP BY tv_shows.id, works.title, tv_shows.episode_count
+                                             ORDER BY inverted_average_degree DESC,
+                                                      total_connections DESC)
+                    SELECT
+                        ad.id,
+                        ad.title,
+                        ad.episode_count,
+                        ts.start_year,
+                        ts.end_year,
+                        ts.season_count,
+                        ad.total_connections,
+                        ad.average_degree,
+                        ad.aggregate_episode_count,
+                        ROUND((ad.aggregate_episode_count / ad.episode_count) * ad.inverted_average_degree, 2)::DECIMAL AS weighted_score
+                    FROM
+                        aggregated_data ad
+                            INNER JOIN
+                        tv_shows ts ON ad.id = ts.id
+                    WHERE
+                        ad.aggregate_episode_count > 0
+                    ORDER BY
+                        weighted_score DESC
+                    LIMIT $1;
+				`,
+				values: [limit]
+			});
+
+			return response.rows;
+		}
+		catch (error) {
 			console.error(error);
 
 			return null;

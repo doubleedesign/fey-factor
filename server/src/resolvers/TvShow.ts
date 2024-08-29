@@ -1,5 +1,6 @@
 import { DatabaseConnection } from '../datasources/database';
 import { TvShow } from '../generated/source-types';
+import { TvShowWithRankingData } from '../types';
 const db = new DatabaseConnection();
 
 export default {
@@ -13,8 +14,21 @@ export default {
 				// because the Query type in the schema expects the TvShow type and so will use the TvShow resolver below
 			};
 		},
-		TvShows: async (_, { ids }): Promise<TvShow[]> => {
-			return await db.works.getTvShows(ids);
+		TvShows: async (_, { ids, limit }): Promise<TvShow[] | TvShowWithRankingData[]> => {
+			if(ids) {
+				return await db.works.getTvShows(ids);
+			}
+
+			return await db.works.getRankedListOfTvShows(limit);
+		}
+	},
+	TvShowResult: {
+		__resolveType: (parent) => {
+			if((parent as TvShowWithRankingData).weighted_score) {
+				return 'TvShowWithRankingData';
+			}
+
+			return 'TvShow';
 		}
 	},
 	TvShow: {

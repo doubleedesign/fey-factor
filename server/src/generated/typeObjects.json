@@ -1,4 +1,34 @@
 {
+  "Connection": {
+    "fields": [
+      {
+        "fieldName": "id",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "person_id",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "work_id",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "role_id",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "episode_count",
+        "fieldType": "number",
+        "required": false
+      }
+    ],
+    "isGqlEntity": false
+  },
   "Movie": {
     "fields": [
       {
@@ -124,6 +154,7 @@
       }
     ],
     "isGqlEntity": true,
+    "isInterface": true,
     "isSubtypeOf": "Work"
   },
   "Work": {
@@ -152,7 +183,7 @@
     "isGqlEntity": true,
     "isInterface": true
   },
-  "Connection": {
+  "TvShowWithRankingData": {
     "fields": [
       {
         "fieldName": "id",
@@ -160,26 +191,62 @@
         "required": true
       },
       {
-        "fieldName": "person_id",
-        "fieldType": "number",
-        "required": true
+        "fieldName": "title",
+        "fieldType": "string",
+        "required": false
       },
       {
-        "fieldName": "work_id",
+        "fieldName": "start_year",
         "fieldType": "number",
-        "required": true
+        "required": false
       },
       {
-        "fieldName": "role_id",
+        "fieldName": "end_year",
         "fieldType": "number",
-        "required": true
+        "required": false
+      },
+      {
+        "fieldName": "season_count",
+        "fieldType": "number",
+        "required": false
       },
       {
         "fieldName": "episode_count",
         "fieldType": "number",
         "required": false
+      },
+      {
+        "fieldName": "total_connections",
+        "fieldType": "number",
+        "required": false
+      },
+      {
+        "fieldName": "average_degree",
+        "fieldType": "number",
+        "required": false
+      },
+      {
+        "fieldName": "aggregate_episode_count",
+        "fieldType": "number",
+        "required": false
+      },
+      {
+        "fieldName": "weighted_score",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "people",
+        "fieldType": "Person[]",
+        "required": false
+      },
+      {
+        "fieldName": "roles",
+        "fieldType": "Role[]",
+        "required": false
       }
     ],
-    "isGqlEntity": false
+    "isGqlEntity": true,
+    "isSubtypeOf": "Work"
   }
 }

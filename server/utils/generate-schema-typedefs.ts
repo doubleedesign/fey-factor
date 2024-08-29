@@ -48,8 +48,16 @@ export async function generateSchemaTypedefs(file: string) {
 		true
 	);
 
+	const extraTypesFile = ts.createSourceFile(
+		'types.ts',
+		readFileSync('./src/types.ts', 'utf-8'),
+		ts.ScriptTarget.Latest,
+		true
+	);
+
 	try {
 		await collectExportedTypes(sourceFile);
+		await collectExportedTypes(extraTypesFile);
 		detectSubtypes();
 		await addForeignKeyFields();
 		convertAndSaveTypes();
@@ -57,12 +65,13 @@ export async function generateSchemaTypedefs(file: string) {
 	}
 	catch (error) {
 		console.error(chalk.red(`Error generating GraphQL type definitions: ${error.message}`));
+		console.log(error.stack);
 	}
 }
 
 /**
  * Recursively process the TypeScript AST (Abstract Syntax Tree) to find exported interfaces
- * (pg-to-ts generates interfaces, not types, so that's all we need to handle)
+ * (note: pg-to-ts generates interfaces, not types, so my manually-defined types are done the same way for simplicity here)
  * @param node - the current node in the AST
  */
 async function collectExportedTypes(node: ts.Node): Promise<void> {
@@ -119,7 +128,7 @@ function processTableTypes(node: ts.InterfaceDeclaration) {
  * Process an exported interface and add it to the typeObjects object
  * @param node - AST node representing the exported interface
  */
-async function processExportedType(node: ts.TypeAliasDeclaration | ts.InterfaceDeclaration) {
+async function processExportedType(node: ts.InterfaceDeclaration) {
 	if (ts.isInterfaceDeclaration(node)) {
 		const fields = node.members.map(field => {
 			if (ts.isPropertySignature(field) && field.name) {
@@ -362,6 +371,7 @@ function convertAndSaveTypes() {
 		switch(fieldType) {
 			case 'string':
 				return required ? 'String!' : 'String';
+			// TODO: Account for
 			case 'number':
 				return required ? 'Int!' : 'Int';
 			case 'boolean':
@@ -390,7 +400,7 @@ function createAndSaveQueryType() {
 		// Singular query
 		queryObject += `\t${queryType}(id: ID!): ${returnType}\n`;
 		// Plural type - fetch multiple items
-		queryObject += `\t${pascalCase(toPlural(queryType))}(ids: [ID]!): [${returnType}]\n`;
+		queryObject += `\t${pascalCase(toPlural(queryType))}(ids: [ID], limit: Int): [${returnType}]\n`;
 	});
 	queryObject += '}';
 
