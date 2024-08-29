@@ -38,6 +38,22 @@ export class DbWorks  {
 		}
 	}
 
+	async getTvShows(ids: number[]): Promise<TvShow[]> {
+		try {
+			const response = await this.pgClient.query({
+				text: 'SELECT * FROM tv_shows WHERE id = ANY($1)',
+				values: [ids]
+			});
+
+			return response.rows;
+		}
+		catch(error) {
+			console.error(error);
+
+			return null;
+		}
+	}
+
 	async getMovie(id: number): Promise<Movie> {
 		try {
 			const response = await this.pgClient.query({

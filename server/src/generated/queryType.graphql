@@ -1,7 +1,12 @@
 type Query {
 	Movie(id: ID!): Movie
+	Movies(ids: [ID]!): [Movie]
 	Person(id: ID!): Person
+	People(ids: [ID]!): [Person]
 	Role(id: ID!): Role
-	Work(id: ID!): Work
+	Roles(ids: [ID]!): [Role]
 	TvShow(id: ID!): TvShow
+	TvShows(ids: [ID]!): [TvShow]
+	Work(id: ID!): Work
+	Works(ids: [ID]!): [Work]
 }

@@ -8,7 +8,7 @@ import { readFileSync, writeFileSync, appendFileSync } from 'fs';
 import { tables } from '../src/generated/source-types';
 import { DatabaseConnection } from '../src/datasources/database';
 import { ForeignKey } from 'pg-to-ts/dist/schemaInterfaces';
-import { dbTableNameFormatToTypeFormat, typeFormatToDbTableNameFormat } from './utils';
+import { dbTableNameFormatToTypeFormat, pascalCase, toPlural, typeFormatToDbTableNameFormat } from './utils';
 import difference from 'lodash/difference';
 const db = new DatabaseConnection();
 
@@ -387,7 +387,10 @@ function createAndSaveQueryType() {
 		};
 	});
 	types.forEach(({ queryType, returnType }) => {
+		// Singular query
 		queryObject += `\t${queryType}(id: ID!): ${returnType}\n`;
+		// Plural type - fetch multiple items
+		queryObject += `\t${pascalCase(toPlural(queryType))}(ids: [ID]!): [${returnType}]\n`;
 	});
 	queryObject += '}';
 

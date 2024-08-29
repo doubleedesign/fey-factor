@@ -12,6 +12,9 @@ export default {
 				// The rest of the fields for the TvShow type become available here as if by magic
 				// because the Query type in the schema expects the TvShow type and so will use the TvShow resolver below
 			};
+		},
+		TvShows: async (_, { ids }): Promise<TvShow[]> => {
+			return await db.works.getTvShows(ids);
 		}
 	},
 	TvShow: {

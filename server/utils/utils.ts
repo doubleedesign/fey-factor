@@ -14,13 +14,20 @@ export type TypeObject = {
 	isInterface?: boolean;
 };
 
-function pascalCase(str: string) {
+export function pascalCase(str: string) {
+	if(str.toLowerCase() === 'tvshows') {
+		return 'TvShows';
+	}
+
 	return upperFirst(camelCase(str));
 }
 
-function toPlural(str: string) {
+export function toPlural(str: string) {
 	if(str.toLowerCase() === 'work') {
 		return `${str}s`;
+	}
+	if(str === 'tvshows') {
+		return 'TvShows';
 	}
 
 	return new Inflectors(str).toPlural();
