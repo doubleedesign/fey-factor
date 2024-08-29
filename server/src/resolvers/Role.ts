@@ -1,5 +1,5 @@
 import { DatabaseConnection } from '../datasources/database';
-import { Role } from '../generated/source-types';
+import { Role } from '../generated/gql-types-reformatted';
 const db = new DatabaseConnection();
 
 export default {
@@ -21,14 +21,8 @@ export default {
 		name: async (role: Role) => {
 			return role.name;
 		},
-		connections: async (role: Role) => {
-			return db.roles.getConnectionsForRole(role.id);
-		},
-		people: async (role: Role) => {
-			return db.roles.getPeopleForRole(role.id);
-		},
-		works: async (role: Role) => {
-			return db.roles.getWorksForRole(role.id);
+		episode_count: async (role: Role) => {
+			return role?.episode_count ?? null;
 		},
 	}
 };

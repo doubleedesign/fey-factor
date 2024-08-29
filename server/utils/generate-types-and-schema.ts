@@ -129,10 +129,10 @@ async function generateSchema() {
 	console.log('Generating GraphQL type definitions');
 
 	// Generate the schema type definitions from the pg-to-ts generated TypeScript interfaces + some manual additions
-	generateSchemaTypedefs(typesOutputFile);
+	await generateSchemaTypedefs(typesOutputFile);
 
 	// Go back the other way - run graphql-codegen to generate TypeScript types from the updated GraphQL schema
-	await generateGqlToTs(gqlTypesOutputFile, gqlTypesReformattedOutputFile);
+	//await generateGqlToTs(gqlTypesOutputFile, gqlTypesReformattedOutputFile);
 }
 
 /**
@@ -145,6 +145,7 @@ function handleError(error: Error | string | null) {
 	}
 
 	console.error(chalk.red(error));
+
 	return;
 }
 

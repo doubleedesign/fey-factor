@@ -18,7 +18,6 @@ export type Movie = Work & {
 	id: Scalars['ID']['output'];
 	people: Maybe<Array<Maybe<Person>>>;
 	release_year: Maybe<Scalars['Int']['output']>;
-	roles: Maybe<Array<Maybe<Role>>>;
 	title: Maybe<Scalars['String']['output']>;
 };
 
@@ -26,15 +25,13 @@ export type Person = {
 	degree: Maybe<Scalars['Int']['output']>;
 	id: Scalars['ID']['output'];
 	name: Scalars['String']['output'];
-	roles: Maybe<Array<Maybe<Role>>>;
 	works: Maybe<Array<Maybe<Work>>>;
 };
 
 export type Role = {
+	episode_count: Maybe<Scalars['Int']['output']>;
 	id: Scalars['ID']['output'];
 	name: Maybe<Scalars['String']['output']>;
-	people: Maybe<Array<Maybe<Person>>>;
-	works: Maybe<Array<Maybe<Work>>>;
 };
 
 export type TvShow = Work & {
@@ -42,7 +39,6 @@ export type TvShow = Work & {
 	episode_count: Maybe<Scalars['Int']['output']>;
 	id: Scalars['ID']['output'];
 	people: Maybe<Array<Maybe<Person>>>;
-	roles: Maybe<Array<Maybe<Role>>>;
 	season_count: Maybe<Scalars['Int']['output']>;
 	start_year: Maybe<Scalars['Int']['output']>;
 	title: Maybe<Scalars['String']['output']>;
@@ -51,6 +47,5 @@ export type TvShow = Work & {
 export type Work = {
 	id: Scalars['ID']['output'];
 	people: Maybe<Array<Maybe<Person>>>;
-	roles: Maybe<Array<Maybe<Role>>>;
 	title: Maybe<Scalars['String']['output']>;
 };

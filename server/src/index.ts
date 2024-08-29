@@ -1,7 +1,6 @@
 import { createYoga, createSchema } from 'graphql-yoga';
 import { createServer } from 'http';
 import { readFileSync } from 'fs';
-import { exec } from 'child_process';
 import gql from 'graphql-tag';
 import chalk from 'chalk';
 import resolvers from './resolvers';

@@ -1,6 +1,6 @@
 import readline from 'readline';
 import chalk from 'chalk';
-import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync } from 'fs';
 import { exec } from 'child_process';
 import { InterfaceTypeDefinitionNode, ObjectTypeDefinitionNode, visit } from 'graphql';
 import gql from 'graphql-tag';
@@ -196,25 +196,6 @@ function getSourceFields(interfaceName: string, sourceFile: ts.SourceFile, ) {
 	visit(sourceFile);
 
 	return fields;
-}
-
-/**
- * Function to check if a type exists in the parsed schema
- * @param typeName
- * @param parsedSchema
- */
-function doesTypeExist(typeName: string, parsedSchema): boolean {
-	let typeExists = false;
-
-	visit(parsedSchema, {
-		ObjectTypeDefinition(node) {
-			if (node.name.value === typeName) {
-				typeExists = true;
-			}
-		},
-	});
-
-	return typeExists;
 }
 
 /**

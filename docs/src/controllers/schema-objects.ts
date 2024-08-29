@@ -19,7 +19,10 @@ export const dbEntities: SchemaObject = Object.entries(tables).reduce((acc, [tab
 }, {} as SchemaObject);
 
 
-export const gqlEntities: SchemaObject = Object.entries(typeObjects).reduce((acc, [typeName, typeObject]) => {
+// TODO: This needs a way to show contextual linking, e.g., episode_count only appears in Role in certain circumstances.
+export const gqlEntities: SchemaObject = Object.entries(typeObjects).filter(([, typeObject]) => {
+	return typeObject.isGqlEntity;
+}).reduce((acc, [typeName, typeObject]) => {
 	const likelyTableName: string = typeFormatToDbTableNameFormat(getTypeForContainerType(typeName));
 	const originalDbTable: Table = dbEntities[likelyTableName].entities[0];
 
@@ -30,9 +33,7 @@ export const gqlEntities: SchemaObject = Object.entries(typeObjects).reduce((acc
 		foreignKeys: Object.entries(originalDbTable.foreignKeys as {[key: string]: ForeignKey}).reduce((acc, [key, value]) => {
 			acc[key] = {
 				...value,
-				table: typeName.endsWith('Container')
-					? `${dbTableNameFormatToTypeFormat(value.table)}Container`
-					: dbTableNameFormatToTypeFormat(value.table),
+				table: dbTableNameFormatToTypeFormat(value.table),
 			};
 			return acc;
 		}, {} as {[key: string]: ForeignKey}),

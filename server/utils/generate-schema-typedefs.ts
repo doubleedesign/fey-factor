@@ -6,6 +6,11 @@ import ts, { TypeLiteralNode } from 'typescript';
 import chalk from 'chalk';
 import { readFileSync, writeFileSync, appendFileSync } from 'fs';
 import { tables } from '../src/generated/source-types';
+import { DatabaseConnection } from '../src/datasources/database';
+import { ForeignKey } from 'pg-to-ts/dist/schemaInterfaces';
+import { dbTableNameFormatToTypeFormat, typeFormatToDbTableNameFormat } from './utils';
+import difference from 'lodash/difference';
+const db = new DatabaseConnection();
 
 // The type of object we'll be collecting the processed types into for later processing into GraphQL type definition template literals
 type TypeObject = {
@@ -16,6 +21,7 @@ type TypeObject = {
 	}[];
 	isSubtypeOf?: string;
 	isInterface?: boolean;
+	isGqlEntity?: boolean;
 };
 
 // The type of object we'll be collecting the processed table types into to enable lookup of table names and their data type names as strings
@@ -29,7 +35,7 @@ const queryDestFile = './src/generated/queryType.graphql';
 const typeObjects: { [key: string]: TypeObject } = {};
 const tableTypes: TableTypeObject[] = [];
 
-export function generateSchemaTypedefs(file: string) {
+export async function generateSchemaTypedefs(file: string) {
 	// Create or empty the GraphQL typeDefs file
 	writeFileSync(typesDestFile, '', 'utf8');
 
@@ -43,13 +49,13 @@ export function generateSchemaTypedefs(file: string) {
 	);
 
 	try {
-		collectExportedTypes(sourceFile);
+		await collectExportedTypes(sourceFile);
 		detectSubtypes();
-		addForeignKeyFields();
+		await addForeignKeyFields();
 		convertAndSaveTypes();
 		createAndSaveQueryType();
 	}
-	catch(error) {
+	catch (error) {
 		console.error(chalk.red(`Error generating GraphQL type definitions: ${error.message}`));
 	}
 }
@@ -59,25 +65,31 @@ export function generateSchemaTypedefs(file: string) {
  * (pg-to-ts generates interfaces, not types, so that's all we need to handle)
  * @param node - the current node in the AST
  */
-function collectExportedTypes(node: ts.Node) {
-	if(ts.isInterfaceDeclaration(node)) {
+async function collectExportedTypes(node: ts.Node): Promise<void> {
+	const childPromises: Promise<void>[] = [];
+
+	if (ts.isInterfaceDeclaration(node)) {
 		// Ignore the input types
-		if(node.name.text.includes('Input')) return;
+		if (node.name.text.includes('Input')) return;
 
 		// Process the TableTypes interface for later use to handle foreign key fields
-		if(node.name.text === 'TableTypes') {
+		if (node.name.text === 'TableTypes') {
 			processTableTypes(node);
 		}
-		// Process all other exported types, which are expected to be the entities we want like Person, Work, Role
 		else {
-			const isExported = node.modifiers.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword);
+			const isExported = node.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword);
 			if (isExported) {
-				processExportedType(node);
+				childPromises.push(processExportedType(node));
 			}
 		}
 	}
 
-	ts.forEachChild(node, collectExportedTypes);
+	ts.forEachChild(node, childNode => {
+		childPromises.push(collectExportedTypes(childNode));
+	});
+
+	// Wait for all child nodes to be processed
+	await Promise.all(childPromises);
 }
 
 
@@ -107,7 +119,7 @@ function processTableTypes(node: ts.InterfaceDeclaration) {
  * Process an exported interface and add it to the typeObjects object
  * @param node - AST node representing the exported interface
  */
-function processExportedType(node: ts.TypeAliasDeclaration | ts.InterfaceDeclaration) {
+async function processExportedType(node: ts.TypeAliasDeclaration | ts.InterfaceDeclaration) {
 	if (ts.isInterfaceDeclaration(node)) {
 		const fields = node.members.map(field => {
 			if (ts.isPropertySignature(field) && field.name) {
@@ -123,11 +135,15 @@ function processExportedType(node: ts.TypeAliasDeclaration | ts.InterfaceDeclara
 				};
 			}
 		});
+		const glueKey = await db.getGlueKey(typeFormatToDbTableNameFormat(node.name.text));
 
 		// Create a GQL type object for the type with the same name
-		// (this one will have more fields added to it according to the table's foreign keys, in another function)
+		// (this will have more fields added to it according to the table's foreign keys, in another function)
 		typeObjects[node.name.text] = {
-			fields: fields
+			fields: fields,
+			// If this table has a glue key, it will not be a standalone GraphQL type
+			// (Big assumption based on my current use case; may need to change in the future)
+			isGqlEntity: !Boolean(glueKey),
 		};
 	}
 }
@@ -145,7 +161,7 @@ function detectSubtypes() {
 		const fieldNames = data.fields.map(field => field.fieldName);
 		Object.entries(typeObjects).forEach(([otherTypeName, otherTypeData]) => {
 			if(typeName === otherTypeName) return; // skip self-comparison
-			if(knownToSkip.includes(typeName) || knownToSkip.includes(otherTypeName)) return; // skip known non-parent roles
+			if(knownToSkip.includes(typeName) || knownToSkip.includes(otherTypeName)) return; // skip known non-parent types that coincidentally match
 
 			const otherFieldNames = otherTypeData.fields.map(field => field.fieldName);
 			// If the type being checked has all the fields of the other type, it is a subtype
@@ -164,27 +180,28 @@ function detectSubtypes() {
  * so this is all based on linking up entities connected through the Connections table; but in theory it should work for any foreign keys,
  * possibly just with some minor adjustments elsewhere such as defining "glue" fields
  */
-function addForeignKeyFields() {
-	Object.values(tables).forEach(table => {
-		if(!table.foreignKeys || Object.keys(table.foreignKeys).length === 0) return; // No foreign keys? Get outta here
+async function addForeignKeyFields() {
+	for (const table of Object.values(tables)) {
+		if(!table.foreignKeys || Object.keys(table.foreignKeys).length === 0) continue; // No foreign keys? Get outta here
 
 		// The data type of the current table, as a string
 		const tableDataType = tableTypes.find(type => type.tableName === table.tableName)?.dataType;
-		// The foreign keys in the current table, as generated by pg-to-ts
-		const foreignKeys = table.foreignKeys;
+		// The glue key in the current table, if there is one
+		const glueKey = await db.getGlueKey(table.tableName);
+		const glueTypeName = dbTableNameFormatToTypeFormat(table.foreignKeys[(glueKey as string)].table);
+		// The foreign keys in the current table, as generated by pg-to-ts, but without the glue key
+		const foreignKeys = Object.fromEntries(Object.entries(table.foreignKeys).filter(([key, fk]) => key !== glueKey));
 
 		Object.entries(foreignKeys).forEach(([key, fk]) => {
 			const foreignKeyFieldName = fk.table;
-			const foreignKeyFieldType = tableTypes.find(type => type.tableName === foreignKeyFieldName).dataType;
+			const foreignKeyFieldType = tableTypes.find(type => type.tableName === foreignKeyFieldName)?.dataType;
 			const subtypes = Object.keys(typeObjects).filter(name => typeObjects[name].isSubtypeOf === foreignKeyFieldType);
 
-			// Match up the types of all the foreign keys to each other so {Type} objects can be directly queried
+			// Connect up the non-glue foreign key types to each other so {Type} objects can be directly queried
 			// This is based entirely on the Connections table, which has People, Works, and Roles
-			// The purpose of this is to add works and roles fields to People, people and roles fields to Works, etc.
+			// The purpose of this is to add works and roles fields to People, people to Works, etc.
 			// so you can, for example, query a Person and get all their Works without having to go through Connections and process those
-			// TODO: Idenfity role_id/roles as "glue" somehow, and don't add Work[] and People[] to Role.
-			// TODO: Instead, add the other connection fields as optional - in this case, just episode_count
-			Object.values(foreignKeys).forEach((otherKeyObject) => {
+			Object.values(foreignKeys).forEach((otherKeyObject: ForeignKey) => {
 				if(otherKeyObject.table === foreignKeyFieldName) return; // skip self-comparison
 				if(typeObjects[foreignKeyFieldType].fields.find(field => field.fieldName === otherKeyObject.table)) return; // skip if it already exists
 
@@ -193,32 +210,51 @@ function addForeignKeyFields() {
 					fieldType: `${tableTypes.find(type => type.tableName === otherKeyObject.table).dataType}[]`,
 					required: false,
 				});
+
+				// Add the glue field to the fields it sticks together
+				if(glueKey) {
+					typeObjects[foreignKeyFieldType].fields.push({
+						fieldName: typeFormatToDbTableNameFormat(glueTypeName),
+						fieldType: `${glueTypeName}[]`,
+						required: false
+					});
+				}
 			});
 
 			// If this type is a supertype, also add the other foreign key fields to the subtypes
 			subtypes.length > 0 && subtypes.forEach(subtype => {
-				// Add the field for the current table
-				// e.g., this will add connections: Connection[] to the Movie and TvShow types which are subtypes of Work
-				typeObjects[subtype].fields.push({
-					fieldName: table.tableName,
-					fieldType: `${tableDataType}[]`,
-					required: false
-				});
-
-				// Add the other foreign key fields
-				// e.g., Work has subtypes of Movie and TvShow which I want to have a people field with the type Person[]
 				Object.values(foreignKeys).forEach((otherKeyObject) => {
-					if(otherKeyObject.table === foreignKeyFieldName) return; // skip self-comparison
-					if(typeObjects[subtype].fields.find(field => field.fieldName === otherKeyObject.table)) return; // skip if it already exists
+					if (otherKeyObject.table === foreignKeyFieldName) return; // skip self-comparison
+					if (typeObjects[subtype].fields.find(field => field.fieldName === otherKeyObject.table)) return; // skip if it already exists
 					typeObjects[subtype].fields.push({
 						fieldName: otherKeyObject.table,
 						fieldType: `${tableTypes.find(type => type.tableName === otherKeyObject.table).dataType}[]`,
 						required: false
 					});
 				});
+
+				// And the glue field
+				typeObjects[subtype].fields.push({
+					fieldName: typeFormatToDbTableNameFormat(glueTypeName),
+					fieldType: `${glueTypeName}[]`,
+					required: false
+				});
 			});
 		});
-	});
+
+		if(glueKey) {
+			// The fields in this table that are not foreign keys or the primary key: add them to the glue field's type
+			// For example, this will add episode_count (from connections) to Role, because role_id is the glue key of connections
+			const fieldsToAdd = difference(table.columns, Object.keys(table.foreignKeys), [table.primaryKey]);
+			typeObjects[glueTypeName].fields.push(
+				...fieldsToAdd.map(fieldName => ({
+					fieldName,
+					fieldType: typeObjects[tableDataType].fields.find(field => field.fieldName === fieldName)?.fieldType || 'unknown',
+					required: false
+				}))
+			);
+		}
+	}
 }
 
 
@@ -235,29 +271,30 @@ function convertAndSaveTypes() {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const subTypes = Object.entries(typeObjects).filter(([_, data]) => data.isSubtypeOf);
 
-
 	// Process the root types first
 	rootTypes.forEach(([name, data]) => {
-		if(name !== 'Connection') { // skipping Connection type because I don't think it'll be directly used in GraphQL queries
-			const stringParts = [];
-			// Open the declaration; interface = has subtypes; type = standalone concrete type
-			data.isInterface ? stringParts.push(`interface ${name} {`) : stringParts.push(`type ${name} {`);
+		if(!data.isGqlEntity) return;
 
-			// Loop through the fields and add them in the correct format for GraphQL
-			stringParts.push(...processFields(data.fields));
+		const stringParts = [];
+		// Open the declaration; interface = has subtypes; type = standalone concrete type
+		data.isInterface ? stringParts.push(`interface ${name} {`) : stringParts.push(`type ${name} {`);
 
-			// Close the declaration
-			stringParts.push('}');
-			// Convert to a formatted string
-			const finalString = stringParts.join('\n').concat('\n');
+		// Loop through the fields and add them in the correct format for GraphQL
+		stringParts.push(...processFields(data.fields));
 
-			// Write to file
-			appendFileSync(typesDestFile, finalString);
-		}
+		// Close the declaration
+		stringParts.push('}');
+		// Convert to a formatted string
+		const finalString = stringParts.join('\n').concat('\n');
+
+		// Write to file
+		appendFileSync(typesDestFile, finalString);
 	});
 
 	// Then the subtypes that implement some of them
 	subTypes.forEach(([name, data]) => {
+		if(!data.isGqlEntity) return;
+
 		const stringParts = [];
 		// Open the declaration - this is where it matters that it's a subtype
 		stringParts.push(`type ${name} implements ${data.isSubtypeOf} {`);

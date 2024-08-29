@@ -24,9 +24,6 @@ export default {
 		degree: async (person: Person) => {
 			return person.degree;
 		},
-		connections: async (person: Person) => {
-			return db.people.getConnectionsForPerson(person.id);
-		},
 		works: async (person: Person, args, context) => {
 			const works = await db.people.getWorksForPerson(person.id);
 

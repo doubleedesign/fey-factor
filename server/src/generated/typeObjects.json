@@ -1,33 +1,4 @@
 {
-  "Connection": {
-    "fields": [
-      {
-        "fieldName": "id",
-        "fieldType": "number",
-        "required": true
-      },
-      {
-        "fieldName": "person_id",
-        "fieldType": "number",
-        "required": true
-      },
-      {
-        "fieldName": "work_id",
-        "fieldType": "number",
-        "required": true
-      },
-      {
-        "fieldName": "role_id",
-        "fieldType": "number",
-        "required": true
-      },
-      {
-        "fieldName": "episode_count",
-        "fieldType": "number",
-        "required": false
-      }
-    ]
-  },
   "Movie": {
     "fields": [
       {
@@ -46,11 +17,6 @@
         "required": false
       },
       {
-        "fieldName": "connections",
-        "fieldType": "Connection[]",
-        "required": false
-      },
-      {
         "fieldName": "people",
         "fieldType": "Person[]",
         "required": false
@@ -61,6 +27,7 @@
         "required": false
       }
     ],
+    "isGqlEntity": true,
     "isSubtypeOf": "Work"
   },
   "Person": {
@@ -90,7 +57,8 @@
         "fieldType": "Role[]",
         "required": false
       }
-    ]
+    ],
+    "isGqlEntity": true
   },
   "Role": {
     "fields": [
@@ -105,16 +73,12 @@
         "required": false
       },
       {
-        "fieldName": "people",
-        "fieldType": "Person[]",
-        "required": false
-      },
-      {
-        "fieldName": "works",
-        "fieldType": "Work[]",
+        "fieldName": "episode_count",
+        "fieldType": "number",
         "required": false
       }
-    ]
+    ],
+    "isGqlEntity": true
   },
   "TvShow": {
     "fields": [
@@ -149,11 +113,6 @@
         "required": false
       },
       {
-        "fieldName": "connections",
-        "fieldType": "Connection[]",
-        "required": false
-      },
-      {
         "fieldName": "people",
         "fieldType": "Person[]",
         "required": false
@@ -164,6 +123,7 @@
         "required": false
       }
     ],
+    "isGqlEntity": true,
     "isSubtypeOf": "Work"
   },
   "Work": {
@@ -189,6 +149,37 @@
         "required": false
       }
     ],
+    "isGqlEntity": true,
     "isInterface": true
+  },
+  "Connection": {
+    "fields": [
+      {
+        "fieldName": "id",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "person_id",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "work_id",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "role_id",
+        "fieldType": "number",
+        "required": true
+      },
+      {
+        "fieldName": "episode_count",
+        "fieldType": "number",
+        "required": false
+      }
+    ],
+    "isGqlEntity": false
   }
 }

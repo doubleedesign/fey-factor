@@ -83,6 +83,18 @@ export class DatabaseConnection {
 		}
 	}
 
+	/**
+	 * My concept of a "glue" field in a set of foreign keys, where the "glue" is the important one that "sticks" the others together
+	 * and will be handled differently in my application than the others.
+	 * @param tablename
+	 * @param key1
+	 * @param key2
+	 * @param glueKey
+	 */
+	async createGlueField(tablename, key1, key2, glueKey) {
+		await this.pgClient.query(`CREATE INDEX idx_${tablename}_glue_key ON ${tablename} (${key1}, ${key2}, ${glueKey});`);
+	}
+
 	async createTables() {
 		if (!await this.tableExists('people')) {
 			console.log(chalk.cyan('Creating People table...'));
@@ -168,6 +180,8 @@ export class DatabaseConnection {
                     UNIQUE 			(person_id, work_id, role_id)
 	            );
 			`);
+
+			await this.createGlueField('connections', 'person_id', 'work_id', 'role_id');
 		}
 		else {
 			console.log(chalk.yellow('Connections table already exists. Skipping.'));

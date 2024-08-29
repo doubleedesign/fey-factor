@@ -24,13 +24,14 @@ export default {
 		release_year: async (movie: Movie) => {
 			return movie.release_year;
 		},
-		connections: async (movie: Movie) => {
-			return db.works.getConnectionsForMovie(movie.id);
-		},
 		people: async (movie: Movie) => {
 			return db.works.getPeopleForMovie(movie.id);
 		},
-		roles: async (movie: Movie) => {
+		roles: async (movie: Movie & { personId?: number }) => {
+			if(movie.personId) {
+				return db.works.getPersonsRolesForWork(movie.personId, movie.id);
+			}
+
 			return db.works.getRolesForMovie(movie.id);
 		},
 	}

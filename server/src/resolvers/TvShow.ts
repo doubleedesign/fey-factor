@@ -33,18 +33,15 @@ export default {
 		episode_count: async (tvshow: TvShow) => {
 			return tvshow.episode_count;
 		},
-		connections: async (tvshow: TvShow) => {
-			return db.works.getConnectionsForTvshow(tvshow.id);
-		},
 		people: async (tvshow: TvShow) => {
 			return db.works.getPeopleForTvshow(tvshow.id);
 		},
 		roles: async (parent: TvShow & { personId?: number }, args, context) => {
 			if(parent.personId) {
-				return db.works.getPersonsRolesForWork(parent.personId, parent.id);
+				return await db.works.getPersonsRolesForWork(parent.personId, parent.id);
 			}
 
-			return db.works.getRolesForTvshow(parent.id);
+			return await db.works.getRolesForTvshow(parent.id);
 		},
 	}
 };

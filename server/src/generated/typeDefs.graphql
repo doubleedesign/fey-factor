@@ -8,8 +8,7 @@ type Person {
 type Role {
 	id: ID!
 	name: String
-	people: [Person]
-	works: [Work]
+	episode_count: Int
 }
 interface Work {
 	id: ID!
