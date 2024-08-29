@@ -27,10 +27,10 @@ export default {
 		works: async (person: Person, args, context) => {
 			const { type } = args?.filter;
 			let works = [];
-			if(type === 'TvShow') {
+			if(type && type === 'TvShow') {
 				works = await db.people.getTvShowsForPerson(person.id);
 			}
-			else if(type === 'Movie') {
+			else if(type && type === 'Movie') {
 				works = await db.people.getMoviesForPerson(person.id);
 			}
 			else {

@@ -20,6 +20,7 @@ async function generate() {
 		await generateTypes();
 		await renameTypes();
 		await generateSchema();
+		// TODO: Combine the typeDefs and Query type into one file in the ../app/src/schema.graphql file (currently copying into that manually)
 	}
 	catch (error) {
 		handleError(error);
