@@ -3,11 +3,11 @@
 A funsies project inspired by [Six Degrees of Kevin Bacon](https://en.wikipedia.org/wiki/Six_Degrees_of_Kevin_Bacon) but for finding and assessing live-action, scripted American<sup>1</sup> comedies based on their proximity and strength of connections to Tina Fey<sup>2</sup>.
 
 ## 1. Data Builder
-This package contains a bunch of code that ultimately culminates in a collection of Node scripts run from a single console app to collect data from [The Movie Database API](https://developer.themoviedb.org/) starting from Tina Fey and collecting TV shows, movies, and people to the specified "degree of separation." **This is currently focused primarily on TV shows** - movies are limited to degree 1 (even that collects thousands) and movie data is not topped up after initial population; options only exist to top-up TV show data. 
+This package contains a bunch of code that ultimately culminates in a collection of Node scripts run from a single console app to collect data from [The Movie Database API](https://developer.themoviedb.org/) starting from Tina Fey (or a person of your choice) and collecting TV shows, movies, and people to the specified "degree of separation." **This is currently focused primarily on TV shows** - movies are limited to degree 1 (even that collects thousands) and movie data is not topped up after initial population; options only exist to top-up TV show data. 
 
 The raw data is saved locally as JSON files in the `datasources/cache` folder. If a file is found, that data will be used instead of making an API request to TMDB, to keep API calls to a minimum. (However, these cached files are excluded from version control.)
 
-This is fairly well tested in terms of functionality<sup>3</sup>, but the inclusion criteria are basic and so this should be considered a beta proof-of-concept. (Including every single person and continuing the tree results in too many people and works to be practical, but the current criteria are very arbitrary. I somewhat work around this using the scripts that "top up" data for a specified number of shows and for degree 2 people who would be degree 1 under looser criteria, but this is not a perfect solution.)
+The inclusion criteria are basic, so this should be considered a beta proof-of-concept. (Including every single person and continuing the tree results in too many people and works to be practical, but the current criteria are very arbitrary. I somewhat work around this using the scripts that "top up" data for a specified number of shows and for degree 2 people who would be degree 1 under looser criteria, but this is not a perfect solution.)
 
 ### Prerequisites
 - [Node](https://nodejs.org)
@@ -46,7 +46,7 @@ Under the hood, this:
 
 The generated files can then be found in `./src/generated`.
 
-I have also created a script to generate skeletons of resolvers for the GraphQL server based on the generated schema and likely function names. (**Note:** This overwrites any existing resolvers in the `./src/resolvers` folder.)
+I have also created a script to generate skeletons/templates for resolvers based on the generated schema and likely function names. (**Note:** This overwrites any existing resolvers in the `./src/resolvers` folder.)
 ```bash
 npm run generate:resolvers
 ```
@@ -61,7 +61,19 @@ After deleting resolver files to re-create them, the script says it's created th
 
 ## 3. Front-end app
 
-To come.
+The plan is that the UI will contain:
+- Sortable and filterable ranking tables
+- A Venn diagram showing the people overlap between shows
+- A network graph showing connections between shows and people.
+
+Combine the generated schema from Step 2, run the Relay compiler, and run the Vite dev server in one step with:
+```bash
+npm run dev
+```
+
+Under the hood, it is a [React](https://react.dev/) app with [Relay](https://relay.dev/) for GraphQL queries, because that's what I use at my day job and thus want to  practice with. Built using [Vite](https://vitejs.dev/), with thanks to Oscar Beaumont for [vite-plugin-relay](https://github.com/oscartbeaumont/vite-plugin-relay).
+
+UI components are home-made using [Styled Components](https://styled-components.com/) and [Polished](https://polished.js.org/), with thanks to Armin Broubakarian for [generate-react-cli](https://www.npmjs.com/package/generate-react-cli) which I use to bootstrap my components.
 
 ---
 
@@ -76,6 +88,5 @@ This product uses the TMDB API but is not endorsed or certified by TMDB.
 ## Footnotes 
 <sup>1</sup>Currently only TV shows are filtered by origin country, not movies. 
 
-<sup>2</sup>It can actually be run with anyone as your start person, you just need their TMDB ID.
-
-<sup>3</sup>Except some of the custom console logging. That's still a bit messy.
+<sup>2</sup>It can actually be run with anyone as your start person, you just need their TMDB ID. You may also need to adjust the code, e.g., my next implementation will be for Australian TV so I will need to adjust the country filter. 
+```
