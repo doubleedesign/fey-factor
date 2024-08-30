@@ -3,7 +3,7 @@ import styled from 'styled-components';
 export const StyledSortingButton = styled.button<{ $direction: 'asc' | 'desc', $active: boolean }>`
 	display: flex;
 	width: 100%;
-	justify-content: flex-start;
+	justify-content: space-between;
 	align-items: center;
 	background: transparent;
 	border: 0;
@@ -21,6 +21,5 @@ export const StyledSortingButton = styled.button<{ $direction: 'asc' | 'desc', $
 		font-size: 0.9em;
 		transition: transform 0.3s ease;
 		transform: rotate(${props => props.$direction === 'asc' ? '0' : '180deg'});
-		margin-left: 0.25rem;
 	}
 `;

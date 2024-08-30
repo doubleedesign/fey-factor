@@ -1,10 +1,10 @@
-import { FC } from 'react';
+import React, { FC } from 'react';
 import { StyledSortingButton } from './SortingButton.style';
 
 type SortingButtonProps = {
 	label: string;
 	direction: 'asc' | 'desc';
-	onClick: (e) => void;
+	onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
 	active: boolean;
 };
 
@@ -12,7 +12,7 @@ export const SortingButton: FC<SortingButtonProps> = ({ label, direction, onClic
 	return (
 		<StyledSortingButton data-testid="SortingButton" onClick={onClick} $direction={direction} $active={active}>
 			{label}
-			<i className="fa-solid fa-chevron-up"></i>
+			<i className="fa-sharp-duotone fa-solid fa-sort"></i>
 		</StyledSortingButton>
 	);
 };
