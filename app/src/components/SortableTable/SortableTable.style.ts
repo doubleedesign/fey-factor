@@ -1,70 +1,56 @@
 import styled from 'styled-components';
-import { shade } from 'polished';
+import { tint, transparentize } from 'polished';
 
 export const StyledSortableTable = styled.table`
 	width: 100%;
 	margin-bottom: 1rem;
 	border-collapse: collapse;
+	border: 1px solid ${props => props.theme.colors.subtle};
+	background: ${props => props.theme.colors.background};
 
 	th, td {
+		font-family: ${props => props.theme.fontFamily.body};
 		text-align: right;
-		padding: 0.25rem 1rem 0.25rem 0.25rem;
-		border-right: 1px solid ${shade(0.1, '#f2f2f2')};
+		padding: ${props => props.theme.spacing.sm};
+		border-right: 1px solid ${props => tint(0.4, props.theme.colors.subtle)};
 
+		&[data-fieldkey="rank"],
 		&[data-fieldkey="id"],
 		&[data-fieldkey="title"] {
 			text-align: left;
 			padding-right: 0.25rem;
 		}
-	}
-
-	thead th {
-		background-color: #0086d6;
-		color: white;
-		text-align: left;
-	}
-
-	tr:nth-child(even) {
-		background-color: #f2f2f2;
-	}
-
-	[data-fieldkey="unitCode"] {
-		width: 6.5rem;
-	}
-
-	[data-fieldkey="unitName"] {
-		width: 10rem;
-		max-width: 15rem;
-		white-space: nowrap;
-		overflow: hidden;
-		text-overflow: ellipsis;
-
-		&:is(td) {
-			border-right: 1px solid ${shade(0.1, '#f2f2f2')};
-		}
-	}
-
-	[data-fieldkey="taskTargetGrade"] {
-		text-align: center;
-		width: 5rem;
-
-		&:is(td) {
-			svg {
-				font-size: 1.4em;
+		
+		a {
+			color: ${props => props.theme.colors.dark};
+			text-decoration: underline;
+			text-decoration-color: ${props => transparentize(0.5, props.theme.colors.dark)};
+			transition: all 0.2s ease-in-out;
+			
+			&:hover, &:focus, &:active {
+				color: ${props => tint(0.2, props.theme.colors.info)};
+				text-decoration-color: ${props => props.theme.colors.info};
 			}
 		}
 	}
 
-	[data-fieldkey="status"] {
-		text-align: center;
-		width: 5rem;
+	thead th {
+		background-color: ${props => props.theme.colors.primary};
+		border-right-color: ${props => tint(0.3, props.theme.colors.primary)};
+		color: white;
+		text-align: left;
 
-		span:only-child {
-			margin: 0 auto;
+		.react-tooltip {
+			max-width: 220px !important;
+			font-weight: ${props => props.theme.fontWeights.light};
+
+			&__show {
+				opacity: 1;
+			}
 		}
 	}
 
-	[data-fieldkey="due_date"] {
-		width: 13rem;
+	tr:nth-child(even) {
+		background-color: ${props => tint(0.8, props.theme.colors.subtle)};
 	}
 `;

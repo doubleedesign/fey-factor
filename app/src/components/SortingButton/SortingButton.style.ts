@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 
 export const StyledSortingButton = styled.button<{ $direction: 'asc' | 'desc', $active: boolean }>`
+	font-family: ${props => props.theme.fontFamily.body};
 	display: flex;
 	width: 100%;
 	justify-content: space-between;

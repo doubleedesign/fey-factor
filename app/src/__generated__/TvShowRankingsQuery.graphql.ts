@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<83a6bdad6559a791c064ac9d8121f27b>>
+ * @generated SignedSource<<61ea9f89a4084ed2826dbe638cd4ec91>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,10 +9,10 @@
 // @ts-nocheck
 
 import { ConcreteRequest, Query } from 'relay-runtime';
-export type App_RankedShowsQuery$variables = {
+export type TvShowRankingsQuery$variables = {
   limit: number;
 };
-export type App_RankedShowsQuery$data = {
+export type TvShowRankingsQuery$data = {
   readonly TvShows: ReadonlyArray<{
     readonly average_degree?: number | null | undefined;
     readonly id?: string;
@@ -21,9 +21,9 @@ export type App_RankedShowsQuery$data = {
     readonly weighted_score?: number;
   } | null | undefined> | null | undefined;
 };
-export type App_RankedShowsQuery = {
-  response: App_RankedShowsQuery$data;
-  variables: App_RankedShowsQuery$variables;
+export type TvShowRankingsQuery = {
+  response: TvShowRankingsQuery$data;
+  variables: TvShowRankingsQuery$variables;
 };
 
 const node: ConcreteRequest = (function(){
@@ -81,7 +81,7 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
-    "name": "App_RankedShowsQuery",
+    "name": "TvShowRankingsQuery",
     "selections": [
       {
         "alias": null,
@@ -124,7 +124,7 @@ return {
   "operation": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
-    "name": "App_RankedShowsQuery",
+    "name": "TvShowRankingsQuery",
     "selections": [
       {
         "alias": null,
@@ -167,16 +167,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "da415cc43e96feb14790cdbbedeb8330",
+    "cacheID": "db74a3eedfabe0f2e95f935f4a5e9dbf",
     "id": null,
     "metadata": {},
-    "name": "App_RankedShowsQuery",
+    "name": "TvShowRankingsQuery",
     "operationKind": "query",
-    "text": "query App_RankedShowsQuery(\n  $limit: Int!\n) {\n  TvShows(limit: $limit) {\n    __typename\n    ... on TvShowWithRankingData {\n      id\n      title\n      total_connections\n      average_degree\n      weighted_score\n    }\n    ... on TvShow {\n      id\n    }\n  }\n}\n"
+    "text": "query TvShowRankingsQuery(\n  $limit: Int!\n) {\n  TvShows(limit: $limit) {\n    __typename\n    ... on TvShowWithRankingData {\n      id\n      title\n      total_connections\n      average_degree\n      weighted_score\n    }\n    ... on TvShow {\n      id\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "c46d629d2c12c238a07dd9aa0e1f830d";
+(node as any).hash = "2422ac696ecb6f0dbd1730bf3711d2b3";
 
 export default node;

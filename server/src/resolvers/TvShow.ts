@@ -3,62 +3,54 @@ import { TvShow } from '../generated/source-types';
 import { TvShowWithRankingData } from '../types';
 const db = new DatabaseConnection();
 
+const tvShowCoreResolvers = {
+	id: async (tvshow: TvShow) => tvshow.id,
+	title: async (tvshow: TvShow) => tvshow.title,
+	people: async (tvshow: TvShow) => db.works.getPeopleForTvshow(tvshow.id),
+	roles: async (parent: TvShow & { personId?: number }) => {
+		if (parent.personId) {
+			return db.works.getPersonsRolesForWork(parent.personId, parent.id);
+		}
+
+		return db.works.getRolesForTvshow(parent.id);
+	},
+};
+
 export default {
 	Query: {
 		TvShow: async (_, { id }): Promise<TvShow> => {
 			const coreFields = await db.works.getTvShow(id);
 
-			return {
-				...coreFields,
-				// The rest of the fields for the TvShow type become available here as if by magic
-				// because the Query type in the schema expects the TvShow type and so will use the TvShow resolver below
-			};
+			return { ...coreFields };
 		},
 		TvShows: async (_, { ids, limit }): Promise<TvShow[] | TvShowWithRankingData[]> => {
-			if(ids) {
+			if (ids && ids.length > 0) {
 				return await db.works.getTvShows(ids);
 			}
 
 			return await db.works.getRankedListOfTvShows(limit);
-		}
+		},
 	},
 	TvShowResult: {
 		__resolveType: (parent) => {
-			if((parent as TvShowWithRankingData).weighted_score) {
+			if ((parent as TvShowWithRankingData).weighted_score) {
 				return 'TvShowWithRankingData';
 			}
 
 			return 'TvShow';
-		}
+		},
 	},
 	TvShow: {
-		id: async (tvshow: TvShow) => {
-			return tvshow.id;
-		},
-		title: async (tvshow: TvShow) => {
-			return tvshow.title;
-		},
-		start_year: async (tvshow: TvShow) => {
-			return tvshow.start_year;
-		},
-		end_year: async (tvshow: TvShow) => {
-			return tvshow.end_year;
-		},
-		season_count: async (tvshow: TvShow) => {
-			return tvshow.season_count;
-		},
-		episode_count: async (tvshow: TvShow) => {
-			return tvshow.episode_count;
-		},
-		people: async (tvshow: TvShow) => {
-			return db.works.getPeopleForTvshow(tvshow.id);
-		},
-		roles: async (parent: TvShow & { personId?: number }, args, context) => {
-			if(parent.personId) {
-				return await db.works.getPersonsRolesForWork(parent.personId, parent.id);
-			}
-
-			return await db.works.getRolesForTvshow(parent.id);
-		},
-	}
+		...tvShowCoreResolvers,
+		start_year: async (tvshow: TvShow) => tvshow.start_year,
+		end_year: async (tvshow: TvShow) => tvshow.end_year,
+		season_count: async (tvshow: TvShow) => tvshow.season_count,
+		episode_count: async (tvshow: TvShow) => tvshow.episode_count,
+	},
+	TvShowWithRankingData: {
+		...tvShowCoreResolvers,
+		total_connections: async (tvshow: TvShowWithRankingData) => tvshow.total_connections,
+		average_degree: async (tvshow: TvShowWithRankingData) => tvshow.average_degree,
+		weighted_score: async (tvshow: TvShowWithRankingData) => tvshow.weighted_score,
+	},
 };

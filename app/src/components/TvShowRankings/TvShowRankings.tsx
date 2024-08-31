@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { StyledTvShowRankings } from './TvShowRankings.style';
 import { graphql, useLazyLoadQuery } from 'react-relay';
-import { App_RankedShowsQuery, App_RankedShowsQuery$data } from '../../__generated__/App_RankedShowsQuery.graphql.ts';
+import { TvShowRankingsQuery, TvShowRankingsQuery$data } from '../../__generated__/TvShowRankingsQuery.graphql.ts';
 import { Row } from '../../types.ts';
 import { SortableTable } from '../SortableTable/SortableTable.tsx';
 
@@ -11,9 +11,9 @@ type TvShowRankingsProps = {
 
 export const TvShowRankings: FC<TvShowRankingsProps> = ({ limit }) => {
 
-	const result = useLazyLoadQuery<App_RankedShowsQuery>(
+	const result = useLazyLoadQuery<TvShowRankingsQuery>(
 		graphql`
-            query App_RankedShowsQuery($limit: Int!) {
+            query TvShowRankingsQuery($limit: Int!) {
                 TvShows(limit: $limit) {
                     ...on TvShowWithRankingData {
                         id @required(action: LOG)
@@ -28,7 +28,7 @@ export const TvShowRankings: FC<TvShowRankingsProps> = ({ limit }) => {
 		{ limit }
 	);
 
-	const data = result.TvShows?.map((show: NonNullable<App_RankedShowsQuery$data['TvShows']>[number]) => {
+	const data = result.TvShows?.map((show: NonNullable<TvShowRankingsQuery$data['TvShows']>[number]) => {
 		return {
 			id: show?.id ?? 0,
 			title: show?.title ?? '',
