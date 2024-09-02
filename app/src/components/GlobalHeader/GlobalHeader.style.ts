@@ -55,6 +55,7 @@ export const StyledMainMenuList = styled.ul`
 
 export const StyledMainMenuListItem = styled.li`
 	display: block;
+	margin-inline: 2px;
 
 	a {
 		padding: ${props => props.theme.spacing.sm} ${props => props.theme.spacing.md};

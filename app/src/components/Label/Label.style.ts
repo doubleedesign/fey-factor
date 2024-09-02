@@ -8,7 +8,7 @@ export const StyledLabel = styled.span<{ type: 'info' | 'warning' | 'success' | 
 	background: ${props => props.theme.colors[props.type]};
 	color: ${props => readableColor(props.theme.colors[props.type])};
 	font-family: ${props => props.theme.fontFamily.body};
-	font-size: ${props => props.theme.fontSizes.xs};
+	font-size: 0.7rem;
 	padding: ${props => props.theme.spacing.xs} ${props => props.theme.spacing['sm-md']};
 	line-height: 0.8;
 	text-transform: uppercase;

@@ -11,6 +11,6 @@ export const StyledControlBar = styled.div`
 	padding-block: ${props => props.theme.spacing.md};
 	
 	${StyledHeading} {
-		font-size: ${props => props.theme.fontSizes.display};
+		font-size: ${props => props.theme.fontSizes.display2};
 	}
 `;

@@ -8,7 +8,7 @@ export const StyledHeading = styled.h2`
 	align-items: center;
 	
 	&:is(h1) {
-		font-size: ${props => props.theme.fontSizes.xxl};
+		font-size: ${props => props.theme.fontSizes.display};
 	}
 	
 	&:is(h2) {

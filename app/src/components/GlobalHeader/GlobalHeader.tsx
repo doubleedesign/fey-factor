@@ -21,7 +21,6 @@ export const GlobalHeader: FC<GlobalHeaderProps> = () => {
 					</Link>
 				</Heading>
 				<StyledMainMenu>
-					<EditionMenu />
 					<StyledMainMenuList>
 						<StyledMainMenuListItem><NavLink to={'/rankings'}>Rankings</NavLink></StyledMainMenuListItem>
 						<StyledMainMenuListItem><NavLink to={'/network'}>Network</NavLink></StyledMainMenuListItem>
@@ -40,6 +39,9 @@ export const GlobalHeader: FC<GlobalHeaderProps> = () => {
 								</a>
 							</TooltippedElement>
 						</StyledMainMenuListIconItem>
+						<li>
+							<EditionMenu selected={56323}/>
+						</li>
 					</StyledMainMenuList>
 				</StyledMainMenu>
 			</Container>

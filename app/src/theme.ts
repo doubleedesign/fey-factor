@@ -36,7 +36,7 @@ const defaultTheme = {
 		bold: 700
 	},
 	// Automatically generate font size key-value pairs using the specified type scale and starting xs font size
-	fontSizes: ['md', 'lg', 'xl', 'xxl', 'display'].reduce((result: { [key: string]: string }, size: string) => {
+	fontSizes: ['md', 'lg', 'xl', 'xxl', 'display', 'display2'].reduce((result: { [key: string]: string }, size: string) => {
 		const prev: string = <string>Object.values(result).pop();
 		result[size] = `${parseFloat(prev.replace('rem', '')) * typeScale}rem`;
 

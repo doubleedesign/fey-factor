@@ -24,3 +24,9 @@ export type Column = {
 	label: string;
 	tooltip?: string;
 };
+
+export type Edition = {
+	personId: number;
+	title: string;
+	tag?: string;
+};
