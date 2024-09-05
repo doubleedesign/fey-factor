@@ -20,13 +20,11 @@ async function generate() {
 		await generateTypes();
 		await renameTypes();
 		await generateSchema();
-		// TODO: Combine the typeDefs and Query type into one file in the ../app/src/schema.graphql file (currently copying into that manually)
 	}
 	catch (error) {
 		handleError(error);
 		console.log(chalk.yellow('Did you get the Punycode deprecation error? Try changing your Node version to the latest LTS one.'));
 	}
-
 	try {
 		await formatFiles();
 	}
@@ -124,6 +122,7 @@ async function formatFiles() {
 
 /**
  * Generate GraphQL type definitions from the TypeScript types
+ * and then generate TypeScript types from the GraphQL schema because it adds fields not present in the source types
  */
 async function generateSchema() {
 	outputSeparator();
@@ -133,7 +132,7 @@ async function generateSchema() {
 	await generateSchemaTypedefs(typesOutputFile);
 
 	// Go back the other way - run graphql-codegen to generate TypeScript types from the updated GraphQL schema
-	//await generateGqlToTs(gqlTypesOutputFile, gqlTypesReformattedOutputFile);
+	await generateGqlToTs(gqlTypesOutputFile, gqlTypesReformattedOutputFile);
 }
 
 /**

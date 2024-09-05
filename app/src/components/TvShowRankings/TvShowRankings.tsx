@@ -15,9 +15,9 @@ export const TvShowRankings: FC<TvShowRankingsProps> = ({ limit }) => {
 		graphql`
             query TvShowRankingsQuery($limit: Int!) {
                 TvShows(limit: $limit) {
-                    ...on TvShowWithRankingData {
-                        id @required(action: LOG)
-                        title @required(action: LOG)
+                    id
+                    title
+                    rankingData {
                         total_connections
                         average_degree
                         weighted_score
@@ -32,9 +32,9 @@ export const TvShowRankings: FC<TvShowRankingsProps> = ({ limit }) => {
 		return {
 			id: show?.id ?? 0,
 			title: show?.title ?? '',
-			total_connections: show?.total_connections ?? 0,
-			average_degree: show?.average_degree?.toFixed(2) ?? 0,
-			weighted_score: show?.weighted_score?.toFixed(2) ?? 0,
+			total_connections: show?.rankingData?.total_connections ?? 0,
+			average_degree: show?.rankingData?.average_degree?.toFixed(2) ?? 0,
+			weighted_score: show?.rankingData?.weighted_score?.toFixed(2) ?? 0,
 		} as Row;
 	});
 

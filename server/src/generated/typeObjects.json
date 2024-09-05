@@ -1,252 +1,232 @@
 {
-  "Connection": {
-    "fields": [
-      {
-        "fieldName": "id",
-        "fieldType": "number",
-        "required": true
-      },
-      {
-        "fieldName": "person_id",
-        "fieldType": "number",
-        "required": true
-      },
-      {
-        "fieldName": "work_id",
-        "fieldType": "number",
-        "required": true
-      },
-      {
-        "fieldName": "role_id",
-        "fieldType": "number",
-        "required": true
-      },
-      {
-        "fieldName": "episode_count",
-        "fieldType": "number",
-        "required": false
-      }
-    ],
-    "isGqlEntity": false
-  },
-  "Movie": {
-    "fields": [
-      {
-        "fieldName": "id",
-        "fieldType": "number",
-        "required": true
-      },
-      {
-        "fieldName": "title",
-        "fieldType": "string",
-        "required": false
-      },
-      {
-        "fieldName": "release_year",
-        "fieldType": "number",
-        "required": false
-      },
-      {
-        "fieldName": "people",
-        "fieldType": "Person[]",
-        "required": false
-      },
-      {
-        "fieldName": "roles",
-        "fieldType": "Role[]",
-        "required": false
-      }
-    ],
-    "isGqlEntity": true,
-    "isSubtypeOf": "Work"
-  },
-  "Person": {
-    "fields": [
-      {
-        "fieldName": "id",
-        "fieldType": "number",
-        "required": true
-      },
-      {
-        "fieldName": "name",
-        "fieldType": "string",
-        "required": true
-      },
-      {
-        "fieldName": "degree",
-        "fieldType": "number",
-        "required": false
-      },
-      {
-        "fieldName": "works",
-        "fieldType": "Work[]",
-        "required": false
-      },
-      {
-        "fieldName": "roles",
-        "fieldType": "Role[]",
-        "required": false
-      }
-    ],
-    "isGqlEntity": true
-  },
-  "Role": {
-    "fields": [
-      {
-        "fieldName": "id",
-        "fieldType": "number",
-        "required": true
-      },
-      {
-        "fieldName": "name",
-        "fieldType": "string",
-        "required": false
-      },
-      {
-        "fieldName": "episode_count",
-        "fieldType": "number",
-        "required": false
-      }
-    ],
-    "isGqlEntity": true
-  },
-  "TvShow": {
-    "fields": [
-      {
-        "fieldName": "id",
-        "fieldType": "number",
-        "required": true
-      },
-      {
-        "fieldName": "title",
-        "fieldType": "string",
-        "required": false
-      },
-      {
-        "fieldName": "start_year",
-        "fieldType": "number",
-        "required": false
-      },
-      {
-        "fieldName": "end_year",
-        "fieldType": "number",
-        "required": false
-      },
-      {
-        "fieldName": "season_count",
-        "fieldType": "number",
-        "required": false
-      },
-      {
-        "fieldName": "episode_count",
-        "fieldType": "number",
-        "required": false
-      },
-      {
-        "fieldName": "people",
-        "fieldType": "Person[]",
-        "required": false
-      },
-      {
-        "fieldName": "roles",
-        "fieldType": "Role[]",
-        "required": false
-      }
-    ],
-    "isGqlEntity": true,
-    "isInterface": true,
-    "isSubtypeOf": "Work"
-  },
-  "Work": {
-    "fields": [
-      {
-        "fieldName": "id",
-        "fieldType": "number",
-        "required": true
-      },
-      {
-        "fieldName": "title",
-        "fieldType": "string",
-        "required": false
-      },
-      {
-        "fieldName": "people",
-        "fieldType": "Person[]",
-        "required": false
-      },
-      {
-        "fieldName": "roles",
-        "fieldType": "Role[]",
-        "required": false
-      }
-    ],
-    "isGqlEntity": true,
-    "isInterface": true
-  },
-  "TvShowWithRankingData": {
-    "fields": [
-      {
-        "fieldName": "id",
-        "fieldType": "number",
-        "required": true
-      },
-      {
-        "fieldName": "title",
-        "fieldType": "string",
-        "required": false
-      },
-      {
-        "fieldName": "start_year",
-        "fieldType": "number",
-        "required": false
-      },
-      {
-        "fieldName": "end_year",
-        "fieldType": "number",
-        "required": false
-      },
-      {
-        "fieldName": "season_count",
-        "fieldType": "number",
-        "required": false
-      },
-      {
-        "fieldName": "episode_count",
-        "fieldType": "number",
-        "required": false
-      },
-      {
-        "fieldName": "total_connections",
-        "fieldType": "number",
-        "required": false
-      },
-      {
-        "fieldName": "average_degree",
-        "fieldType": "number",
-        "required": false
-      },
-      {
-        "fieldName": "aggregate_episode_count",
-        "fieldType": "number",
-        "required": false
-      },
-      {
-        "fieldName": "weighted_score",
-        "fieldType": "number",
-        "required": true
-      },
-      {
-        "fieldName": "people",
-        "fieldType": "Person[]",
-        "required": false
-      },
-      {
-        "fieldName": "roles",
-        "fieldType": "Role[]",
-        "required": false
-      }
-    ],
-    "isGqlEntity": true,
-    "isSubtypeOf": "Work"
-  }
+    "Connection": {
+        "fields": [
+            {
+                "fieldName": "id",
+                "fieldType": "number",
+                "required": true
+            },
+            {
+                "fieldName": "person_id",
+                "fieldType": "number",
+                "required": true
+            },
+            {
+                "fieldName": "work_id",
+                "fieldType": "number",
+                "required": true
+            },
+            {
+                "fieldName": "role_id",
+                "fieldType": "number",
+                "required": true
+            },
+            {
+                "fieldName": "episode_count",
+                "fieldType": "number",
+                "required": false
+            }
+        ],
+        "isDirectlyQueryable": false,
+        "isGqlEntity": false
+    },
+    "Movie": {
+        "fields": [
+            {
+                "fieldName": "id",
+                "fieldType": "number",
+                "required": true
+            },
+            {
+                "fieldName": "title",
+                "fieldType": "string",
+                "required": false
+            },
+            {
+                "fieldName": "release_year",
+                "fieldType": "number",
+                "required": false
+            },
+            {
+                "fieldName": "rankingData",
+                "fieldType": "RankingData",
+                "required": false
+            },
+            {
+                "fieldName": "people",
+                "fieldType": "Person[]",
+                "required": false
+            },
+            {
+                "fieldName": "roles",
+                "fieldType": "Role[]",
+                "required": false
+            }
+        ],
+        "isDirectlyQueryable": true,
+        "isGqlEntity": true,
+        "isSubtypeOf": "Work"
+    },
+    "Person": {
+        "fields": [
+            {
+                "fieldName": "id",
+                "fieldType": "number",
+                "required": true
+            },
+            {
+                "fieldName": "name",
+                "fieldType": "string",
+                "required": true
+            },
+            {
+                "fieldName": "degree",
+                "fieldType": "number",
+                "required": false
+            },
+            {
+                "fieldName": "works",
+                "fieldType": "Work[]",
+                "required": false
+            },
+            {
+                "fieldName": "roles",
+                "fieldType": "Role[]",
+                "required": false
+            }
+        ],
+        "isDirectlyQueryable": true,
+        "isGqlEntity": true
+    },
+    "RankingData": {
+        "fields": [
+            {
+                "fieldName": "total_connections",
+                "fieldType": "number",
+                "required": false
+            },
+            {
+                "fieldName": "average_degree",
+                "fieldType": "number",
+                "required": false
+            },
+            {
+                "fieldName": "aggregate_episode_count",
+                "fieldType": "number",
+                "required": false
+            },
+            {
+                "fieldName": "weighted_score",
+                "fieldType": "number",
+                "required": false
+            }
+        ],
+        "isDirectlyQueryable": false,
+        "isGqlEntity": true
+    },
+    "Role": {
+        "fields": [
+            {
+                "fieldName": "id",
+                "fieldType": "number",
+                "required": true
+            },
+            {
+                "fieldName": "name",
+                "fieldType": "string",
+                "required": false
+            },
+            {
+                "fieldName": "episode_count",
+                "fieldType": "number",
+                "required": false
+            }
+        ],
+        "isDirectlyQueryable": true,
+        "isGqlEntity": true
+    },
+    "TvShow": {
+        "fields": [
+            {
+                "fieldName": "id",
+                "fieldType": "number",
+                "required": true
+            },
+            {
+                "fieldName": "title",
+                "fieldType": "string",
+                "required": false
+            },
+            {
+                "fieldName": "start_year",
+                "fieldType": "number",
+                "required": false
+            },
+            {
+                "fieldName": "end_year",
+                "fieldType": "number",
+                "required": false
+            },
+            {
+                "fieldName": "season_count",
+                "fieldType": "number",
+                "required": false
+            },
+            {
+                "fieldName": "episode_count",
+                "fieldType": "number",
+                "required": false
+            },
+            {
+                "fieldName": "rankingData",
+                "fieldType": "RankingData",
+                "required": false
+            },
+            {
+                "fieldName": "people",
+                "fieldType": "Person[]",
+                "required": false
+            },
+            {
+                "fieldName": "roles",
+                "fieldType": "Role[]",
+                "required": false
+            }
+        ],
+        "isDirectlyQueryable": true,
+        "isGqlEntity": true,
+        "isSubtypeOf": "Work"
+    },
+    "Work": {
+        "fields": [
+            {
+                "fieldName": "id",
+                "fieldType": "number",
+                "required": true
+            },
+            {
+                "fieldName": "title",
+                "fieldType": "string",
+                "required": false
+            },
+            {
+                "fieldName": "rankingData",
+                "fieldType": "RankingData",
+                "required": false
+            },
+            {
+                "fieldName": "people",
+                "fieldType": "Person[]",
+                "required": false
+            },
+            {
+                "fieldName": "roles",
+                "fieldType": "Role[]",
+                "required": false
+            }
+        ],
+        "isDirectlyQueryable": true,
+        "isGqlEntity": true,
+        "isInterface": true
+    }
 }

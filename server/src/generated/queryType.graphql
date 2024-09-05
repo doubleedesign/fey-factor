@@ -1,5 +1,3 @@
-union TvShowResult = TvShow | TvShowWithRankingData
-
 type Query {
 	Movie(id: ID!): Movie
 	Movies(ids: [ID], limit: Int): [Movie]
@@ -8,7 +6,7 @@ type Query {
 	Role(id: ID!): Role
 	Roles(ids: [ID], limit: Int): [Role]
 	TvShow(id: ID!): TvShow
-	TvShows(ids: [ID], limit: Int): [TvShowResult]
+	TvShows(ids: [ID], limit: Int): [TvShow]
 	Work(id: ID!): Work
 	Works(ids: [ID], limit: Int): [Work]
 }

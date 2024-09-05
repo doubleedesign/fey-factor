@@ -39,7 +39,7 @@ export const SchemaDiagramWrapper: FC<SchemaDiagramWrapperProps> = ({ entities, 
 			};
 		}
 		else {
-		// Position subtypes below their supertype
+			// Position subtypes below their supertype
 			const supertype = getSupertypeOfSubtype(dbTableNameFormatToTypeFormat(tableName));
 			if(supertype) {
 				const supertypeIndex = rows[rowNumber - 1].indexOf(typeFormatToDbTableNameFormat(supertype));

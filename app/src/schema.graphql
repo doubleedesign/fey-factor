@@ -1,5 +1,3 @@
-union TvShowResult = TvShow | TvShowWithRankingData
-
 type Query {
 	Movie(id: ID!): Movie
 	Movies(ids: [ID], limit: Int): [Movie]
@@ -8,13 +6,10 @@ type Query {
 	Role(id: ID!): Role
 	Roles(ids: [ID], limit: Int): [Role]
 	TvShow(id: ID!): TvShow
-	TvShows(ids: [ID], limit: Int): [TvShowResult]
+	TvShows(ids: [ID], limit: Int): [TvShow]
 	Work(id: ID!): Work
 	Works(ids: [ID], limit: Int): [Work]
-}input TvShowFilter {
-	type: String
-}
-input WorkFilter {
+}input WorkFilter {
 	type: String
 }
 type Person {
@@ -32,13 +27,21 @@ type Role {
 interface Work {
 	id: ID!
 	title: String
+	rankingData: RankingData
 	people: [Person]
 	roles: [Role]
+}
+type RankingData {
+	total_connections: Int
+	average_degree: Float
+	aggregate_episode_count: Int
+	weighted_score: Float
 }
 type Movie implements Work {
 	id: ID!
 	title: String
 	release_year: Int
+	rankingData: RankingData
 	people: [Person]
 	roles: [Role]
 }
@@ -49,20 +52,7 @@ type TvShow implements Work {
 	end_year: Int
 	season_count: Int
 	episode_count: Int
-	people: [Person]
-	roles: [Role]
-}
-type TvShowWithRankingData implements Work {
-	id: ID!
-	title: String
-	start_year: Int
-	end_year: Int
-	season_count: Int
-	episode_count: Int
-	total_connections: Int
-	average_degree: Float
-	aggregate_episode_count: Int
-	weighted_score: Float!
+	rankingData: RankingData
 	people: [Person]
 	roles: [Role]
 }

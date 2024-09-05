@@ -2,7 +2,15 @@ export type Person = {
 	degree?: number;
 	id: number;
 	name: string;
+	roles?: Role[];
 	works?: Work[];
+};
+
+export type RankingData = {
+	aggregate_episode_count?: number;
+	average_degree?: number;
+	total_connections?: number;
+	weighted_score?: number;
 };
 
 export type Role = {
@@ -14,5 +22,19 @@ export type Role = {
 export type Work = {
 	id: number;
 	people?: Person[];
+	rankingData?: RankingData;
+	roles?: Role[];
 	title?: string;
+};
+
+// TODO: Generator script doesn't currently add these
+export type TvShow = Work & {
+	start_year?: number;
+	end_year?: number;
+	season_count?: number;
+	episode_count?: number;
+};
+
+export type Movie = Work & {
+	release_year?: number;
 };

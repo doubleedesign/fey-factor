@@ -58,17 +58,21 @@ async function reformatGeneratedTypes(sourceFile: string, destFile: string) {
 }
 
 function processExportedTypes(node: ts.Node) {
-	if(ts.isTypeAliasDeclaration(node)) {
+
+	if (ts.isTypeAliasDeclaration(node)) {
+		// Skip known input types
+		if (['WorkFilter', 'PersonWorksArgs'].includes(node.name.text)) return;
+
 		// Skip irrelevant internal types
-		if (['Maybe', 'Make', 'Incremental', 'Exact'].some(str => node.name.text.includes(str))) return;
+		if (['Maybe', 'Make', 'Incremental', 'Exact', 'InputMaybe'].some(str => node.name.text.includes(str))) return;
 
 		// Create a reference object for the Scalars type
-		if(ts.isTypeLiteralNode(node.type) && node.name.text === 'Scalars') {
+		if (ts.isTypeLiteralNode(node.type) && node.name.text === 'Scalars') {
 			node.type.members.forEach(member => {
 				if (ts.isPropertySignature(member) && ts.isIdentifier(member.name)) {
 					const key = member.name.text;
 					let value = {};
-					if(ts.isTypeLiteralNode(member.type)) {
+					if (ts.isTypeLiteralNode(member.type)) {
 						member.type.members.forEach(subMember => {
 							if (ts.isPropertySignature(subMember) && ts.isIdentifier(subMember.name)) {
 								value = {
@@ -83,11 +87,11 @@ function processExportedTypes(node: ts.Node) {
 			});
 		}
 		// Process and format the other types
-		else if(ts.isTypeLiteralNode(node.type)) {
+		else if (ts.isTypeLiteralNode(node.type)) {
 			const typeLiteral = node.type as TypeLiteralNode;
 			let thisTypeString = `export type ${node.name.text} = {\n`;
 			typeLiteral.members.forEach(member => {
-				if(ts.isPropertySignature(member) && ts.isIdentifier(member.name)) {
+				if (ts.isPropertySignature(member) && ts.isIdentifier(member.name)) {
 					const key = member.name.text;
 					const value = convertValue(member.type.getText());
 					const operator = member.type.getText().includes('Maybe') ? '?:' : ':';
@@ -105,8 +109,11 @@ function processExportedTypes(node: ts.Node) {
 
 function convertValue(value: string) {
 	const stripped = value.replaceAll(/Maybe<(.+)>/g, '$1');
-	if(stripped.includes('Scalars')) {
+	if(stripped.startsWith('InputScalars')) return null;
+
+	if(stripped.startsWith('Scalars')) {
 		const rawType = stripped.replace('Scalars[\'', '').replace('\'][\'output\']', '');
+
 		// @ts-expect-error TS2339: Property output does not exist on type object. It does exist on THIS object.
 		return scalarObject[rawType].output;
 	}
@@ -115,13 +122,16 @@ function convertValue(value: string) {
 		const innerType = stripped.replace('Maybe<', '').replace('>', '');
 		if(innerType.includes('Array')) {
 			const innerInnerType = innerType.replace('Array<', '').replace('>', '');
+
 			return `${convertValue(innerInnerType)}[]`;
 		}
+
 		return `${convertValue(innerType)}`;
 	}
 
 	if(stripped.includes('Array')) {
 		const innerInnerType = stripped.replace('Array<', '').replace('>', '');
+
 		return `${convertValue(innerInnerType)}[]`;
 	}
 

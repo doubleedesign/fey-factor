@@ -1,11 +1,18 @@
-import { FC } from 'react';
-import { Container } from '../components/common.ts';
+import { FC, Suspense } from 'react';;
+import { PageWrapper } from '../components/PageWrapper/PageWrapper.tsx';
+import { ControlBar } from '../components/ControlBar/ControlBar.tsx';
+import { Heading } from '../components/Heading/Heading.tsx';
 
 export const VennDiagram: FC = () => {
 
 	return (
-		<Container>
-			Venn diagram to go here
-		</Container>
+		<Suspense>
+			<PageWrapper>
+				<ControlBar>
+					<Heading level="h1">Venn Diagram</Heading>
+				</ControlBar>
+
+			</PageWrapper>
+		</Suspense>
 	);
 };

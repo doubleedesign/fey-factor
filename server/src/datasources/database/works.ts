@@ -1,6 +1,8 @@
 import pg from 'pg';
 import { Movie, Person, Role, TvShow } from '../../generated/source-types';
-import { TvShowWithRankingData } from '../../types';
+import { RankingData } from '../../types';
+
+type TvShowWithRankingData = TvShow & RankingData;
 
 export class DbWorks  {
 	constructor(private pgClient: pg.Pool) {}
@@ -47,6 +49,22 @@ export class DbWorks  {
 			return response.rows[0] ?? null;
 		}
 		catch (error) {
+			console.error(error);
+
+			return null;
+		}
+	}
+
+	async getMovies(ids: number[]): Promise<Movie[]> {
+		try {
+			const response = await this.pgClient.query({
+				text: 'SELECT * FROM movies WHERE id = ANY($1)',
+				values: [ids]
+			});
+
+			return response.rows;
+		}
+		catch(error) {
 			console.error(error);
 
 			return null;
@@ -172,6 +190,50 @@ export class DbWorks  {
 			});
 
 			return response.rows;
+		}
+		catch (error) {
+			console.error(error);
+
+			return null;
+		}
+	}
+
+	async getRankingDataForTvshow(id: number): Promise<RankingData> {
+		try {
+			const response = await this.pgClient.query({
+				text:`
+					WITH aggregated_data as (SELECT tv_shows.id,
+						   works.title                               AS title,
+						   tv_shows.episode_count,
+						   COUNT(connections.person_id)::INTEGER     AS total_connections,
+						   ROUND(AVG(people.degree), 2)::DECIMAL     AS average_degree,
+						   2 - ROUND(AVG(people.degree), 2)::DECIMAL AS inverted_average_degree,
+						   SUM(connections.episode_count)::INTEGER   AS aggregate_episode_count
+					FROM tv_shows
+							 INNER JOIN
+						 connections ON tv_shows.id = connections.work_id
+							 INNER JOIN
+						 people ON connections.person_id = people.id
+							 INNER JOIN
+						 works ON tv_shows.id = works.id
+					WHERE works.title IS NOT NULL AND tv_shows.id = $1
+					GROUP BY tv_shows.id, works.title, tv_shows.episode_count
+					ORDER BY inverted_average_degree DESC,
+							 total_connections DESC)
+					SELECT 
+					    ad.total_connections,
+					    ad.average_degree,
+					    ad.aggregate_episode_count,
+					    ROUND((ad.aggregate_episode_count / ad.episode_count) * ad.inverted_average_degree, 2)::DECIMAL AS weighted_score
+					FROM
+					    aggregated_data ad
+					WHERE
+					    ad.aggregate_episode_count > 0
+				`,
+				values: [id]
+			});
+
+			return response.rows[0];
 		}
 		catch (error) {
 			console.error(error);

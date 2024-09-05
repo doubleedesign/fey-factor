@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<61ea9f89a4084ed2826dbe638cd4ec91>>
+ * @generated SignedSource<<69938e274d7c288aeab2f62b736b719d>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -14,11 +14,13 @@ export type TvShowRankingsQuery$variables = {
 };
 export type TvShowRankingsQuery$data = {
   readonly TvShows: ReadonlyArray<{
-    readonly average_degree?: number | null | undefined;
-    readonly id?: string;
-    readonly title?: string;
-    readonly total_connections?: number | null | undefined;
-    readonly weighted_score?: number;
+    readonly id: string;
+    readonly rankingData: {
+      readonly average_degree: number | null | undefined;
+      readonly total_connections: number | null | undefined;
+      readonly weighted_score: number | null | undefined;
+    } | null | undefined;
+    readonly title: string | null | undefined;
   } | null | undefined> | null | undefined;
 };
 export type TvShowRankingsQuery = {
@@ -36,87 +38,76 @@ var v0 = [
 ],
 v1 = [
   {
-    "kind": "Variable",
-    "name": "limit",
-    "variableName": "limit"
+    "alias": null,
+    "args": [
+      {
+        "kind": "Variable",
+        "name": "limit",
+        "variableName": "limit"
+      }
+    ],
+    "concreteType": "TvShow",
+    "kind": "LinkedField",
+    "name": "TvShows",
+    "plural": true,
+    "selections": [
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "id",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "title",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "RankingData",
+        "kind": "LinkedField",
+        "name": "rankingData",
+        "plural": false,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "total_connections",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "average_degree",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "weighted_score",
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
+    "storageKey": null
   }
-],
-v2 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "id",
-  "storageKey": null
-},
-v3 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "title",
-  "storageKey": null
-},
-v4 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "total_connections",
-  "storageKey": null
-},
-v5 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "average_degree",
-  "storageKey": null
-},
-v6 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "weighted_score",
-  "storageKey": null
-};
+];
 return {
   "fragment": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "TvShowRankingsQuery",
-    "selections": [
-      {
-        "alias": null,
-        "args": (v1/*: any*/),
-        "concreteType": null,
-        "kind": "LinkedField",
-        "name": "TvShows",
-        "plural": true,
-        "selections": [
-          {
-            "kind": "InlineFragment",
-            "selections": [
-              {
-                "kind": "RequiredField",
-                "field": (v2/*: any*/),
-                "action": "LOG",
-                "path": "TvShows.id"
-              },
-              {
-                "kind": "RequiredField",
-                "field": (v3/*: any*/),
-                "action": "LOG",
-                "path": "TvShows.title"
-              },
-              (v4/*: any*/),
-              (v5/*: any*/),
-              (v6/*: any*/)
-            ],
-            "type": "TvShowWithRankingData",
-            "abstractKey": null
-          }
-        ],
-        "storageKey": null
-      }
-    ],
+    "selections": (v1/*: any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -125,58 +116,19 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
     "name": "TvShowRankingsQuery",
-    "selections": [
-      {
-        "alias": null,
-        "args": (v1/*: any*/),
-        "concreteType": null,
-        "kind": "LinkedField",
-        "name": "TvShows",
-        "plural": true,
-        "selections": [
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "__typename",
-            "storageKey": null
-          },
-          {
-            "kind": "InlineFragment",
-            "selections": [
-              (v2/*: any*/),
-              (v3/*: any*/),
-              (v4/*: any*/),
-              (v5/*: any*/),
-              (v6/*: any*/)
-            ],
-            "type": "TvShowWithRankingData",
-            "abstractKey": null
-          },
-          {
-            "kind": "InlineFragment",
-            "selections": [
-              (v2/*: any*/)
-            ],
-            "type": "TvShow",
-            "abstractKey": null
-          }
-        ],
-        "storageKey": null
-      }
-    ]
+    "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "db74a3eedfabe0f2e95f935f4a5e9dbf",
+    "cacheID": "7ecf3ad5fbdfd0bf3e10aebf4e218c9b",
     "id": null,
     "metadata": {},
     "name": "TvShowRankingsQuery",
     "operationKind": "query",
-    "text": "query TvShowRankingsQuery(\n  $limit: Int!\n) {\n  TvShows(limit: $limit) {\n    __typename\n    ... on TvShowWithRankingData {\n      id\n      title\n      total_connections\n      average_degree\n      weighted_score\n    }\n    ... on TvShow {\n      id\n    }\n  }\n}\n"
+    "text": "query TvShowRankingsQuery(\n  $limit: Int!\n) {\n  TvShows(limit: $limit) {\n    id\n    title\n    rankingData {\n      total_connections\n      average_degree\n      weighted_score\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "2422ac696ecb6f0dbd1730bf3711d2b3";
+(node as any).hash = "7b7b3820aed77abf250aaf5dfcd44cd6";
 
 export default node;

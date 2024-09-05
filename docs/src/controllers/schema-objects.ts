@@ -24,24 +24,24 @@ export const gqlEntities: SchemaObject = Object.entries(typeObjects).filter(([, 
 	return typeObject.isGqlEntity;
 }).reduce((acc, [typeName, typeObject]) => {
 	const likelyTableName: string = typeFormatToDbTableNameFormat(getTypeForContainerType(typeName));
-	const originalDbTable: Table = dbEntities[likelyTableName].entities[0];
+	const originalDbTable: Table = dbEntities[likelyTableName]?.entities[0];
 
 	const thisEntity = {
 		...originalDbTable,
 		tableName: typeName,
 		columns: typeObject.fields.map((field) => field.fieldName),
-		foreignKeys: Object.entries(originalDbTable.foreignKeys as {[key: string]: ForeignKey}).reduce((acc, [key, value]) => {
+		foreignKeys: originalDbTable?.foreignKeys ? Object.entries(originalDbTable.foreignKeys as { [key: string]: ForeignKey }).reduce((acc, [key, value]) => {
 			acc[key] = {
 				...value,
 				table: dbTableNameFormatToTypeFormat(value.table),
 			};
 			return acc;
-		}, {} as {[key: string]: ForeignKey}),
-		gqlOnlyFields: difference(typeObject.fields.map((field) => field.fieldName), originalDbTable.columns),
+		}, {} as { [key: string]: ForeignKey }) : {},
+		gqlOnlyFields: difference(typeObject.fields.map((field) => field.fieldName), originalDbTable?.columns),
 		$type: typeName,
 	};
 
-	if(acc[likelyTableName]) {
+	if (acc[likelyTableName]) {
 		acc[likelyTableName].entities.push(thisEntity);
 		return acc;
 	}

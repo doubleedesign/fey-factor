@@ -2,7 +2,7 @@
  * Utility to process a file of simple TypeScript type/interface definitions
  * and generate matching GraphQL typedefs
  */
-import ts, { TypeLiteralNode } from 'typescript';
+import ts, { Identifier, TypeLiteralNode } from 'typescript';
 import chalk from 'chalk';
 import { readFileSync, writeFileSync, appendFileSync } from 'fs';
 import { tables } from '../src/generated/source-types';
@@ -10,6 +10,9 @@ import { DatabaseConnection } from '../src/datasources/database';
 import { ForeignKey } from 'pg-to-ts/dist/schemaInterfaces';
 import { dbTableNameFormatToTypeFormat, pascalCase, toPlural, typeFormatToDbTableNameFormat } from './utils';
 import difference from 'lodash/difference';
+import compact from 'lodash/compact';
+import uniqBy from 'lodash/uniqBy';
+
 const db = new DatabaseConnection();
 
 // The type of object we'll be collecting the processed types into for later processing into GraphQL type definition template literals
@@ -22,6 +25,7 @@ type TypeObject = {
 	isSubtypeOf?: string;
 	isInterface?: boolean;
 	isGqlEntity?: boolean;
+	isDirectlyQueryable?: boolean;
 };
 
 // The type of object we'll be collecting the processed table types into to enable lookup of table names and their data type names as strings
@@ -92,6 +96,12 @@ async function collectExportedTypes(node: ts.Node): Promise<void> {
 			}
 		}
 	}
+	else if(ts.isTypeAliasDeclaration(node)) {
+		const isExported = node.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword);
+		if (isExported) {
+			childPromises.push(processExportedType(node));
+		}
+	}
 
 	ts.forEachChild(node, childNode => {
 		childPromises.push(collectExportedTypes(childNode));
@@ -128,32 +138,84 @@ function processTableTypes(node: ts.InterfaceDeclaration) {
  * Process an exported interface and add it to the typeObjects object
  * @param node - AST node representing the exported interface
  */
-async function processExportedType(node: ts.InterfaceDeclaration) {
-	if (ts.isInterfaceDeclaration(node)) {
-		const fields = node.members.map(field => {
-			if (ts.isPropertySignature(field) && field.name) {
-				const fieldName = (field.name as ts.Identifier).text;
-				const fieldType = field.type ? field.type.getText() : 'unknown';
-				const optional = !!field.questionToken || fieldType.includes('null');
-				const required = !optional;
+async function processExportedType(node: ts.InterfaceDeclaration | ts.TypeAliasDeclaration) {
+	if(ts.isTypeAliasDeclaration(node) && node.name.text === 'Json') return;
 
-				return {
-					fieldName,
-					fieldType: fieldType.replace('| null', '').trim(),
-					required
-				};
-			}
-		});
+	if (ts.isInterfaceDeclaration(node)) {
+		const fields = node.members.map(field => formatField(field));
 		const glueKey = await db.getGlueKey(typeFormatToDbTableNameFormat(node.name.text));
 
-		// Create a GQL type object for the type with the same name
-		// (this will have more fields added to it according to the table's foreign keys, in another function)
+		// Create an object for the type with the same name
+		// (this will have more fields added to it for GQL according to the table's foreign keys, in another function)
 		typeObjects[node.name.text] = {
 			fields: fields,
 			// If this table has a glue key, it will not be a standalone GraphQL type
 			// (Big assumption based on my current use case; may need to change in the future)
-			isGqlEntity: !Boolean(glueKey),
+			isDirectlyQueryable: !Boolean(glueKey),
+			isGqlEntity: node.name.text !== 'Connection'
 		};
+
+		// Special handling that I should work out how to improve at some point
+		if(['Work', 'TvShow', 'Movie'].includes(node.name.text)) {
+			typeObjects[node.name.text].fields.push({
+				fieldName: 'rankingData',
+				fieldType: 'RankingData',
+				required: false
+			});
+		}
+	}
+
+	else if(ts.isTypeAliasDeclaration(node)) {
+		let fields = [];
+		let supertype = undefined;
+
+		if(ts.isIntersectionTypeNode(node.type)) {
+			supertype = node.type.types.find(item => ts.isTypeReferenceNode(item))?.typeName?.getText();
+
+			fields = node.type.types.map(item => {
+				// Inherited fields
+				// Note: If the parent type is in the same file it must be first,
+				// or if it's in a different file that must be processed first, to ensure the type's fields are available here
+				if (ts.isTypeReferenceNode(item)) {
+					const typeName = (item.typeName as Identifier).escapedText as string;
+
+					fields.concat(typeObjects[typeName].fields);
+				}
+				// Standard fields
+				if (ts.isTypeLiteralNode(item)) {
+					return item.members.map(field => formatField(field));
+				}
+			}).flat();
+		}
+		else if(ts.isTypeLiteralNode(node.type)) {
+			fields = node.type.members.map(field => formatField(field));
+		}
+
+		typeObjects[node.name.text] = {
+			fields: uniqBy(fields, 'fieldName'),
+			// Assuming this is an extended type that I've added manually, and so it shouldn't be available in the top-level Query
+			isDirectlyQueryable: false,
+			isGqlEntity: true
+		};
+
+		if(supertype) {
+			typeObjects[node.name.text].isSubtypeOf = supertype;
+		}
+	}
+
+	function formatField(field) {
+		if (ts.isPropertySignature(field) && field.name) {
+			const fieldName = (field.name as ts.Identifier).text;
+			const fieldType = field.type ? field.type.getText() : 'unknown';
+			const optional = !!field.questionToken || fieldType.includes('null');
+			const required = !optional;
+
+			return {
+				fieldName,
+				fieldType: fieldType.replace('| null', '').trim(),
+				required
+			};
+		}
 	}
 }
 
@@ -167,10 +229,15 @@ function detectSubtypes() {
 	const knownToSkip = ['Role'];
 
 	Object.entries(typeObjects).forEach(([typeName, data]) => {
+		// At the time of writing, I know that no types with subtypes have isDirectlyQueryable set to true, and they should be skipped
+		if(!data.isDirectlyQueryable) return false;
+
 		const fieldNames = data.fields.map(field => field.fieldName);
 		Object.entries(typeObjects).forEach(([otherTypeName, otherTypeData]) => {
-			if(typeName === otherTypeName) return; // skip self-comparison
-			if(knownToSkip.includes(typeName) || knownToSkip.includes(otherTypeName)) return; // skip known non-parent types that coincidentally match
+			// skip self-comparison
+			if(typeName === otherTypeName) return;
+			// skip known non-parent types that coincidentally match, and other custom types that at the time of writing, I know don't have subtypes
+			if(knownToSkip.includes(typeName) || knownToSkip.includes(otherTypeName) || !otherTypeData.isDirectlyQueryable) return;
 
 			const otherFieldNames = otherTypeData.fields.map(field => field.fieldName);
 			// If the type being checked has all the fields of the other type, it is a subtype
@@ -201,7 +268,7 @@ async function addForeignKeyFields() {
 		// The foreign keys in the current table, as generated by pg-to-ts, but without the glue key
 		const foreignKeys = Object.fromEntries(Object.entries(table.foreignKeys).filter(([key, fk]) => key !== glueKey));
 
-		Object.entries(foreignKeys).forEach(([key, fk]) => {
+		Object.entries(foreignKeys).forEach(([, fk]) => {
 			const foreignKeyFieldName = fk.table;
 			const foreignKeyFieldType = tableTypes.find(type => type.tableName === foreignKeyFieldName)?.dataType;
 			const subtypes = Object.keys(typeObjects).filter(name => typeObjects[name].isSubtypeOf === foreignKeyFieldType);
@@ -272,7 +339,11 @@ async function addForeignKeyFields() {
  */
 function convertAndSaveTypes() {
 	// Save the raw types object to a file that the docs can use
-	writeFileSync('./src/generated/typeObjects.json', JSON.stringify(typeObjects, null, 2), 'utf8');
+	// Sort them first because they randomly end up in a different order which is annoying for git diffs
+	const sortedTypeObjects = Object.fromEntries(
+		Object.entries(typeObjects).sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+	);
+	writeFileSync('./src/generated/typeObjects.json', JSON.stringify(sortedTypeObjects, null, 4), 'utf8');
 	console.log(chalk.green('Successfully saved type objects to JSON file'));
 
 	const rootTypes = Object.entries(typeObjects).filter(([, data]) => !data.isSubtypeOf);
@@ -312,8 +383,6 @@ function convertAndSaveTypes() {
 
 	// Then the subtypes that implement some of them
 	subTypes.forEach(([name, data]) => {
-		if(!data.isGqlEntity) return;
-
 		const stringParts = [];
 		// Open the declaration - this is where it matters that it's a subtype
 		stringParts.push(`type ${name} implements ${data.isSubtypeOf} {`);
@@ -339,7 +408,9 @@ function convertAndSaveTypes() {
 	function processFields(fields: TypeObject['fields']) {
 		const stringParts = [];
 		fields.forEach(({ fieldName, fieldType, required }) => {
-			const gqlFieldType = convertTsFieldTypeToGql({ fieldType, required });
+			const gqlFieldType = ['average_degree', 'weighted_score'].includes(fieldName)
+				? (required ? 'Float!' : 'Float')
+				: convertTsFieldTypeToGql({ fieldType, required });
 			const typeName = dbTableNameFormatToTypeFormat(fieldName);
 			if(interfaces.includes(typeName)) {
 				stringParts.push(`\t${fieldName}(filter: ${typeName}Filter): ${gqlFieldType}`);
@@ -357,6 +428,7 @@ function convertAndSaveTypes() {
 
 	/**
 	 * Inner function to convert a TypeScript field type to a GraphQL field type
+	 * // TODO: How to automatically handle different number types?
 	 * @param fieldType
 	 * @param required
 	 */
@@ -371,7 +443,6 @@ function convertAndSaveTypes() {
 		switch(fieldType) {
 			case 'string':
 				return required ? 'String!' : 'String';
-			// TODO: Account for
 			case 'number':
 				return required ? 'Int!' : 'Int';
 			case 'boolean':
@@ -389,7 +460,11 @@ function convertAndSaveTypes() {
  */
 function createAndSaveQueryType() {
 	let queryObject = 'type Query {\n';
-	const queryableTypes = Object.keys(typeObjects).filter(type => type !== 'Connection');
+	const queryableTypes = compact(Object.entries(typeObjects).map(([key, data]) => {
+		if (data.isGqlEntity && data.isDirectlyQueryable) {
+			return key;
+		}
+	}));
 	const types = queryableTypes.map(type => {
 		return {
 			queryType: type,
