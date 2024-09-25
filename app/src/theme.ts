@@ -3,8 +3,8 @@ export const typeScale = 1.125;
 
 const defaultTheme = {
 	colors: {
-		primary: '#851a77',
-		secondary: '#0b1c72',
+		primary: '#0b1c72',
+		secondary: '#851a77',
 		accent: '#90FF00',
 		subtle: '#b3a7b7',
 		light: '#f8f9fa',

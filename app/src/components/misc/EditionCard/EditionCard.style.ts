@@ -30,7 +30,7 @@ export const StyledProfileName = styled.div`
 export const StyledProfileImage = styled.div`
 	width: 3rem;
 	height: 3rem;
-	border: 1px solid ${props => transparentize(0.5, readableColor(props.theme.colors.secondary))};
+	border: 1px solid ${props => transparentize(0.5, readableColor(props.theme.colors.primary))};
 	padding: 0.125rem;
 	border-radius: 100%;
 	margin-inline-end: ${props => props.theme.spacing.sm};

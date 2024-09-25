@@ -1,11 +1,20 @@
-import { FC } from 'react';
-import { Container } from '../components/common.ts';
+import { FC, Suspense } from 'react';
+import { ControlBar, PageWrapper } from '../components/layout';
+import { Heading, LeadParagraph } from '../components/typography';
 
 export const Network: FC = () => {
 
 	return (
-		<Container>
-			Network diagram to go here
-		</Container>
+		<Suspense>
+			<PageWrapper>
+				<ControlBar>
+					<div>
+						<Heading level="h1">Network Diagram</Heading>
+						<LeadParagraph>Follow the connection paths visually</LeadParagraph>
+					</div>
+				</ControlBar>
+
+			</PageWrapper>
+		</Suspense>
 	);
 };

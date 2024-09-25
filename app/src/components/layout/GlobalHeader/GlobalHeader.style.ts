@@ -1,15 +1,15 @@
 import styled from 'styled-components';
 import { readableColor, tint } from 'polished';
-import { shutterOutVertical } from '../mixins.ts';
-import { Container } from '../common.ts';
-import { StyledHeading } from '../Heading/Heading.style.ts';
-import { typeScale } from '../../theme.ts';
-import { StyledLabel } from '../Label/Label.style.ts';
+import { shutterOutVertical } from '../../mixins.ts';
+import { Container } from '../../common.ts';
+import { typeScale } from '../../../theme.ts';
+import { StyledHeading } from '../../typography/Heading/Heading.style';
+import { StyledLabel } from '../../typography/Label/Label.style';
 
 export const StyledGlobalHeader = styled.header`
-	background: ${props => props.theme.colors.secondary};
+	background: ${props => props.theme.colors.primary};
 	padding: ${props => props.theme.spacing.md};
-	color: ${props => readableColor(props.theme.colors.secondary)};
+	color: ${props => readableColor(props.theme.colors.primary)};
 	
 	${Container} {
 		display: flex;
@@ -60,12 +60,12 @@ export const StyledMainMenuListItem = styled.li`
 	a {
 		padding: ${props => props.theme.spacing.sm} ${props => props.theme.spacing.md};
 		border-radius: 0.25rem;
-		color: ${props => readableColor(props.theme.colors.secondary)};
+		color: ${props => readableColor(props.theme.colors.primary)};
 		font-size: ${props => props.theme.fontSizes.md};
 		font-weight: ${props => props.theme.fontWeights.semibold};
 		opacity: 0.8;
 		transition: opacity 0.2s;
-		${props => shutterOutVertical(tint(0.2, props.theme.colors.secondary))};
+		${props => shutterOutVertical(tint(0.2, props.theme.colors.primary))};
 		text-decoration: underline;
 		text-decoration-color: transparent;
 		
@@ -76,7 +76,7 @@ export const StyledMainMenuListItem = styled.li`
 		}
 
 		&[aria-current="page"] {
-			background: ${props => tint(0.2, props.theme.colors.secondary)};
+			background: ${props => tint(0.2, props.theme.colors.primary)};
 		}
 	}
 `;
@@ -95,7 +95,7 @@ export const StyledMainMenuListIconItem = styled.li.attrs({
 	
 	a {
 		padding: ${props => props.theme.spacing.sm} ${props => props.theme.spacing.xs};
-		color: ${props => readableColor(props.theme.colors.secondary)};
+		color: ${props => readableColor(props.theme.colors.primary)};
 		opacity: 0.8;
 		transition: opacity 0.2s, color 0.2s;
 		display: block;

@@ -35,8 +35,8 @@ export const StyledSortableTable = styled.table`
 	}
 
 	thead th {
-		background-color: ${props => props.theme.colors.primary};
-		border-right-color: ${props => tint(0.3, props.theme.colors.primary)};
+		background-color: ${props => props.theme.colors.secondary};
+		border-right-color: ${props => tint(0.3, props.theme.colors.secondary)};
 		color: white;
 		text-align: left;
 

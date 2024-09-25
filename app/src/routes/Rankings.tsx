@@ -1,12 +1,11 @@
 import { FC, startTransition, Suspense, useCallback, useState } from 'react';
-import { ControlBar } from '../components/ControlBar/ControlBar.tsx';
-import { NumberPicker } from '../components/NumberPicker/NumberPicker.tsx';
-import { TvShowRankings } from '../components/TvShowRankings/TvShowRankings.tsx';
-import { Heading } from '../components/Heading/Heading.tsx';
-import { PageWrapper } from '../components/PageWrapper/PageWrapper.tsx';
+import { ControlBar, PageWrapper } from '../components/layout';
+import { Heading, LeadParagraph } from '../components/typography';
+import { NumberPicker } from '../components/data-presentation';
+import { TvShowRankings } from '../page-content/TvShowRankings';
 
 export const Rankings: FC = () => {
-	const [limit, setLimit] = useState<number>(20);
+	const [limit, setLimit] = useState<number>(25);
 
 	const handleLimitChange = useCallback((newLimit: number) => {
 		startTransition(() => {
@@ -18,8 +17,11 @@ export const Rankings: FC = () => {
 		<Suspense>
 			<PageWrapper>
 				<ControlBar>
-					<Heading level="h1">TV Show Rankings</Heading>
-					<NumberPicker defaultValue={20} onChange={handleLimitChange} />
+					<div>
+						<Heading level="h1">TV Show Rankings</Heading>
+						<LeadParagraph>Raw and (experimentally) aggregated scores</LeadParagraph>
+					</div>
+					<NumberPicker defaultValue={25} onChange={handleLimitChange} />
 				</ControlBar>
 				<TvShowRankings limit={limit} />
 			</PageWrapper>

@@ -22,10 +22,10 @@ export default {
 			}
 
 			// Otherwise, assume the values are numbers or comparable
-			if (aValue > bValue) {
+			if (aValue! > bValue!) {
 				return order === 'asc' ? 1 : -1;
 			}
-			if (aValue < bValue) {
+			if (aValue! < bValue!) {
 				return order === 'asc' ? -1 : 1;
 			}
 

@@ -12,7 +12,7 @@ export const StyledEditionMenu = styled.div`
 
 export const StyledSelectControlWrapper = styled.div`	
 	> div {
-		border-color: ${props => tint(0.3, props.theme.colors.secondary)};
+		border-color: ${props => tint(0.3, props.theme.colors.primary)};
 	}
 	
 	> div > div:first-child {
@@ -30,23 +30,23 @@ export const StyledSelectControlWrapper = styled.div`
 export const StyledEditionOptionWrapper = styled.div<{ isSelected: boolean; isFocused: boolean }>`
 	background-color: ${({ isSelected, isFocused, theme }) => {
 		if(isFocused) {
-			return tint(0.3, theme.colors.secondary);
+			return tint(0.3, theme.colors.primary);
 		}
 		if(isSelected) {
-			return theme.colors.secondary;
+			return theme.colors.primary;
 		}
 		
-		return tint(0.1, theme.colors.secondary);
+		return tint(0.1, theme.colors.primary);
 	}};
 	color: ${({ isSelected, isFocused, theme }) => {
 		if(isFocused) {
-			return readableColor(tint(0.3, theme.colors.secondary));
+			return readableColor(tint(0.3, theme.colors.primary));
 		}
 		if(isSelected) {
-			return readableColor(theme.colors.secondary);
+			return readableColor(theme.colors.primary);
 		}
 		
-		return readableColor(tint(0.1, theme.colors.secondary));
+		return readableColor(tint(0.1, theme.colors.primary));
 	}};
 	transition: all 0.2s ease;
 	cursor: pointer;

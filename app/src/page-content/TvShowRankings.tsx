@@ -1,9 +1,8 @@
 import { FC } from 'react';
-import { StyledTvShowRankings } from './TvShowRankings.style';
 import { graphql, useLazyLoadQuery } from 'react-relay';
-import { TvShowRankingsQuery, TvShowRankingsQuery$data } from '../../__generated__/TvShowRankingsQuery.graphql.ts';
-import { Row } from '../../types.ts';
-import { SortableTable } from '../SortableTable/SortableTable.tsx';
+import { TvShowRankingsQuery, TvShowRankingsQuery$data } from '../__generated__/TvShowRankingsQuery.graphql.ts';
+import { SortableTable } from '../components/data-presentation';
+import { Row } from '../types';
 
 type TvShowRankingsProps = {
 	limit: number;
@@ -39,8 +38,8 @@ export const TvShowRankings: FC<TvShowRankingsProps> = ({ limit }) => {
 	});
 
 	return (
-		<StyledTvShowRankings data-testid="TvShowRankings">
+		<div data-testid="TvShowRankings">
 			<SortableTable initialData={data ?? []} />
-		</StyledTvShowRankings>
+		</div>
 	);
 };

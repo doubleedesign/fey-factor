@@ -1,6 +1,6 @@
 import { FC, PropsWithChildren } from 'react';
 import { StyledPageWrapper } from './PageWrapper.style';
-import { Container } from '../common.ts';
+import { Container } from '../../common.ts';
 
 type PageWrapperProps = {};
 

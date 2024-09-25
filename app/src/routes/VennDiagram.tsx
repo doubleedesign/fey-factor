@@ -1,7 +1,6 @@
-import { FC, Suspense } from 'react';;
-import { PageWrapper } from '../components/PageWrapper/PageWrapper.tsx';
-import { ControlBar } from '../components/ControlBar/ControlBar.tsx';
-import { Heading } from '../components/Heading/Heading.tsx';
+import { FC, Suspense } from 'react';
+import { ControlBar, PageWrapper } from '../components/layout';
+import { Heading, LeadParagraph } from '../components/typography';
 
 export const VennDiagram: FC = () => {
 
@@ -9,7 +8,10 @@ export const VennDiagram: FC = () => {
 		<Suspense>
 			<PageWrapper>
 				<ControlBar>
-					<Heading level="h1">Venn Diagram</Heading>
+					<div>
+						<Heading level="h1">Venn Diagram</Heading>
+						<LeadParagraph>The idea that started it all</LeadParagraph>
+					</div>
 				</ControlBar>
 
 			</PageWrapper>

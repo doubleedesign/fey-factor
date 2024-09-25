@@ -1,7 +1,7 @@
 import { FC, useState, useEffect } from 'react';
 import { StyledEditionCard, StyledProfileImage, StyledProfileName, StyledProfileText } from './EditionCard.style';
-import { Edition } from '../../types.ts';
-import { Label } from '../Label/Label.tsx';
+import { Edition } from '../../../types.ts';
+import { Label } from '../../typography';
 
 export const EditionCard: FC<Edition> = ({ personId, title, tag }: Edition) => {
 	const apiKey = import.meta.env.VITE_TMDB_API_KEY;

@@ -11,9 +11,9 @@ export const NumberPicker: FC<NumberPickerProps> = ({ defaultValue, onChange }) 
 	const [selectedOption, setSelectedOption] = useState<{ value: number; label: number }>({ value: defaultValue, label: defaultValue });
 
 	const options = useMemo(() => {
-		return [{ value: defaultValue/2, label: defaultValue / 2 }]
+		return [{ value: 10, label: 10 }]
 			.concat(Array.from({ length: 6 }, (_, i) => {
-				const value = (defaultValue * i);
+				const value = Math.floor((defaultValue * i));
 
 				return { value, label: value };
 			}))

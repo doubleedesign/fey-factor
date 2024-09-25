@@ -1,9 +1,9 @@
 import React, { FC, useCallback, useEffect, useState } from 'react';
-import { datawranglers } from '../../controllers';
+import { datawranglers } from '../../../controllers';
 import { SortingButton } from '../SortingButton/SortingButton.tsx';
 import { StyledSortableTable } from './SortableTable.style.ts';
-import { Column, Row } from '../../types.ts';
-import { TooltippedElement } from '../Tooltip/TooltippedElement.tsx';
+import { Row, Column } from '../../../types.ts';
+import { TooltippedElement } from '../../typography';
 
 type SortableTableProps = {
 	initialData: Row[];

@@ -1,8 +1,6 @@
 import { FC } from 'react';
-import { PageWrapper } from '../components/PageWrapper/PageWrapper.tsx';
-import { Heading } from '../components/Heading/Heading.tsx';
-import { ControlBar } from '../components/ControlBar/ControlBar.tsx';
-import { MarkdownContent } from '../components/MarkdownContent/MarkdownContent.tsx';
+import { PageWrapper, ControlBar, MarkdownContent } from '../components/layout';
+import { Heading } from '../components/typography';
 import content from '../content/About.mdx';
 
 export const About: FC = () => {

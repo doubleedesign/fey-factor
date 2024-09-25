@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { StyledEditionMenu, StyledEditionOptionWrapper, StyledSelectControlWrapper } from './EditionMenu.style';
 import { EditionCard } from '../EditionCard/EditionCard';
-import { Edition } from '../../types';
+import { Edition } from '../../../types';
 import Select, { components, ControlProps, OptionProps, SingleValueProps } from 'react-select';
 import { useTheme } from 'styled-components';
 import { tint } from 'polished';
@@ -19,10 +19,10 @@ export const EditionMenu: FC<EditionMenuProps> = ({ selected = 56323 }) => {
 			title: 'American Comedy',
 			tag: 'The OG'
 		},
-		{
-			personId: 1424645,
-			title: 'Australian Drama'
-		}
+		// {
+		// 	personId: 1424645,
+		// 	title: 'Australian Drama'
+		// }
 	];
 
 	const CustomOption: FC<OptionProps<Edition>> = ({ data, innerRef, innerProps, isSelected, isFocused }) => {
@@ -72,9 +72,9 @@ export const EditionMenu: FC<EditionMenuProps> = ({ selected = 56323 }) => {
 					...theme,
 					colors: {
 						...theme.colors,
-						neutral0: myTheme.colors.secondary,
-						primary: tint(0.5, myTheme.colors.secondary),
-						primary25: tint(0.9, myTheme.colors.secondary),
+						neutral0: myTheme.colors.primary,
+						primary: tint(0.5, myTheme.colors.primary),
+						primary25: tint(0.9, myTheme.colors.primary),
 					}
 				})}
 			/>

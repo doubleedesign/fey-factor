@@ -1,11 +1,9 @@
 import { FC } from 'react';
 import { StyledGlobalHeader, StyledMainMenu, StyledMainMenuList, StyledMainMenuListItem, StyledMainMenuListIconItem } from './GlobalHeader.style';
-import { Container } from '../common.ts';
 import { Link, NavLink } from 'react-router-dom';
-import { Label } from '../Label/Label.tsx';
-import { Heading } from '../Heading/Heading.tsx';
-import { TooltippedElement } from '../Tooltip/TooltippedElement.tsx';
-import { EditionMenu } from '../EditionMenu/EditionMenu.tsx';
+import { Container } from '../../common.ts';
+import { Heading, Label, TooltippedElement } from '../../typography';
+import { EditionMenu } from '../../misc/EditionMenu/EditionMenu';
 
 type GlobalHeaderProps = {};
 
@@ -22,7 +20,7 @@ export const GlobalHeader: FC<GlobalHeaderProps> = () => {
 				</Heading>
 				<StyledMainMenu>
 					<StyledMainMenuList>
-						<StyledMainMenuListItem><NavLink to={'/rankings'}>Rankings</NavLink></StyledMainMenuListItem>
+						<StyledMainMenuListItem><NavLink to={'/'}>Rankings</NavLink></StyledMainMenuListItem>
 						<StyledMainMenuListItem><NavLink to={'/network'}>Network</NavLink></StyledMainMenuListItem>
 						<StyledMainMenuListItem><NavLink to={'/venn-diagram'}>Venn Diagram</NavLink></StyledMainMenuListItem>
 						<StyledMainMenuListIconItem>
