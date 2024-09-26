@@ -1,9 +1,18 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { readableColor, tint } from 'polished';
+import { breakpointUp } from '@doubleedesign/styled-media-queries';
 
 export const StyledEditionMenu = styled.div`
-	width: 18rem;
+	width: 100%;
+	flex-basis: 100%;
 	margin-inline: ${props => props.theme.spacing.sm};
+
+	${props => breakpointUp(props.theme.breakpoints.md, css`
+        width: 16rem;
+		flex-basis: 16rem;
+		margin-inline-start: ${props => props.theme.spacing.md};
+		margin-inline-end: 0;
+    `)};
 	
 	div:has([role="listbox"]) {
 		margin: 0;

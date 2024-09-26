@@ -32,12 +32,12 @@ export const StyledNumberPicker = styled.div`
 			cursor: pointer;
 			
 			&:hover, &:focus {
-				background: ${props => tint(0.8, props.theme.colors.info)};
+				background: ${props => tint(0.8, props.theme.colors.success)};
 			}
 			
 			&[aria-selected="true"] {
-				background: ${props => props.theme.colors.info};
-				color: ${props => readableColor(props.theme.colors.info)};
+				background: ${props => props.theme.colors.success};
+				color: ${props => readableColor(props.theme.colors.success)};
 			}
 		}
 	}

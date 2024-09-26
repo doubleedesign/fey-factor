@@ -22,14 +22,14 @@ export const StyledProfileName = styled.div`
 	width: 100%;
 	flex-basis: auto;
 	font-family: ${props => props.theme.fontFamily.heading};
-	font-size: ${props => props.theme.fontSizes.lg};
+	font-size: ${props => props.theme.fontSizes.md};
 	display: flex;
 	align-items: center;
 `;
 
 export const StyledProfileImage = styled.div`
-	width: 3rem;
-	height: 3rem;
+	width: 2rem;
+	height: 2rem;
 	border: 1px solid ${props => transparentize(0.5, readableColor(props.theme.colors.primary))};
 	padding: 0.125rem;
 	border-radius: 100%;

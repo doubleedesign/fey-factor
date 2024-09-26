@@ -38,6 +38,7 @@
 		"venn.js": "^0.2.20"
 	},
 	"devDependencies": {
+		"@doubleedesign/styled-media-queries": "^1.0.0",
 		"@eslint/js": "^9.9.0",
 		"@stylistic/eslint-plugin-ts": "^2.6.5",
 		"@types/lodash": "^4.17.7",

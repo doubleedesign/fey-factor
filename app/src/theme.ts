@@ -41,7 +41,14 @@ const defaultTheme = {
 		result[size] = `${parseFloat(prev.replace('rem', '')) * typeScale}rem`;
 
 		return result;
-	}, { xs: `${(1 / typeScale) / typeScale}rem`, sm: `${1 / typeScale}rem`, default: '1rem' })
+	}, { xs: `${(1 / typeScale) / typeScale}rem`, sm: `${1 / typeScale}rem`, default: '1rem' }),
+	breakpoints: {
+		sm: 576,
+		md: 768,
+		lg: 992,
+		xl: 1200,
+		xxl: 1440,
+	},
 };
 
 export default defaultTheme;

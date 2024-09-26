@@ -8,6 +8,7 @@ import { ThemeProvider } from 'styled-components';
 import theme from './theme.ts';
 import { Rankings, Network, VennDiagram, About, ErrorPage } from './routes';
 import { GlobalHeader } from './components/layout';
+import { GlobalFooter } from './components/layout/GlobalFooter/GlobalFooter.tsx';
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
@@ -22,6 +23,7 @@ createRoot(document.getElementById('root')!).render(
 						<Route path="/about" element={<About />} />
 						<Route path="*" element={<ErrorPage/>} />
 					</Routes>
+					<GlobalFooter />
 				</BrowserRouter>
 			</ThemeProvider>
 		</RelayEnvironmentProvider>
