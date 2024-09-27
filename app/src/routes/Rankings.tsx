@@ -2,7 +2,7 @@ import { FC, startTransition, Suspense, useCallback, useState } from 'react';
 import { ControlBar, PageWrapper } from '../components/layout';
 import { Heading, LeadParagraph } from '../components/typography';
 import { NumberPicker } from '../components/data-presentation';
-import { TvShowRankings } from '../page-content/TvShowRankings';
+import { TvShowRankings } from '../page-content';
 
 export const Rankings: FC = () => {
 	const [limit, setLimit] = useState<number>(25);

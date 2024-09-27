@@ -6,7 +6,7 @@ import environment from './relayEnvironment.ts';
 import './global.css';
 import { ThemeProvider } from 'styled-components';
 import theme from './theme.ts';
-import { Rankings, Network, VennDiagram, About, ErrorPage } from './routes';
+import { Rankings, Network, Venn, About, ErrorPage } from './routes';
 import { GlobalHeader } from './components/layout';
 import { GlobalFooter } from './components/layout/GlobalFooter/GlobalFooter.tsx';
 
@@ -19,7 +19,7 @@ createRoot(document.getElementById('root')!).render(
 					<Routes>
 						<Route path="/" element={<Rankings />} />
 						<Route path="/network" element={<Network />} />
-						<Route path="/venn-diagram" element={<VennDiagram />} />
+						<Route path="/venn-diagram" element={<Venn />} />
 						<Route path="/about" element={<About />} />
 						<Route path="*" element={<ErrorPage/>} />
 					</Routes>

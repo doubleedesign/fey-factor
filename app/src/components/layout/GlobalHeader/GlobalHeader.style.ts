@@ -119,9 +119,7 @@ export const StyledMainMenuListItem = styled.li`
 	}
 `;
 
-export const StyledMainMenuListIconItem = styled.li.attrs({
-	role: 'listitem'
-})`
+export const StyledMainMenuListIconItem = styled.li`
 	display: flex;
 	align-items: center;
 	line-height: 1;

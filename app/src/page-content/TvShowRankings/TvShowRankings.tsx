@@ -1,8 +1,8 @@
 import { FC } from 'react';
 import { graphql, useLazyLoadQuery } from 'react-relay';
-import { TvShowRankingsQuery, TvShowRankingsQuery$data } from '../__generated__/TvShowRankingsQuery.graphql.ts';
-import { SortableTable } from '../components/data-presentation';
-import { Row } from '../types';
+import { TvShowRankingsQuery, TvShowRankingsQuery$data } from '../../__generated__/TvShowRankingsQuery.graphql.ts';
+import { SortableTable } from '../../components/data-presentation';
+import { Row } from '../../types.ts';
 
 type TvShowRankingsProps = {
 	limit: number;
