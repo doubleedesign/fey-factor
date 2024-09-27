@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<749d9ca67d09c1170811436b955e2d94>>
+ * @generated SignedSource<<44d0a4fb1767625dd529782eae5d7a4f>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -9,7 +9,9 @@
 // @ts-nocheck
 
 import { ConcreteRequest, Query } from 'relay-runtime';
-export type VennDiagramQuery$variables = Record<PropertyKey, never>;
+export type VennDiagramQuery$variables = {
+  limit: number;
+};
 export type VennDiagramQuery$data = {
   readonly TvShows: ReadonlyArray<{
     readonly id: string;
@@ -26,23 +28,36 @@ export type VennDiagramQuery = {
 };
 
 const node: ConcreteRequest = (function(){
-var v0 = {
+var v0 = [
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "limit"
+  }
+],
+v1 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "id",
   "storageKey": null
 },
-v1 = [
+v2 = [
   {
     "alias": null,
-    "args": null,
+    "args": [
+      {
+        "kind": "Variable",
+        "name": "limit",
+        "variableName": "limit"
+      }
+    ],
     "concreteType": "TvShow",
     "kind": "LinkedField",
     "name": "TvShows",
     "plural": true,
     "selections": [
-      (v0/*: any*/),
+      (v1/*: any*/),
       {
         "alias": null,
         "args": null,
@@ -58,7 +73,7 @@ v1 = [
         "name": "people",
         "plural": true,
         "selections": [
-          (v0/*: any*/),
+          (v1/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -75,32 +90,32 @@ v1 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": [],
+    "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "VennDiagramQuery",
-    "selections": (v1/*: any*/),
+    "selections": (v2/*: any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": [],
+    "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
     "name": "VennDiagramQuery",
-    "selections": (v1/*: any*/)
+    "selections": (v2/*: any*/)
   },
   "params": {
-    "cacheID": "83c998a566237b28e02dba852348fdf3",
+    "cacheID": "3c43e741a9136324ceddc9a9d7972406",
     "id": null,
     "metadata": {},
     "name": "VennDiagramQuery",
     "operationKind": "query",
-    "text": "query VennDiagramQuery {\n  TvShows {\n    id\n    title\n    people {\n      id\n      name\n    }\n  }\n}\n"
+    "text": "query VennDiagramQuery(\n  $limit: Int!\n) {\n  TvShows(limit: $limit) {\n    id\n    title\n    people {\n      id\n      name\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "0e8cc007afd5ed2c318473dc279ef87c";
+(node as any).hash = "d9e084d9f7749c6fd305f830922d0bcd";
 
 export default node;

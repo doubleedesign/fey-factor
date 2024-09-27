@@ -141,6 +141,7 @@ export class DbWorks  {
 	/**
 	 * Get a list of tv shows ranked by a weighted score
 	 * based on number of connections, how many episodes each connection has, and the average degree of all the connected people
+	 * Shows with fewer than 2 connections are excluded
 	 * @param limit
 	 */
 	async getRankedListOfTvShows(limit: number): Promise<TvShowWithRankingData[]> {
@@ -182,6 +183,7 @@ export class DbWorks  {
                         tv_shows ts ON ad.id = ts.id
                     WHERE
                         ad.aggregate_episode_count > 0
+                    	AND ad.total_connections > 1
                     ORDER BY
                         weighted_score DESC
                     LIMIT $1;

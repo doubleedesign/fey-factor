@@ -7,8 +7,8 @@ import { VennDiagramQuery } from '../../__generated__/VennDiagramQuery.graphql.t
 export const VennDiagram: FC = () => {
 	const rawData = useLazyLoadQuery<VennDiagramQuery>(
 		graphql`
-			query VennDiagramQuery {
-				TvShows {
+			query VennDiagramQuery($limit: Int!) {
+				TvShows(limit: $limit) {
 					id
 					title
                     people {
@@ -17,8 +17,11 @@ export const VennDiagram: FC = () => {
                     }
 	            }
 	        }
-		`, {}
+		`,
+		{ limit: 20 }
 	);
+
+	console.log(rawData);
 
 	const formattedData = useMemo(() => {
 		if(rawData.TvShows) {
@@ -29,13 +32,13 @@ export const VennDiagram: FC = () => {
 				};
 			});
 		}
-	}, [rawData]);
+	}, [rawData.TvShows]);
 
 	return (
 		<StyledVennDiagramWrapper data-testid="VennDiagram">
-			{formattedData &&
-				<Venn data={formattedData} />
-			}
+			{/*{formattedData &&*/}
+			{/*	<Venn data={formattedData} />*/}
+			{/*}*/}
 		</StyledVennDiagramWrapper>
 	);
 };
