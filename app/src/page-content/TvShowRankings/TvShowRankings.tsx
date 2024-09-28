@@ -21,10 +21,16 @@ export const TvShowRankings: FC<TvShowRankingsProps> = ({ limit }) => {
                         average_degree
                         weighted_score
                     }
+	                providers {
+		                provider_name
+		                provider_type
+                        logo_path
+                    }
                 }
             }
 		`,
-		{ limit }
+		{ limit },
+		{ fetchPolicy: 'store-or-network' }
 	);
 
 	const data = result.TvShows?.map((show: NonNullable<TvShowRankingsQuery$data['TvShows']>[number]) => {
@@ -34,6 +40,7 @@ export const TvShowRankings: FC<TvShowRankingsProps> = ({ limit }) => {
 			total_connections: show?.rankingData?.total_connections ?? 0,
 			average_degree: show?.rankingData?.average_degree?.toFixed(2) ?? 0,
 			weighted_score: show?.rankingData?.weighted_score?.toFixed(2) ?? 0,
+			available_on: show?.providers
 		} as Row;
 	});
 

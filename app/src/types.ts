@@ -17,7 +17,16 @@ export type RankingData = {
 	weighted_score: number;
 };
 
-export type Row = RankingData;
+export type Provider = {
+	provider_id: number;
+	provider_name: string;
+	provider_type: string;
+	logo_path: string;
+};
+
+export type Row = RankingData & {
+	available_on?: Provider[];
+};
 
 export type Column = {
 	value: keyof Row | 'rank';

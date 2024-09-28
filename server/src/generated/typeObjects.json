@@ -53,6 +53,11 @@
                 "required": false
             },
             {
+                "fieldName": "providers",
+                "fieldType": "Provider[]",
+                "required": false
+            },
+            {
                 "fieldName": "people",
                 "fieldType": "Person[]",
                 "required": false
@@ -96,6 +101,32 @@
             }
         ],
         "isDirectlyQueryable": true,
+        "isGqlEntity": true
+    },
+    "Provider": {
+        "fields": [
+            {
+                "fieldName": "provider_id",
+                "fieldType": "number",
+                "required": true
+            },
+            {
+                "fieldName": "provider_name",
+                "fieldType": "string",
+                "required": true
+            },
+            {
+                "fieldName": "logo_path",
+                "fieldType": "string",
+                "required": false
+            },
+            {
+                "fieldName": "provider_type",
+                "fieldType": "string",
+                "required": false
+            }
+        ],
+        "isDirectlyQueryable": false,
         "isGqlEntity": true
     },
     "RankingData": {
@@ -183,6 +214,11 @@
                 "required": false
             },
             {
+                "fieldName": "providers",
+                "fieldType": "Provider[]",
+                "required": false
+            },
+            {
                 "fieldName": "people",
                 "fieldType": "Person[]",
                 "required": false
@@ -212,6 +248,11 @@
             {
                 "fieldName": "rankingData",
                 "fieldType": "RankingData",
+                "required": false
+            },
+            {
+                "fieldName": "providers",
+                "fieldType": "Provider[]",
                 "required": false
             },
             {

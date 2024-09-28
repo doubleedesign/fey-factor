@@ -7,3 +7,10 @@ export type RankingData = {
 	aggregate_episode_count?: number;
 	weighted_score?: number;
 };
+
+export type Provider = {
+	provider_id: number;
+	provider_name: string;
+	logo_path?: string;
+	provider_type?: string;
+};

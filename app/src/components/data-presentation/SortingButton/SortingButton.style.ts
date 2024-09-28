@@ -23,4 +23,8 @@ export const StyledSortingButton = styled.button<{ $direction: 'asc' | 'desc', $
 		transition: transform 0.3s ease;
 		transform: rotate(${props => props.$direction === 'asc' ? '0' : '180deg'});
 	}
+	
+	.react-tooltip {
+		z-index: 600;
+	}
 `;

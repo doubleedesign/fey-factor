@@ -10,7 +10,17 @@ export class DbWorks  {
 	async getTvShow(id: number): Promise<TvShow> {
 		try {
 			const response = await this.pgClient.query({
-				text: 'SELECT * FROM tv_shows WHERE id = $1',
+				text: `SELECT tv_shows.id,
+                              COALESCE(tv_shows.title, works.title) AS title,
+                              start_year,
+                              end_year,
+                              season_count,
+                              episode_count
+                       FROM tv_shows
+                                LEFT JOIN
+                            works ON tv_shows.id = works.id
+                       WHERE tv_shows.id = $1;
+`,
 				values: [id]
 			});
 

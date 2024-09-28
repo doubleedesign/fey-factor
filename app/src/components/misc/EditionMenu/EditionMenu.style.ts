@@ -6,6 +6,8 @@ export const StyledEditionMenu = styled.div`
 	width: 100%;
 	flex-basis: 100%;
 	margin-inline: ${props => props.theme.spacing.sm};
+	position: relative;
+	z-index: 900;
 
 	${props => breakpointUp(props.theme.breakpoints.md, css`
         width: 16rem;
@@ -36,22 +38,22 @@ export const StyledSelectControlWrapper = styled.div`
 	}
 `;
 
-export const StyledEditionOptionWrapper = styled.div<{ isSelected: boolean; isFocused: boolean }>`
-	background-color: ${({ isSelected, isFocused, theme }) => {
-		if(isFocused) {
+export const StyledEditionOptionWrapper = styled.div<{ $isSelected: boolean; $isFocused: boolean }>`
+	background-color: ${({ $isSelected, $isFocused, theme }) => {
+		if($isFocused) {
 			return tint(0.3, theme.colors.primary);
 		}
-		if(isSelected) {
+		if($isSelected) {
 			return theme.colors.primary;
 		}
 		
 		return tint(0.1, theme.colors.primary);
 	}};
-	color: ${({ isSelected, isFocused, theme }) => {
-		if(isFocused) {
+	color: ${({ $isSelected, $isFocused, theme }) => {
+		if($isFocused) {
 			return readableColor(tint(0.3, theme.colors.primary));
 		}
-		if(isSelected) {
+		if($isSelected) {
 			return readableColor(theme.colors.primary);
 		}
 		

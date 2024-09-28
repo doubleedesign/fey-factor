@@ -162,6 +162,12 @@ async function processExportedType(node: ts.InterfaceDeclaration | ts.TypeAliasD
 				fieldType: 'RankingData',
 				required: false
 			});
+
+			typeObjects[node.name.text].fields.push({
+				fieldName: 'providers',
+				fieldType: 'Provider[]',
+				required: false
+			});
 		}
 	}
 

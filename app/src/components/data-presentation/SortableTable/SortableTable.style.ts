@@ -14,11 +14,35 @@ export const StyledSortableTable = styled.table`
 		padding: ${props => props.theme.spacing.sm};
 		border-right: 1px solid ${props => tint(0.4, props.theme.colors.subtle)};
 
+		&[data-fieldkey="rank"] {
+			width: 2rem;
+		}
+
+		&[data-fieldkey="id"] {
+			width: 3rem;
+		}
+		
 		&[data-fieldkey="rank"],
 		&[data-fieldkey="id"],
 		&[data-fieldkey="title"] {
 			text-align: left;
 			padding-right: 0.25rem;
+		}
+		
+		&[data-fieldkey="total_connections"],
+		&[data-fieldkey="average_degree"],
+		&[data-fieldkey="weighted_score"] {
+			width: 6rem;
+			max-width: 6rem;
+			
+			@media (min-width: 1200px) {
+				width: 7.5rem;
+				max-width: 7.5rem;
+			}
+		}
+		
+		&[data-fieldkey="available_on"] {
+			width: 5rem;
 		}
 		
 		a {
@@ -39,6 +63,8 @@ export const StyledSortableTable = styled.table`
 		border-right-color: ${props => tint(0.3, props.theme.colors.secondary)};
 		color: white;
 		text-align: left;
+		position: relative;
+		z-index: 600;
 
 		.react-tooltip {
 			max-width: 220px !important;
@@ -46,11 +72,16 @@ export const StyledSortableTable = styled.table`
 
 			&__show {
 				opacity: 1;
+				z-index: 600;
 			}
 		}
 	}
 
 	tr:nth-child(even) {
 		background-color: ${props => tint(0.8, props.theme.colors.subtle)};
+	}
+	
+	tbody td {
+		vertical-align: top;
 	}
 `;

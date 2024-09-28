@@ -3,9 +3,42 @@
 	"usesStyledComponents": true,
 	"component": {
 		"default": {
-			"path": "src/components",
+			"path": "src/components/misc",
 			"withStyle": true,
-			"withTest": true,
+			"withTest": false,
+			"withStory": false,
+			"withLazy": false,
+			"customTemplates": {
+				"component": "./templates/TemplateName.tsx",
+				"style": "./templates/TemplateName.style.ts"
+			}
+		},
+		"layout": {
+			"path": "src/components/layout",
+			"withStyle": true,
+			"withTest": false,
+			"withStory": false,
+			"withLazy": false,
+			"customTemplates": {
+				"component": "./templates/TemplateName.tsx",
+				"style": "./templates/TemplateName.style.ts"
+			}
+		},
+		"data": {
+			"path": "src/components/data-presentation",
+			"withStyle": true,
+			"withTest": false,
+			"withStory": false,
+			"withLazy": false,
+			"customTemplates": {
+				"component": "./templates/TemplateName.tsx",
+				"style": "./templates/TemplateName.style.ts"
+			}
+		},
+		"typography": {
+			"path": "src/components/typography",
+			"withStyle": true,
+			"withTest": false,
 			"withStory": false,
 			"withLazy": false,
 			"customTemplates": {

@@ -1,9 +1,12 @@
-import React, { FC, useCallback, useEffect, useState } from 'react';
+import React, { FC, ReactNode, useCallback, useEffect, useState } from 'react';
 import { datawranglers } from '../../../controllers';
 import { SortingButton } from '../SortingButton/SortingButton.tsx';
 import { StyledSortableTable } from './SortableTable.style.ts';
 import { Row, Column } from '../../../types.ts';
 import { TooltippedElement } from '../../typography';
+import { Expandable } from '../../layout';
+import { ShowCard } from '../../data-presentation';
+import { ProviderLogos } from '../../misc/ProviderLogos/ProviderLogos.tsx';
 
 type SortableTableProps = {
 	initialData: Row[];
@@ -25,21 +28,23 @@ export const SortableTable: FC<SortableTableProps> = ({ initialData }) => {
 		{ value: 'title', label: 'Title' },
 		{
 			value: 'total_connections',
-			label: 'Total Connections',
+			label: 'Connections',
 			tooltip: 'The total number of people who meet inclusion criteria for this show'
 		},
 		{
 			value: 'average_degree',
-			label: 'Average Degree',
+			label: 'Avg. Degree',
 			tooltip: 'The average degree of separation between the show\'s connections and Tina Fey'
 		},
 		{
 			value: 'weighted_score',
 			label: 'Weighted Score',
+			// eslint-disable-next-line max-len
 			tooltip: 'A score that uses total connections, average degree, and the proportional involvement of each connected person across the show\'s run to assign a ranking'
 		},
+		{ value: 'available_on', label: 'Available on' }
 	];
-	const sortableColumns = columns.filter(column => !['rank', 'id'].includes(column.value));
+	const sortableColumns = columns.filter(column => !['rank', 'id', 'available_on'].includes(column.value));
 
 	const [ordering, setOrdering] = useState<{ [key: string]: 'asc' | 'desc' }>(() => {
 		const order = {};
@@ -67,13 +72,20 @@ export const SortableTable: FC<SortableTableProps> = ({ initialData }) => {
 		}
 	}, [data, ordering]);
 
-	const cellContent = (row: Row, columnValue: string) => {
+	const cellContent = (row: Row, columnValue: string): ReactNode => {
 		if(columnValue === 'title') {
-			// TODO: Replace this with a component that opens up more details within the table cell
-			return <a href={`https://www.themoviedb.org/tv/${row.id}`} target="_blank">{row[columnValue]}</a>;
+			return (
+				<Expandable title={row.title}>
+					<ShowCard id={row.id}/>
+				</Expandable>
+			);
 		}
 
-		return row[columnValue as keyof Row];
+		if(columnValue === 'available_on') {
+			return <ProviderLogos providers={row.available_on ?? []} />;
+		}
+
+		return <>{row[columnValue as keyof Row]}</>;
 	};
 
 	return (

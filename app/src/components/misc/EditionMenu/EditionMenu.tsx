@@ -30,8 +30,8 @@ export const EditionMenu: FC<EditionMenuProps> = ({ selected = 56323 }) => {
 			<StyledEditionOptionWrapper
 				ref={innerRef}
 				{...innerProps}
-				isSelected={isSelected}
-				isFocused={isFocused}
+				$isSelected={isSelected}
+				$isFocused={isFocused}
 			>
 				<EditionCard {...data} />
 			</StyledEditionOptionWrapper>
@@ -40,7 +40,7 @@ export const EditionMenu: FC<EditionMenuProps> = ({ selected = 56323 }) => {
 
 	const CustomSingleValue: FC<SingleValueProps<Edition>> = ({ data }) => {
 		return (
-			<StyledEditionOptionWrapper isSelected={true} isFocused={false}>
+			<StyledEditionOptionWrapper $isSelected={true} $isFocused={false}>
 				<EditionCard {...data} />
 			</StyledEditionOptionWrapper>
 		);

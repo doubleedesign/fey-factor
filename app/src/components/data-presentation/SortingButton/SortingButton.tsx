@@ -2,6 +2,7 @@ import React, { FC } from 'react';
 import { StyledSortingButton } from './SortingButton.style';
 import { Tooltip } from 'react-tooltip';
 import 'react-tooltip/dist/react-tooltip.css';
+import { SingleLineText } from '../../typography/SingleLineText/SingleLineText.tsx';
 
 type SortingButtonProps = {
 	label: string;
@@ -19,7 +20,7 @@ export const SortingButton: FC<SortingButtonProps> = ({ label, direction, onClic
 				data-tooltip-id={`${label}-tooltip`} data-tooltip-content={tooltip}
 				onClick={onClick} $direction={direction} $active={active}
 			>
-				{label}
+				<SingleLineText text={label} />
 				<i className="fa-sharp-duotone fa-solid fa-sort"></i>
 			</StyledSortingButton>
 			<Tooltip id={`${label}-tooltip`} place="bottom" />

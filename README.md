@@ -30,9 +30,32 @@ npm run start
 ```
 For first run, arrow down to the "danger zone" and choose the "Initialise empty database" option. After that, the prompts are designed to be fairly self-explanatory and show the intended order of data population steps.
 
+### Result
+
+The resultant database schema is intentionally minimal, with a focus on raw data, low redundancy, and primarily storing data that is unlikely to change*. Calculations, derived data, and fetching time-sensitive data (such as watch providers) are handled at the GraphQL layer.
+
+![Database schema diagram](./database.png)
+
+| Table name  | Inherits from | Unique fields                                     | Foreign keys                |
+|-------------|---------------|---------------------------------------------------|-----------------------------|
+| connections | -             | id (PK), episode_count                            | person_id, work_id, role_id |
+| people      | -             | id (PK), name, degree                             |                             |
+| roles       | -             | id (PK), name                                     |                             |
+| works       | -             | id (PK), title                                    |                             |
+| tv_shows    | works         | start_year, end_year, season_count, episode_count |                             |
+| movies      | works         | release_year                                      |                             |
+
+
+*The database does need to be updated periodically or else the data will go out of date, just in terms of shows still airing at the time of last update, new shows that should be added, etc. We don't need to fetch the episode count of _30 Rock_ from TMDB every time it appears in the app, for example - so we store that; but where we can watch it may change relatively frequently, so we don't store that.
+
+---
 ## 2. Back-end server
 
 The back-end is a GraphQL server built with [Yoga](https://the-guild.dev/graphql/yoga-server) because I need more practice with GraphQL. ¯\\_(ツ)_/¯
+
+### Development
+
+#### Generating schema and types
 
 I have created a script to generate TypeScript types and GraphQL schema from the database which should be run on fresh installs or if the database schema is changed.
 ```bash
@@ -46,19 +69,37 @@ Under the hood, this:
 
 The generated files can then be found in `./src/generated`.
 
-I have also created a script to generate skeletons/templates for resolvers based on the generated schema and likely function names. (**Note:** This overwrites any existing resolvers in the `./src/resolvers` folder.)
+Fields not included in the database schema should be added in the `src/types.ts` file to be included in the generated schema.
+
+#### Adding fields
+
+As mentioned [above](#1-data-builder), the database schema is intentionally minimal, with a focus on raw data and low redundancy. What is not included in the database (whether explicitly or at all) includes:
+
+- fields that are calculated or derived from the data in the database
+- fields for data that is fetched from an external source (e.g., TMDB API).
+
+To add a field to the GraphQL schema that doesn't belong in the database, add it to the `src/types.ts` file and re-run the generator.
+
+#### Generating resolver skeletons
+
+I have also created a script to generate skeletons/templates for resolvers based on the generated schema and likely function names. (**Note:** This overwrites any existing resolvers in the `./src/resolvers` folder, so is really an initial dev tool that will stop being used once the resolvers are fleshed out.)
 ```bash
 npm run generate:resolvers
 ```
 
 ### Troubleshooting
 
-Exception thrown about Punycode when running scripts on Node 21.
-: Change Node version to 20 LTS (`nvm use lts/iron`).
+- `Exception thrown about Punycode when running scripts on Node 21.`
+  - Change Node version to 20 LTS (`nvm use lts/iron`).
 
-After deleting resolver files to re-create them, the script says it's created them and `existsSync` returns `true`, but the files aren't actually there. `unlinkSync` throws an error.
-: Try killing all Node processes, restarting WSL, and/or restarting computer.
+- After deleting resolver files to re-create them, the script says it's created them and `existsSync` returns `true`, but the files aren't actually there. `unlinkSync` throws an error.
+  - Try killing all Node processes, restarting WSL, and/or restarting computer.
 
+#### Miscellaneous notes
+
+- Watch provider data is automatically filtered for Australia before it's returned to the GraphQL client. 
+
+---
 ## 3. Front-end app
 
 The plan is that the UI will contain:

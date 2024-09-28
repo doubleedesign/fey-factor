@@ -17,6 +17,7 @@ export type Scalars = {
 export type Movie = Work & {
 	id: Scalars['ID']['output'];
 	people: Maybe<Array<Maybe<Person>>>;
+	providers: Maybe<Array<Maybe<Provider>>>;
 	rankingData: Maybe<RankingData>;
 	release_year: Maybe<Scalars['Int']['output']>;
 	roles: Maybe<Array<Maybe<Role>>>;
@@ -34,6 +35,13 @@ export type Person = {
 
 export type PersonWorksArgs = {
 	filter: InputMaybe<WorkFilter>;
+};
+
+export type Provider = {
+	logo_path: Maybe<Scalars['String']['output']>;
+	provider_id: Scalars['Int']['output'];
+	provider_name: Scalars['String']['output'];
+	provider_type: Maybe<Scalars['String']['output']>;
 };
 
 export type RankingData = {
@@ -54,6 +62,7 @@ export type TvShow = Work & {
 	episode_count: Maybe<Scalars['Int']['output']>;
 	id: Scalars['ID']['output'];
 	people: Maybe<Array<Maybe<Person>>>;
+	providers: Maybe<Array<Maybe<Provider>>>;
 	rankingData: Maybe<RankingData>;
 	roles: Maybe<Array<Maybe<Role>>>;
 	season_count: Maybe<Scalars['Int']['output']>;
@@ -64,6 +73,7 @@ export type TvShow = Work & {
 export type Work = {
 	id: Scalars['ID']['output'];
 	people: Maybe<Array<Maybe<Person>>>;
+	providers: Maybe<Array<Maybe<Provider>>>;
 	rankingData: Maybe<RankingData>;
 	roles: Maybe<Array<Maybe<Role>>>;
 	title: Maybe<Scalars['String']['output']>;

@@ -3,11 +3,12 @@ import Select, { SingleValue } from 'react-select';
 import { StyledNumberPicker } from './NumberPicker.style';
 
 type NumberPickerProps = {
+	label: string;
 	defaultValue: number;
 	onChange: (value: number) => void;
 };
 
-export const NumberPicker: FC<NumberPickerProps> = ({ defaultValue, onChange }) => {
+export const NumberPicker: FC<NumberPickerProps> = ({ label, defaultValue, onChange }) => {
 	const [selectedOption, setSelectedOption] = useState<{ value: number; label: number }>({ value: defaultValue, label: defaultValue });
 
 	const options = useMemo(() => {
@@ -33,7 +34,7 @@ export const NumberPicker: FC<NumberPickerProps> = ({ defaultValue, onChange }) 
 	return (
 		<StyledNumberPicker data-testid="NumberPicker">
 			<label>
-				<span>Show top:</span>
+				<span>{label}</span>
 				<Select
 					defaultValue={selectedOption}
 					onChange={handleChange}

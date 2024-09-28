@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
-export const StyledNumberPicker = styled.div`
-	min-width: 6rem;
+export const StyledMultiSelect = styled.div`
+	min-width: 12rem;
 	position: relative;
 	z-index: 700;
 `;

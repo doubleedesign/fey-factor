@@ -1,11 +1,5 @@
-import { ControlBar } from './ControlBar/ControlBar';
-import { GlobalHeader } from './GlobalHeader/GlobalHeader';
-import { PageWrapper } from './PageWrapper/PageWrapper';
-import { MarkdownContent } from './MarkdownContent/MarkdownContent';
-
-export {
-	ControlBar,
-	GlobalHeader,
-	PageWrapper,
-	MarkdownContent
-};
+export { ControlBar } from './ControlBar/ControlBar';
+export { GlobalHeader } from './GlobalHeader/GlobalHeader';
+export { PageWrapper } from './PageWrapper/PageWrapper';
+export { MarkdownContent } from './MarkdownContent/MarkdownContent';
+export { Expandable } from './Expandable/Expandable';

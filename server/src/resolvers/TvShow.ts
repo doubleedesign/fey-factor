@@ -1,11 +1,10 @@
 import { DatabaseConnection } from '../datasources/database';
-import type { TvShow } from '../generated/source-types';
 import type { TvShow as TvShowGql } from '../generated/gql-types-reformatted';
-import { RankingData } from '../types';
 import pick from 'lodash/pick';
+import { TmdbApiConnection } from '../datasources/tmdb';
 
 const db = new DatabaseConnection();
-type TvShowWithRankingData = TvShow & RankingData;
+const api = new TmdbApiConnection();
 
 export default {
 	Query: {
@@ -54,5 +53,8 @@ export default {
 
 			return pick(parent, ['total_connections', 'average_degree', 'aggregate_episode_count', 'weighted_score']);
 		},
+		providers: async (parent: TvShowGql) => {
+			return await api.getWatchProviders(parent.id);
+		}
 	},
 };

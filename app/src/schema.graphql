@@ -28,6 +28,7 @@ interface Work {
 	id: ID!
 	title: String
 	rankingData: RankingData
+	providers: [Provider]
 	people: [Person]
 	roles: [Role]
 }
@@ -37,11 +38,18 @@ type RankingData {
 	aggregate_episode_count: Int
 	weighted_score: Float
 }
+type Provider {
+	provider_id: Int!
+	provider_name: String!
+	logo_path: String
+	provider_type: String
+}
 type Movie implements Work {
 	id: ID!
 	title: String
 	release_year: Int
 	rankingData: RankingData
+	providers: [Provider]
 	people: [Person]
 	roles: [Role]
 }
@@ -53,6 +61,7 @@ type TvShow implements Work {
 	season_count: Int
 	episode_count: Int
 	rankingData: RankingData
+	providers: [Provider]
 	people: [Person]
 	roles: [Role]
 }
