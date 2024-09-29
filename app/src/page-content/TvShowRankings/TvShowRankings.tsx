@@ -35,6 +35,7 @@ export const TvShowRankings: FC<TvShowRankingsProps> = ({ limit, loadingRows }) 
                 TvShows(limit: $limit) {
                     id
                     title
+					episode_count
                     rankingData {
                         total_connections
                         average_degree
@@ -57,6 +58,7 @@ export const TvShowRankings: FC<TvShowRankingsProps> = ({ limit, loadingRows }) 
 			return {
 				id: show?.id ?? 0,
 				title: show?.title ?? '',
+				episode_count: show?.episode_count ?? 0,
 				total_connections: show?.rankingData?.total_connections ?? 0,
 				average_degree: show?.rankingData?.average_degree?.toFixed(2) ?? 0,
 				weighted_score: show?.rankingData?.weighted_score?.toFixed(2) ?? 0,

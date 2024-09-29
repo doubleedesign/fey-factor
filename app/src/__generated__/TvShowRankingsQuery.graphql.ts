@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<95b99065127d24c2d66e4a3f2de5a6fc>>
+ * @generated SignedSource<<2281eaa9f02a22fee8e6c5f283b5e095>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -14,6 +14,7 @@ export type TvShowRankingsQuery$variables = {
 };
 export type TvShowRankingsQuery$data = {
   readonly TvShows: ReadonlyArray<{
+    readonly episode_count: number | null | undefined;
     readonly id: string;
     readonly providers: ReadonlyArray<{
       readonly logo_path: string | null | undefined;
@@ -68,6 +69,13 @@ v1 = [
         "args": null,
         "kind": "ScalarField",
         "name": "title",
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "kind": "ScalarField",
+        "name": "episode_count",
         "storageKey": null
       },
       {
@@ -156,16 +164,16 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "6386d4db7b2e11a9e07a0300f9667921",
+    "cacheID": "47eeb795d3784f739b610232258472de",
     "id": null,
     "metadata": {},
     "name": "TvShowRankingsQuery",
     "operationKind": "query",
-    "text": "query TvShowRankingsQuery(\n  $limit: Int!\n) {\n  TvShows(limit: $limit) {\n    id\n    title\n    rankingData {\n      total_connections\n      average_degree\n      weighted_score\n    }\n    providers {\n      provider_name\n      provider_type\n      logo_path\n    }\n  }\n}\n"
+    "text": "query TvShowRankingsQuery(\n  $limit: Int!\n) {\n  TvShows(limit: $limit) {\n    id\n    title\n    episode_count\n    rankingData {\n      total_connections\n      average_degree\n      weighted_score\n    }\n    providers {\n      provider_name\n      provider_type\n      logo_path\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "cc042ff8707814ef77def6a358e9b5f3";
+(node as any).hash = "4231605a465f072ba96817b2108b2c18";
 
 export default node;

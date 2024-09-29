@@ -1,5 +1,5 @@
 import { FC, useMemo } from 'react';
-import { StyledShowCard, StyledShowData, StyledShowDataItem } from './ShowCard.style';
+import { StyledShowCard } from './ShowCard.style';
 import { useLazyLoadQuery, graphql } from 'react-relay';
 import { ShowCardQuery, ShowCardQuery$data } from '../../../__generated__/ShowCardQuery.graphql.ts';
 import { Label, TooltippedElement } from '../../typography';
@@ -23,12 +23,11 @@ type ShowCardInnerProps = {
 
 const ShowCardInner: FC<ShowCardInnerProps> = ({ data, degree0, degree1, degree2 }) => {
 
-	const renderConnectionSummary = (connections: any[], degree: number) => {
+	const renderConnectionSummary = (connections: any[]) => {
 		if (connections.length === 0) return null;
+		const connectionsToList = connections.length > 7 ? connections.slice(0, 6) : connections;
 
-		const degreeText = degree === 1 ? 'first-degree' : 'second-degree';
-		const count = connections.length;
-		const displayConnections = connections.slice(0, 5).map((person, index, array) => {
+		const displayConnections = connectionsToList.map((person, index, array) => {
 			const isLast = index === array.length - 1;
 
 			return (
@@ -44,41 +43,19 @@ const ShowCardInner: FC<ShowCardInnerProps> = ({ data, degree0, degree1, degree2
 			);
 		});
 
-		let content;
-		if (count === 1) {
-			content = `1 ${degreeText} connection: `;
-		}
-		else if (count < 5) {
-			content = `${count} ${degreeText} connections: `;
-		}
-		else {
-			content = `${count} ${degreeText} connections including: `;
-		}
-
 		return (
-			<p>
-				<strong>{content}</strong>
-				{displayConnections}.
-			</p>
+			<p><strong>{connections.length > 7 ? 'Connections include: ' : 'Connections: ' }</strong>{displayConnections}.</p>
 		);
 	};
 
 
 	return data && (
 		<StyledShowCard data-testid="ShowCard">
-			<StyledShowData>
-				<StyledShowDataItem>Episodes: <strong>{data.episode_count}</strong></StyledShowDataItem>
-				<StyledShowDataItem>Seasons: <strong>{data.season_count}</strong></StyledShowDataItem>
-				<StyledShowDataItem>Start Year: <strong>{data.start_year}</strong></StyledShowDataItem>
-				<StyledShowDataItem>End Year: <strong>{data.end_year}</strong></StyledShowDataItem>
-			</StyledShowData>
-
 			{degree0.length > 0 && <p>{degree0[0].name} is {degree0[0]?.roles?.map((role: { name: string; }) => {
 				return role?.name?.replace('_', ' ');
 			}).join(', ')}.</p>}
 
-			{renderConnectionSummary(degree1, 1)}
-			{renderConnectionSummary(degree2, 2)}
+			{renderConnectionSummary([...degree1, ...degree2])}
 
 			<a href={`https://www.themoviedb.org/tv/${data.id}`} target="_blank">
 				View on TMDB <i className="fa-light fa-arrow-up-right-from-square"></i>

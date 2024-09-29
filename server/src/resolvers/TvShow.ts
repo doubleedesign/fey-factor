@@ -36,7 +36,7 @@ export default {
 	},
 	TvShow: {
 		people: async (parent: TvShowGql) => {
-			return db.works.getPeopleForWork(parent.id);
+			return db.works.getPeopleForTvShow(parent.id);
 		},
 		// TODO: Make Roles field more useful for Works, or remove it
 		roles: async (parent: TvShowGql & { personId?: number }) => {

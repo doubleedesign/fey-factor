@@ -38,16 +38,12 @@ export const StyledTable = styled.table`
 			padding-right: 0.25rem;
 		}
 
+		&[data-fieldkey="episode_count"],
 		&[data-fieldkey="total_connections"],
 		&[data-fieldkey="average_degree"],
 		&[data-fieldkey="weighted_score"] {
-			width: 6rem;
-			max-width: 6rem;
-
-			@media (min-width: 1200px) {
-				width: 7.5rem;
-				max-width: 7.5rem;
-			}
+			width: 5rem;
+			max-width: 5rem;
 		}
 
 		&[data-fieldkey="available_on"] {

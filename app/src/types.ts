@@ -26,6 +26,7 @@ export type Provider = {
 
 export type Row = RankingData & {
 	available_on?: Provider[];
+	episode_count?: number;
 };
 
 export type Column = {

@@ -26,6 +26,7 @@ export const SortableTable: FC<SortableTableProps> = ({ initialData }) => {
 		{ value: 'rank', label: 'Rank', tooltip: 'Sort by a numeric score to see numbering' },
 		{ value: 'id', label: 'ID', tooltip: 'The Movie Database ID' },
 		{ value: 'title', label: 'Title' },
+		{ value: 'episode_count', label: 'Episodes' },
 		{
 			value: 'total_connections',
 			label: 'Connections',

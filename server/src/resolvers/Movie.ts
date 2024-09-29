@@ -39,7 +39,9 @@ export default {
 	},
 	Movie: {
 		people: async (parent: MovieGql) => {
-			return db.works.getPeopleForWork(parent.id);
+			console.error('Not implemented yet');
+
+			return [];
 		},
 		// TODO: Make Roles field more useful for Works, or remove it
 		roles: async (parent: MovieGql & { personId?: number }) => {

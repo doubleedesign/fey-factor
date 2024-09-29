@@ -51,7 +51,7 @@ export const StyledExpandable = styled.details`
 	
 	&[open] {
 		// the data is currently predictable enough that that fixed height is ok to keep the animation simple
-		height: 200px;
+		height: 160px;
 		
 		${StyledExpandableTitle} { 
 			svg {
