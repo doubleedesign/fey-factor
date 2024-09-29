@@ -1,15 +1,15 @@
 import styled from 'styled-components';
 
 export const StyledShowCard = styled.div`
-	a:last-child {
-		display: block;
-		text-align: right;
-		margin-block-start: ${props => props.theme.spacing.sm};
-		
-		svg {
-			font-size: 0.8em;
-		}
-	}
+	// a:last-child {
+	// 	display: block;
+	// 	text-align: right;
+	// 	margin-block-start: ${props => props.theme.spacing.sm};
+	//	
+	// 	svg {
+	// 		font-size: 0.8em;
+	// 	}
+	// }
 `;
 
 export const StyledShowData = styled.ul`

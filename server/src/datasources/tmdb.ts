@@ -11,31 +11,38 @@ export class TmdbApiConnection {
 	}
 	
 	async getWatchProviders(tvShowId: number) {
-		const response = await fetch(`${this.baseUrl}/tv/${tvShowId}/watch/providers`, {
-			method: 'GET',
-			headers: {
-				'Authorization': `Bearer ${this.authToken}`,
-				'Cache-Control': 'max-age=86400', // 24 hours
-			},
-			cache: 'default'
-		});
-
-		const data = await response.json();
-
-		if(!data.results['AU']) return [];
-
-		return Object.entries(data.results['AU']).reduce((acc: Provider[], [key, values]: [string, Partial<Provider>[]]) => {
-			if(key === 'link') return acc;
-
-			values.forEach((provider: Provider) => {
-				if(provider.provider_name === 'Netflix basic with Ads') return;
-				acc.push({
-					...provider,
-					provider_type: key
-				});
+		try {
+			const response = await fetch(`${this.baseUrl}/tv/${tvShowId}/watch/providers`, {
+				method: 'GET',
+				headers: {
+					'Authorization': `Bearer ${this.authToken}`,
+					'Cache-Control': 'max-age=86400', // 24 hours
+				},
+				cache: 'default'
 			});
 
-			return acc;
-		}, []);
+			const data = await response.json();
+
+			if (!data.results['AU']) return [];
+
+			return Object.entries(data.results['AU']).reduce((acc: Provider[], [key, values]: [string, Partial<Provider>[]]) => {
+				if (key === 'link') return acc;
+
+				values.forEach((provider: Provider) => {
+					if (provider.provider_name === 'Netflix basic with Ads') return;
+					acc.push({
+						...provider,
+						provider_type: key
+					});
+				});
+
+				return acc;
+			}, []);
+		}
+		catch(error) {
+			console.error(error.message);
+
+			return [];
+		}
 	}
 }

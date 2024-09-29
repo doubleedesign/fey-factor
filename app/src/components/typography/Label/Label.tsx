@@ -2,11 +2,11 @@ import { FC } from 'react';
 import { StyledLabel } from './Label.style';
 
 type LabelProps = {
-	type?: 'info' | 'warning' | 'success' | 'error' | 'accent';
 	text: string;
+	type?: 'info' | 'warning' | 'success' | 'error' | 'accent' | 'subtle' | 'subtler';
 };
 
-export const Label: FC<LabelProps> = ({ type = 'info', text }: LabelProps) => {
+export const Label: FC<LabelProps> = ({ text, type = 'info' }: LabelProps) => {
 	return (
 		<StyledLabel data-testid="Label" type={type}>
 			{text}

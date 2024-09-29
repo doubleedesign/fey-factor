@@ -4,9 +4,9 @@ import { SortingButton } from '../SortingButton/SortingButton.tsx';
 import { StyledSortableTable } from './SortableTable.style.ts';
 import { Row, Column } from '../../../types.ts';
 import { TooltippedElement } from '../../typography';
-import { Expandable } from '../../layout';
 import { ShowCard } from '../../data-presentation';
 import { ProviderLogos } from '../../misc/ProviderLogos/ProviderLogos.tsx';
+import Skeleton from 'react-loading-skeleton';
 
 type SortableTableProps = {
 	initialData: Row[];
@@ -74,11 +74,17 @@ export const SortableTable: FC<SortableTableProps> = ({ initialData }) => {
 
 	const cellContent = (row: Row, columnValue: string): ReactNode => {
 		if(columnValue === 'title') {
-			return (
-				<Expandable title={row.title}>
-					<ShowCard id={row.id}/>
-				</Expandable>
+			return row.title === 'Loading...' ? (
+				<Skeleton/>
+			) : (
+				<ShowCard id={row.id} expandable />
 			);
+		}
+
+		// Extra rows added while data is loading uses negative values so we can identify them here easily
+		// (negative numbers shouldn't occur in the actual data)
+		if((typeof row[columnValue as keyof Row] == 'number') && ((row[columnValue as keyof Row] as number) < 1)) {
+			return '';
 		}
 
 		if(columnValue === 'available_on') {
@@ -114,7 +120,7 @@ export const SortableTable: FC<SortableTableProps> = ({ initialData }) => {
 				</thead>
 				<tbody>
 					{data.map((row, rowIndex) => (
-						<tr key={`row-${row.id}`}>
+						<tr key={`row-${row.id}`} data-loaded={row.id > 0}>
 							{columns.map((column, columnIndex) => (
 								<td key={columnIndex} data-fieldkey={column.value}>
 									{column.label === 'Rank'

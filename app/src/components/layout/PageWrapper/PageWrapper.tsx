@@ -8,7 +8,7 @@ type PageWrapperProps = {
 export const PageWrapper: FC<PropsWithChildren<PageWrapperProps>> = ({ children }) => {
 	return (
 		<StyledPageWrapper data-testid="PageWrapper">
-			<Container>
+			<Container $stretch={true}>
 				{children}
 			</Container>
 		</StyledPageWrapper>

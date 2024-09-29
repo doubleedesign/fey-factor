@@ -83,12 +83,37 @@ export class DbWorks  {
 
 	async getPeopleForWork(id: number): Promise<Person[]> {
 		try {
+			// Get people ordered by aggregate episode count for this show,
+			// followed by their total connection count across the database
 			const response = await this.pgClient.query({
-				text: 'SELECT * FROM people WHERE id IN (SELECT person_id FROM connections WHERE work_id = $1)',
+				text: `SELECT
+                           people.id,
+                           people.name,
+                           people.degree,
+                           SUM(CASE WHEN connections.work_id = 4608 THEN connections.episode_count ELSE 0 END) AS aggregate_episode_count,
+                           COUNT(DISTINCT CASE WHEN connections.work_id != $1 THEN connections.work_id END) AS other_works_count
+                       FROM 
+                           people
+                           JOIN
+                           connections ON people.id = connections.person_id
+                       WHERE
+                           people.id IN (SELECT person_id FROM connections WHERE work_id = $1)
+                       GROUP BY
+                           people.id, people.name, people.degree
+                       HAVING
+                           COUNT(DISTINCT CASE WHEN connections.work_id != $1 THEN connections.work_id END) > 1
+                       ORDER BY
+                           aggregate_episode_count DESC,
+                           other_works_count DESC
+						`,
 				values: [id]
 			});
 
-			return response.rows;
+			return response.rows.map(row => ({
+				id: row.id,
+				name: row.name,
+				degree: row.degree
+			}));
 		}
 		catch(error) {
 			console.error(error);
