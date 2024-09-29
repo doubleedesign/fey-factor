@@ -1,12 +1,17 @@
-import { FC } from 'react';
+import { FC, ReactNode } from 'react';
 import { StyledMultiSelect } from './MultiSelect.style';
 import Select, { components, MultiValue } from 'react-select';
 
+type Option = {
+	value: string;
+	label: ReactNode;
+};
+
 type MultiSelectProps = {
 	label: string;
-	options: { value: string; label: string }[];
-	selectedOptions: MultiValue<{ value: string; label: string }>;
-	onChange: (selected: MultiValue<{ value: string; label: string }>) => void;
+	options: Option[];
+	selectedOptions: MultiValue<Option>;
+	onChange: (selected: MultiValue<Option>) => void;
 };
 
 const Option = (props) => {

@@ -2,34 +2,17 @@ import { FC, useMemo } from 'react';
 import { StyledMoreProvidersIndicator, StyledProviderItem, StyledProviderList } from './ProviderLogos.style';
 import { Provider } from '../../../types';
 import { TooltippedElement } from '../../typography';
+import { providerOrder } from '../../../constants.tsx';
+import { sortProviders } from '../../../controllers';
 
 type ProviderLogosProps = {
 	providers: Provider[];
 };
 
 export const ProviderLogos: FC<ProviderLogosProps> = ({ providers }) => {
-	const names = providers.map(provider => provider.provider_name);
-	const order = Array.from(new Set(['Stan', 'Netflix', 'BINGE', 'Apple TV Plus', 'Apple TV', ...names]));
-
 	const sortedProviders = useMemo(() => {
-		return [...providers].sort((a, b) => {
-			const indexA = order.indexOf(a.provider_name);
-			const indexB = order.indexOf(b.provider_name);
-
-			if (indexA !== -1 && indexB !== -1) {
-				return indexA - indexB;
-			}
-			else if (indexA !== -1) {
-				return -1;
-			}
-			else if (indexB !== -1) {
-				return 1;
-			}
-			else {
-				return a.provider_name.localeCompare(b.provider_name);
-			}
-		});
-	}, [providers, order]);
+		return sortProviders(providers);
+	}, [providers]);
 
 	const topThree = sortedProviders.slice(0, 3);
 	const more = sortedProviders.slice(3);
