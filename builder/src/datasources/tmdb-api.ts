@@ -19,11 +19,18 @@ export class TmdbApi {
 	}
 
 	async checkConnection() {
-		const response = await this.makeRequest(`${this.baseUrl}/authentication`, 'get');
+		const response = await this.makeFetchHappen(`${this.baseUrl}/authentication`, 'get');
 		return response.success;
 	}
 
-	async makeRequest(url: string, method: string, data?: unknown, useCached = true) {
+	/**
+	 * Utility function for making requests to the TMDB API
+	 * @param url
+	 * @param method
+	 * @param data
+	 * @param useCached
+	 */
+	async makeFetchHappen(url: string, method: string, data?: unknown, useCached = true) {
 		// If data is cached in a JSON file in src/cache, use that
 		const cachePath = this.getCachedFilePath(url);
 		if(useCached && existsSync(cachePath)) {
@@ -38,7 +45,7 @@ export class TmdbApi {
 				// Assume file is dodgy and delete it
 				unlinkSync(cachePath);
 
-				return await this.makeRequest(url, method, data, false);
+				return await this.makeFetchHappen(url, method, data, false);
 			}
 		}
 
@@ -60,7 +67,7 @@ export class TmdbApi {
 				customConsole.warn('Rate limit exceeded. Waiting for 30 seconds before retrying...');
 				await wait(30000);
 
-				return this.makeRequest(url, method, data); // Retry the request
+				return this.makeFetchHappen(url, method, data); // Retry the request
 			}
 			else if(error?.response && error?.response?.status) {
 				customConsole.error(`Error ${error.response?.status}: ${error.response?.statusText} for request to ${url}`);
@@ -103,63 +110,63 @@ export class TmdbApi {
 	}
 
 	async getPersonDetails(id: number) {
-		const data = await this.makeRequest(`${this.baseUrl}/person/${id}`, 'get');
+		const data = await this.makeFetchHappen(`${this.baseUrl}/person/${id}`, 'get');
 		this.savetoCache(`/person/${id}/`, 'index.json', data);
 
 		return data;
 	}
 
 	async getTvCreditsForPerson(id: number) {
-		const data = await this.makeRequest(`${this.baseUrl}/person/${id}/tv_credits`, 'get');
+		const data = await this.makeFetchHappen(`${this.baseUrl}/person/${id}/tv_credits`, 'get');
 		this.savetoCache(`/person/${id}/`, 'tv_credits.json', data);
 
 		return data;
 	}
 
 	async getFilmCreditsForPerson(id: number) {
-		const data = await this.makeRequest(`${this.baseUrl}/person/${id}/movie_credits`, 'get');
+		const data = await this.makeFetchHappen(`${this.baseUrl}/person/${id}/movie_credits`, 'get');
 		this.savetoCache(`/person/${id}/`, 'movie_credits.json', data);
 
 		return data;
 	}
 
 	async getTvShowDetails(id: number) {
-		const data = await this.makeRequest(`${this.baseUrl}/tv/${id}`, 'get');
+		const data = await this.makeFetchHappen(`${this.baseUrl}/tv/${id}`, 'get');
 		this.savetoCache(`/tv/${id}/`, 'index.json', data);
 
 		return data;
 	}
 
 	async getTvShowCredits(id: number) {
-		const data = await this.makeRequest(`${this.baseUrl}/tv/${id}/aggregate_credits`, 'get');
+		const data = await this.makeFetchHappen(`${this.baseUrl}/tv/${id}/aggregate_credits`, 'get');
 		this.savetoCache(`/tv/${id}/`, 'aggregate_credits.json', data);
 
 		return data;
 	}
 
 	async getTvShowSeasonDetails(id: number, seasonNumber: number) {
-		const data = await this.makeRequest(`${this.baseUrl}/tv/${id}/season/${seasonNumber}`, 'get');
+		const data = await this.makeFetchHappen(`${this.baseUrl}/tv/${id}/season/${seasonNumber}`, 'get');
 		this.savetoCache(`/tv/${id}/season/${seasonNumber}/`, 'index.json', data);
 
 		return data;
 	}
 
 	async getTvShowCreditsForSpecificSeason(id: number, seasonNumber: number) {
-		const data = await this.makeRequest(`${this.baseUrl}/tv/${id}/season/${seasonNumber}/aggregate_credits`, 'get');
+		const data = await this.makeFetchHappen(`${this.baseUrl}/tv/${id}/season/${seasonNumber}/aggregate_credits`, 'get');
 		this.savetoCache(`/tv/${id}/season/${seasonNumber}/`, 'aggregate_credits.json', data);
 
 		return data;
 	}
 
 	async getFilmDetails(id: number) {
-		const data = await this.makeRequest(`${this.baseUrl}/movie/${id}`, 'get');
+		const data = await this.makeFetchHappen(`${this.baseUrl}/movie/${id}`, 'get');
 		this.savetoCache(`/movie/${id}/`, 'index.json', data);
 
 		return data;
 	}
 
 	async getFilmCredits(id: number) {
-		const data = await this.makeRequest(`${this.baseUrl}/movie/${id}/credits`, 'get');
+		const data = await this.makeFetchHappen(`${this.baseUrl}/movie/${id}/credits`, 'get');
 		this.savetoCache(`/movie/${id}/`, 'credits.json', data);
 
 		return data;
