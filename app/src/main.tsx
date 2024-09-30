@@ -9,6 +9,7 @@ import theme from './theme.ts';
 import { Rankings, Network, Venn, About, ErrorPage } from './routes';
 import { GlobalHeader } from './components/layout';
 import { GlobalFooter } from './components/layout/GlobalFooter/GlobalFooter.tsx';
+import { RankingContextProvider } from './controllers/context/RankingContext.tsx';
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
@@ -16,13 +17,15 @@ createRoot(document.getElementById('root')!).render(
 			<ThemeProvider theme={theme}>
 				<BrowserRouter>
 					<GlobalHeader />
-					<Routes>
-						<Route path="/" element={<Rankings />} />
-						<Route path="/network" element={<Network />} />
-						<Route path="/venn-diagram" element={<Venn />} />
-						<Route path="/about" element={<About />} />
-						<Route path="*" element={<ErrorPage/>} />
-					</Routes>
+					<RankingContextProvider>
+						<Routes>
+							<Route path="/" element={<Rankings />} />
+							<Route path="/network" element={<Network />} />
+							<Route path="/venn-diagram" element={<Venn />} />
+							<Route path="/about" element={<About />} />
+							<Route path="*" element={<ErrorPage/>} />
+						</Routes>
+					</RankingContextProvider>
 					<GlobalFooter />
 				</BrowserRouter>
 			</ThemeProvider>

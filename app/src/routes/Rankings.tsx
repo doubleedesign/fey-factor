@@ -1,39 +1,47 @@
-import { FC, startTransition, Suspense, useCallback, useEffect, useState } from 'react';
+import { FC, Fragment, startTransition, Suspense,  useState, useCallback, useEffect } from 'react';
 import { ControlBar, PageWrapper, SkeletonTable } from '../components/layout';
 import { Heading, LeadParagraph } from '../components/typography';
-import { NumberPicker, MultiSelect, SelectionInputs } from '../components/data-presentation';
+import { MultiSelect, NumberPicker, SelectionInputs } from '../components/data-presentation';
 import { TvShowRankings } from '../page-content';
-import { Provider } from '../types';
-import { sortProviders } from '../controllers';
+import { Filters, MultiSelectOption, Provider } from '../types';
+import { MultiValue } from 'react-select';
+import { fetchWatchProviders, sortProviders } from '../controllers';
+import { useRankingContext } from '../controllers/context/RankingContext.tsx';
+
 
 export const Rankings: FC = () => {
-	const apiKey = import.meta.env.VITE_TMDB_API_KEY;
 	const [limit, setLimit] = useState<number>(25);
 	const [loadingRows, setLoadingRows] = useState<number>(0);
-	const [providers, setProviders] = useState<Provider[]>();
+	const [providers, setProviders] = useState<MultiSelectOption[]>([]);
+	const [selectedProviders, setSelectedProviders] = useState<MultiSelectOption[]>([]);
+	const { filter } = useRankingContext();
 
+	// Load watch providers on initial render
 	useEffect(() => {
-		const fetchData = async () => {
-			try {
-				const response = await fetch(`https://api.themoviedb.org/3/watch/providers/tv?watch_region=AU&api_key=${apiKey}`);
-				const data = await response.json();
-				setProviders(sortProviders(data.results.filter((provider: Provider) => {
-					return !provider.provider_name.includes('Amazon Channel')
-						&& !provider.provider_name.includes('Apple TV Channel')
-						&& !provider.provider_name.includes('Netflix basic with Ads');
-				})).slice(0, 12));
+		fetchWatchProviders().then(data => {
+			if(data.results) {
+				setProviders(
+					sortProviders(data.results.filter((provider: Provider) => {
+						return !provider.provider_name.includes('Amazon Channel')
+							&& !provider.provider_name.includes('Apple TV Channel')
+							&& !provider.provider_name.includes('Netflix basic with Ads');
+					}))
+						.slice(0, 14)
+						.map((provider: Provider) => {
+							return {
+								value: provider.provider_id.toString(),
+								label: (
+									<Fragment key={provider.provider_id}>
+										<img src={`https://media.themoviedb.org/t/p/original/${provider.logo_path}`} alt={provider.provider_name} />
+										<span>{provider.provider_name}</span>
+									</Fragment>
+								)
+							} as MultiSelectOption;
+						})
+				);
 			}
-			catch (error) {
-				console.error('Error fetching providers: ', error);
-			}
-		};
-
-		fetchData();
-	}, [apiKey]);
-
-	useEffect(() => {
-		console.log('Providers: ', providers);
-	}, [providers]);
+		});
+	}, []);
 
 	const handleLimitChange = useCallback((newLimit: number) => {
 		if(newLimit > limit) {
@@ -49,12 +57,12 @@ export const Rankings: FC = () => {
 		});
 	}, [limit]);
 
-	const handleChange = (selected: Provider[]) => {
-		setProviders(selected);
-	};
+	const handleProviderFilterChange = useCallback((selected: MultiValue<MultiSelectOption>) => {
+		setSelectedProviders(selected as MultiSelectOption[]);
+		filter({ available_on: selected.map(option => option.value) } as Filters);
+	}, [filter]);
 
 	return (
-
 		<PageWrapper>
 			<ControlBar>
 				<div>
@@ -63,7 +71,12 @@ export const Rankings: FC = () => {
 				</div>
 				<SelectionInputs>
 					<NumberPicker label="Show top:" defaultValue={25} onChange={handleLimitChange} />
-					<MultiSelect label={`Filter top ${limit} by availability:`} options={providers} selectedOptions={[]} onChange={handleChange} />
+					<MultiSelect
+						label={`Filter top ${limit} by availability:`}
+						options={providers}
+						selectedOptions={providers.filter(provider => selectedProviders.includes(provider))}
+						onChange={handleProviderFilterChange}
+					/>
 				</SelectionInputs>
 			</ControlBar>
 			<Suspense fallback={<SkeletonTable rows={limit} />}>

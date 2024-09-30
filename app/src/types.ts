@@ -1,4 +1,5 @@
 import theme from './theme.ts';
+import { ReactNode } from 'react';
 
 export type ThemeColor = keyof typeof theme.colors;
 
@@ -40,3 +41,14 @@ export type Edition = {
 	title: string;
 	tag?: string;
 };
+
+export type MultiSelectOption = {
+	value: string;
+	label: ReactNode;
+};
+
+export type Filters = {
+	available_on?: string[];
+	// TODO: Add more filter keys here and then make sure they're accounted for in the filter function
+};
+

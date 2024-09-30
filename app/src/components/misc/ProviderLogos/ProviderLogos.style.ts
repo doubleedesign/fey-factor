@@ -6,6 +6,7 @@ export const StyledProviderList = styled.ul`
 	padding: 0;
 	display: flex;
 	gap: 2px;
+	line-height: 1;
 `;
 
 export const StyledProviderItem = styled.li`

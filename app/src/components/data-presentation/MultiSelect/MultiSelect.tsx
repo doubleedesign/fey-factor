@@ -1,30 +1,19 @@
-import { FC, ReactNode } from 'react';
-import { StyledMultiSelect } from './MultiSelect.style';
+import { FC } from 'react';
+import {
+	StyledMultiSelect,
+	StyledMultiSelectInvisibleCheckbox,
+	StyledMultiSelectLabel,
+	StyledMultiSelectLabelIconOnly,
+	StyledMultiSelectOptionWrapper
+} from './MultiSelect.style';
 import Select, { components, MultiValue } from 'react-select';
-
-type Option = {
-	value: string;
-	label: ReactNode;
-};
+import { MultiSelectOption } from '../../../types.ts';
 
 type MultiSelectProps = {
 	label: string;
-	options: Option[];
-	selectedOptions: MultiValue<Option>;
-	onChange: (selected: MultiValue<Option>) => void;
-};
-
-const Option = (props) => {
-	return (
-		<components.Option {...props}>
-			<input
-				type="checkbox"
-				checked={props.isSelected}
-				onChange={() => null}
-			/>
-			<label>{props.label}</label>
-		</components.Option>
-	);
+	options: MultiSelectOption[];
+	selectedOptions: MultiValue<MultiSelectOption>;
+	onChange: (selected: MultiValue<MultiSelectOption>) => void;
 };
 
 export const MultiSelect: FC<MultiSelectProps> = ({ label, options, selectedOptions, onChange }) => {
@@ -38,7 +27,39 @@ export const MultiSelect: FC<MultiSelectProps> = ({ label, options, selectedOpti
 					value={selectedOptions}
 					closeMenuOnSelect={false}
 					hideSelectedOptions={false}
-					components={{ Option }}
+					components={{
+						// The option as shown in the drop-down
+						Option: (props) => {
+							return (
+								<StyledMultiSelectOptionWrapper>
+									<components.Option {...props}>
+										<StyledMultiSelectInvisibleCheckbox
+											id={props.data.value}
+											type="checkbox"
+											checked={props.isSelected}
+											onChange={() => null}
+										/>
+										<StyledMultiSelectLabel htmlFor={props.data.value}>{props.label}</StyledMultiSelectLabel>
+									</components.Option>
+								</StyledMultiSelectOptionWrapper>
+							);
+						},
+						// The option as shown when selected
+						MultiValue: (props) => {
+							// @ts-expect-error TS2339: Property props does not exist on type string (I'm expecting a ReactNode, not a string)
+							const icon = props.data.label?.props?.children.find((child) => child.type === 'img').props;
+
+							return icon ? (
+								<StyledMultiSelectLabelIconOnly {...props.removeProps}>
+									<img src={icon.src} alt={icon.alt}/>
+								</StyledMultiSelectLabelIconOnly>
+							) : (
+								<components.MultiValue {...props}>
+									<StyledMultiSelectLabel>{props.data.label}</StyledMultiSelectLabel>
+								</components.MultiValue>
+							);
+						}
+					}}
 					onChange={onChange}
 				/>
 			</label>

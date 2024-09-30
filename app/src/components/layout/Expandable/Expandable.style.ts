@@ -7,18 +7,25 @@ export const StyledExpandableTitle = styled.summary`
 	justify-content: space-between;
 	align-items: center;
 	padding-inline-end: ${props => props.theme.spacing.xs};
-	// Make it look like a link
-	color: ${props => props.theme.colors.dark};
-	text-decoration: underline;
-	text-decoration-color: ${props => transparentize(0.5, props.theme.colors.dark)};
-	transition: all 0.2s ease-in-out;
 	cursor: pointer;
 	// For the tooltip when there is one
 	overflow: visible;
+	
+	> span {
+		height: 100%;
+		display: flex;
+		align-items: center;
+		color: ${props => props.theme.colors.dark};
+		text-decoration: underline;
+		text-decoration-color: ${props => transparentize(0.5, props.theme.colors.dark)};
+		transition: all 0.2s ease-in-out;
+	}
 
 	&:hover, &:focus, &:active {
-		color: ${props => tint(0.2, props.theme.colors.info)};
-		text-decoration-color: ${props => props.theme.colors.info};
+		> span {
+			color: ${props => tint(0.2, props.theme.colors.info)};
+			text-decoration-color: ${props => props.theme.colors.info};
+		}
 	}
 	
 	&::marker,

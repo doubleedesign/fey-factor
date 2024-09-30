@@ -2,7 +2,6 @@ import { FC, useMemo } from 'react';
 import { StyledMoreProvidersIndicator, StyledProviderItem, StyledProviderList } from './ProviderLogos.style';
 import { Provider } from '../../../types';
 import { TooltippedElement } from '../../typography';
-import { providerOrder } from '../../../constants.tsx';
 import { sortProviders } from '../../../controllers';
 
 type ProviderLogosProps = {

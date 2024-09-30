@@ -12,8 +12,8 @@ export const Expandable: FC<PropsWithChildren<ExpandableProps>> = ({ title, titl
 	return (
 		<StyledExpandable data-testid="Expandable" open={isExpanded}>
 			<StyledExpandableTitle data-testid="ExpandableTitle">
-				<SingleLineText text={title} />
-				<span>{titleTag} <i className="fa-regular fa-plus"></i></span>
+				<span><SingleLineText text={title} /></span>
+				<div>{titleTag} <i className="fa-regular fa-plus"></i></div>
 			</StyledExpandableTitle>
 			<div>
 				{children}
