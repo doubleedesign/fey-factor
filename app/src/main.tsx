@@ -3,13 +3,13 @@ import { createRoot } from 'react-dom/client';
 import { RelayEnvironmentProvider } from 'react-relay';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import environment from './relayEnvironment.ts';
-import './global.css';
-import { ThemeProvider } from 'styled-components';
-import theme from './theme.ts';
-import { Rankings, Network, Venn, About, ErrorPage } from './routes';
+import { Dashboard, Rankings, Network, Venn, About, ErrorPage } from './routes';
 import { GlobalHeader } from './components/layout';
 import { GlobalFooter } from './components/layout/GlobalFooter/GlobalFooter.tsx';
 import { RankingContextProvider } from './controllers/context/RankingContext.tsx';
+import { ThemeProvider } from 'styled-components';
+import theme from './theme.ts';
+import './global.css';
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
@@ -19,7 +19,8 @@ createRoot(document.getElementById('root')!).render(
 					<GlobalHeader />
 					<RankingContextProvider>
 						<Routes>
-							<Route path="/" element={<Rankings />} />
+							<Route path="/" element={<Dashboard />} />
+							<Route path="/rankings" element={<Rankings />} />
 							<Route path="/network" element={<Network />} />
 							<Route path="/venn-diagram" element={<Venn />} />
 							<Route path="/about" element={<About />} />
