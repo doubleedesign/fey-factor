@@ -1,10 +1,11 @@
 {
 	"name": "fey-factor-data-builder",
 	"author": "Leesa Ward",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"private": true,
 	"description": "",
 	"type": "module",
+	"main": "index.ts",
 	"scripts": {
 		"start": "node --import ./loader.mjs ./src/index.ts"
 	},

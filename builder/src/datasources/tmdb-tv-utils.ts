@@ -8,12 +8,13 @@ import {
 	PersonRawCredits, PersonRoleSummary, PersonTVRoleSummary,
 } from './types-person.ts';
 import pkg from 'lodash';
+import { DataWrangler } from '../scripts/types.ts';
 const { omit, pick } = pkg;
 
 /**
  * Functions to process data fetched from the TMDB API
  */
-export const tmdbTvData = {
+export const tmdbTvData: DataWrangler = {
 
 	filterCreditsByYearAndGenre: ({ id, cast, crew }: PersonRawCredits): PersonRawCredits => {
 		const includeCredit = (credit) => {

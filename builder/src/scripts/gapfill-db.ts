@@ -29,11 +29,9 @@ export class GapFiller extends DataPopulatorCommon {
 		let updated = 0;
 
 		// Get shows that don't have episode counts
-		const shows = await db.pgClient.query(
-			'SELECT id FROM tv_shows WHERE episode_count IS NULL LIMIT 100;'
-		);
+		const shows = await db.getTvShowsMissingEpisodeCounts();
 
-		await async.eachSeries(shows.rows, async ({ id, title }) => {
+		await async.eachOfSeries(shows, async ({ id, title }) => {
 			const showDetails = await this.api.getTvShowDetails(id);
 			if(showDetails) {
 				await db.addOrUpdateTvShow({
@@ -62,16 +60,12 @@ export class GapFiller extends DataPopulatorCommon {
 		let updated = 0;
 
 		// Get connections that don't have episode counts
-		const shows = await db.pgClient.query(`
-			SELECT DISTINCT(work_id) from connections 
-			    JOIN tv_shows ON connections.work_id = tv_shows.id 
-             	WHERE connections.episode_count is NULL
-		`);
-		const showIds = shows.rows.map(show => show.work_id);
+		const shows = await db.getConnectionsMissingEpisodeCounts();
+		const showIds = shows.map(show => show.work_id);
 		customConsole.addProgressBar('gap_filling', showIds.length);
 
 		// For each show, get the total episode count and update the creator connection to use that
-		await async.eachSeries(showIds, async showId => {
+		await async.eachOfSeries(showIds, async showId => {
 			const show = await db.pgClient.query('SELECT episode_count FROM tv_shows WHERE id = $1', [showId]);
 			if(show.rows.length > 0) {
 				const episodeCount = show.rows[0].episode_count;

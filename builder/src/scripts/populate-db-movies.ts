@@ -1,6 +1,6 @@
 import { DataPopulator, DataPopulatorInterface } from './DataPopulator.ts';
 import { customConsole, db, logToFile } from '../common.ts';
-import { PopulationScriptSettings } from './types.ts';
+import { DataWrangler, PopulationScriptSettings } from './types.ts';
 import { PersonMergedCredit, PersonMergedCredits, PersonMergedFilmCredit } from '../datasources/types-person.ts';
 import { tmdbFilmData } from '../datasources/tmdb-film-utils.ts';
 import async from 'async';
@@ -33,8 +33,11 @@ class MoviePopulator extends DataPopulator implements DataPopulatorInterface {
 	 * and return the IDs for the films to look up for the next level of the tree.
 	 * @param personId
 	 * @param degree
+	 * @param dataFuncs - object of functions for filtering and formatting data
+	 *
+	 * @return {Promise<number[]>} An array of movie IDs to look up next
 	 */
-	async getAndProcessCreditsForPerson(personId: number, degree: number): Promise<number[]> {
+	async getAndProcessCreditsForPerson(personId: number, degree: number, dataFuncs = tmdbFilmData): Promise<number[]> {
 		if(this.peopleAlreadyAdded?.[this.RUN_TYPE]?.has(personId)) {
 			customConsole.warn(`Person ID ${personId} has already been processed, skipping.`, true);
 			return;
@@ -42,30 +45,34 @@ class MoviePopulator extends DataPopulator implements DataPopulatorInterface {
 
 		const movieIdsToReturn: number[] = [];
 
-		// All credits for the person, then filtered down to just the kind we're interested in
+		// All film credits for the person, then filtered down to just the kind we're interested in
 		const credits = await this.api.getFilmCreditsForPerson(personId);
 		if(!credits) {
 			customConsole.warn(`Failed to fetch credits for person ID ${personId}, skipping.`, true);
 			return;
 		}
 
-		const mergedCredits: PersonMergedCredits = tmdbFilmData.filterFormatAndMergeCredits(credits);
+		const mergedCredits: PersonMergedCredits = dataFuncs.filterFormatAndMergeCredits(credits);
 
 		// Loop through each credit (which here, is a movie)
 		// remembering that a person may have multiple roles within this movie, e.g., writer and director, director and producer
-		await async.eachSeries(mergedCredits.credits, async (credit: PersonMergedCredit) => {
-			const doesItCount = tmdbFilmData.doesItCount(credit, this.includedRoles, degree);
+		await async.eachOfSeries(mergedCredits.credits, async (credit: PersonMergedCredit) => {
+			const doesItCount = dataFuncs.doesItCount(credit, this.includedRoles, degree);
 
 			if(doesItCount.crew.include || doesItCount.cast.include) {
 				await this.addPersonAndWorkToDatabase({
-					personId,
-					degree,
-					workId: credit.id,
-					workName: credit.name,
-					releaseYear: (credit as PersonMergedFilmCredit).release_year
+					person: {
+						id: personId,
+						degree: degree,
+					},
+					work: {
+						id: credit.id,
+						name: credit.name,
+						release_year: (credit as PersonMergedFilmCredit).release_year
+					}
 				});
 
-				await async.eachSeries(credit.roles, async role => {
+				await async.eachOfSeries(credit.roles, async role => {
 					await this.connect({
 						personId: personId,
 						workId: credit.id,
@@ -89,7 +96,7 @@ class MoviePopulator extends DataPopulator implements DataPopulatorInterface {
 	 * and return the IDs for the people to look up for the next level of the tree.
 	 * @param movieId
 	 */
-	async getAndProcessCreditsForWork(movieId: number): Promise<number[]> {
+	async getAndProcessCreditsForWork(movieId: number, dataFuncs = tmdbFilmData): Promise<number[]> {
 		customConsole.info(`Processing movie ID ${movieId}.`, false);
 		const peopleIdsToReturn: number[] = [];
 
@@ -125,47 +132,34 @@ class MoviePopulator extends DataPopulator implements DataPopulatorInterface {
 	/**
 	 * Utility function to handle adding a person and movie to the database once it's been determined that they should be included.
 	 * NOTE: This assumes TV show population has been done first, so degree may change if a person is added here at a lower degree.
-	 * @param personId
-	 * @param degree
-	 * @param workId
-	 * @param workName
-	 * @param releaseYear
+	 * @param person
+	 * @param work
 	 *
 	 * @return {Promise<void>}
 	 */
-	async addPersonAndWorkToDatabase({ personId, degree, workId, workName, releaseYear }): Promise<void> {
-		const personExists = await db.getPerson(personId);
+	async addPersonAndWorkToDatabase({ person, work }): Promise<void> {
+		let personData = await db.getPerson(person.id);
+		const personExists = !!personData;
+		const existingDegree = personData?.degree;
 		if (!personExists) {
-			const person = await this.api.getPersonDetails(personId);
-			await db.addOrUpdatePerson({
-				id: personId,
-				name: person?.name ?? '',
-				degree: degree
-			});
-
-			// Record that is person has been added, so we don't add them again in this run
-			this.peopleAlreadyAdded[this.RUN_TYPE].add(personId);
+			personData = await this.api.getPersonDetails(person.id);
 		}
-		else if(personExists && personExists.degree > degree) {
+		if(!personExists || existingDegree > person.degree) {
 			await db.addOrUpdatePerson({
-				id: personId,
-				name: personExists.name,
-				degree: degree
+				id: person.id,
+				name: personData.name,
+				degree: person.degree // the new degree
 			});
 
 			// Record that is person has been added, so we don't add them again in this run
-			this.peopleAlreadyAdded[this.RUN_TYPE].add(personId);
+			this.peopleAlreadyAdded[this.RUN_TYPE].add(person.id);
 		}
 		// else person exists but at a lower degree, we don't need to update them
 
-		if(!this.worksAlreadyAdded?.has(workId)) {
-			await db.addOrUpdateMovie({
-				id: workId,
-				name: workName,
-				release_year: releaseYear
-			});
+		if(!this.worksAlreadyAdded?.has(work.id)) {
+			await db.addOrUpdateMovie(work);
 
-			this.worksAlreadyAdded.add(workId);
+			this.worksAlreadyAdded.add(work.id);
 		}
 	}
 }

@@ -1,24 +1,22 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { customConsole, db, logToFile } from '../common.ts';
 import Case from 'case';
-import { PopulationScriptSettings } from './types.ts';
+import { DataWrangler, PopulationScriptSettings } from './types.ts';
 import async from 'async';
 import _ from 'lodash';
 import { DataPopulatorCommon } from './DataPopulatorCommon.ts';
+import { Person, TvShow, Film } from '../database/types.ts';
 
 type AddPersonAndWorkFields = {
-	personId: number;
-	degree: number;
-	workId: number;
-	workName: string;
-	releaseYear?: number;
+	person: Person;
+	work: TvShow | Film;
 };
 
 // Fields/methods that must be implemented by child classes
 export interface DataPopulatorInterface {
 	run(RUN_TYPE: string): void;
-	getAndProcessCreditsForPerson(personId: number, degree: number): Promise<number[]>;
-	getAndProcessCreditsForWork(workId: number): Promise<number[]>;
+	getAndProcessCreditsForPerson(personId: number, degree: number, dataFuncs: DataWrangler): Promise<number[]>;
+	getAndProcessCreditsForWork(workId: number, dataFuncs: DataWrangler): Promise<number[]>;
 	addPersonAndWorkToDatabase(data: AddPersonAndWorkFields): Promise<void>;
 }
 
@@ -113,17 +111,18 @@ export class DataPopulator extends DataPopulatorCommon implements DataPopulatorI
 			// We're done at this degree
 			this.degree++;
 			customConsole.updateProgress('degrees', this.degree);
+			// eslint-disable-next-line max-len
 			customConsole.logProgress(`Processed ${peopleProcessedCount} people and ${worksProcessedCount} ${Case.sentence(RUN_TYPE)} at degree ${this.degree - 1}.`);
 		}
 	}
 
 
-	getAndProcessCreditsForPerson(personId: number, degree: number): Promise<number[]> {
+	getAndProcessCreditsForPerson(personId: number, degree: number, dataFuncs?: DataWrangler): Promise<number[]> {
 		throw new Error('Method not implemented: getAndProcessCreditsForPerson. ' +
 			'This must be implemented by the child class you\'re using.');
 	}
 
-	getAndProcessCreditsForWork(workId: number): Promise<number[]> {
+	getAndProcessCreditsForWork(workId: number, dataFuncs?: DataWrangler): Promise<number[]> {
 		throw new Error('Method not implemented: getAndProcessCreditsForWork. ' +
 			'This must be implemented by the child class you\'re using.');
 	}
@@ -146,13 +145,16 @@ export class DataPopulator extends DataPopulatorCommon implements DataPopulatorI
 	async connect({ personId, workId, roleName, count }): Promise<void> {
 		// Use locally stored role ID if we have it, otherwise fetch from the db
 		const roleId: number = this.roleIds[roleName] || await db.getRoleId(Case.snake(roleName));
-		if(roleId) {
-			await db.connectPersonToWork(personId, workId, roleId, count);
-			// Add the role to the local store for future lookups
-			this.roleIds[roleName] = roleId;
+		if(!roleId) {
+			customConsole.warn(`Role ID not found for ${roleName}, skipping.`, true);
+			return;
 		}
-		else {
-			customConsole.warn(`Failed to find role ID for ${roleName} in the database.`, true);
-		}
+
+		// Connect the person to the work
+		await db.connectPersonToWork(personId, workId, roleId, count);
+
+		// Add the role to the local store for future lookups
+		this.roleIds[roleName] = roleId;
+
 	}
 }

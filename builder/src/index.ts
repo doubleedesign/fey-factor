@@ -1,20 +1,42 @@
 import inquirer from 'inquirer';
 import select, { Separator } from '@inquirer/select';
 import chalk from 'chalk';
-import { db, customConsole, wait } from './common.ts';
+import { db, customConsole, wait, createFileIfNotExists, api } from './common.ts';
 import { initDb } from './scripts/init-db.ts';
 import { resetDb } from './scripts/reset-db.ts';
 import { populateDbTv } from './scripts/populate-db-tv.ts';
-import { topupDb } from './scripts/topup-db.ts';
 import { gapFillDb } from './scripts/gapfill-db.ts';
 import { populateDbMovies } from './scripts/populate-db-movies.ts';
 import { PopulationScriptSettings } from './scripts/types.ts';
 // noinspection ES6PreferShortImport
 import { LoggingType } from './utils/CustomConsole/index.ts';
-//import { degreeUpdate } from './scripts/degree-update-db.ts';
+import { degreeUpdate } from './scripts/degree-update-db.ts';
+import { addOrUpdateRelevantSnlPeople } from './scripts/populate-snl.ts';
+
 
 function outputSeparator() {
 	console.log(chalk.magenta('\n==============================================='));
+}
+
+async function goodToGo() {
+	const apiCheck = await api.checkConnection();
+	apiCheck ? console.log(chalk.green('TMDB API connection successful')) : console.error(chalk.red('TMDB API connection failed'));
+	const pgCheck = await db.testPostgresConnection();
+	pgCheck ? console.log(chalk.green('Postgres connection successful')) : console.error(chalk.red('Postgres connection failed'));
+	const dbCheck = await db.databaseExists();
+	dbCheck ? console.log(chalk.green('Database exists')) : console.warn(chalk.yellow('Database does not exist'));
+
+	if(!apiCheck || !pgCheck) {
+		console.log(chalk.red('Check your credentials in the .env file'));
+		process.exit(1);
+	}
+	if(!dbCheck) {
+		console.log(chalk.yellow('Initialising database'));
+		await initDb();
+	}
+
+	await createFileIfNotExists('./logs/database.log');
+	await createFileIfNotExists('./logs/tmdb-api.log');
 }
 
 async function getChoice() {
@@ -43,8 +65,8 @@ async function getChoice() {
 				value: 'update-degree-2-people'
 			},
 			{
-				name: 'Step 5: Top up database with complete data for top TV shows',
-				value: 'top-up',
+				name: 'Step 5: Add or update people who were involved in SNL in the relevant years',
+				value: 'handle-snl',
 			},
 			new Separator(),
 			{
@@ -65,34 +87,21 @@ async function getChoice() {
 	});
 }
 
-async function doTvTopup(settings: PopulationScriptSettings & { count: number }) {
-	const numberOfShows = await inquirer.prompt([
-		{
-			type: 'input',
-			name: 'count',
-			message: 'Number of shows to top up:',
-			default: 20
-		}
-	]);
-
-	topupDb({ ...settings, count: numberOfShows.count });
-}
-
+// TODO: Add option to set database name
+// TODO: Option to add start year/year range
 async function start() {
 	outputSeparator();
 
 	console.log(chalk.yellow('If a success message appears after data population and then nothing seems to be happening, ' +
 		'press an arrow key. The menu will probably reappear then.'));
 
-	const settings = await inquirer.prompt([
+	const settings: PopulationScriptSettings = await inquirer.prompt([
 		{
 			type: 'input',
 			name: 'startPersonId',
 			message: 'The Movie Database person ID to start from:',
 			default: 56323
 		},
-		// TODO: Add option to set database name
-		// TODO: Option to add start year/year range
 		{
 			type: 'input',
 			name: 'maxDegree',
@@ -152,38 +161,32 @@ async function start() {
 				outputSeparator();
 				gapFillDb(settings);
 				break;
-			case 'top-up':
-				outputSeparator();
-				await doTvTopup(settings);
-				break;
 			case 'update-degree-2-people':
 				outputSeparator();
-				console.log(chalk.red('Not implemented yet.'));
-				//degreeUpdate(settings);
+				degreeUpdate(settings);
+				break;
+			case 'handle-snl':
+				outputSeparator();
+				addOrUpdateRelevantSnlPeople(settings);
 				break;
 			case 'reset':
 				outputSeparator();
 				await resetDb();
 				break;
-			case 'reset-movies':
-				outputSeparator();
-				console.log(chalk.red('Not implemented yet.'));
-				break;
-			case 'reset-tv':
-				outputSeparator();
-				console.log(chalk.red('Not implemented yet.'));
-				break;
 			case 'exit':
 				outputSeparator();
+				await db.closeConnections();
 				process.exit(0);
 		}
 	}
 }
 
 try {
-	outputSeparator();
+	await goodToGo();
 	await start();
+	await db.closeConnections();
 }
 catch(error) {
 	console.error(error);
 }
+

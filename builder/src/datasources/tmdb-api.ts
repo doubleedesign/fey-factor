@@ -18,6 +18,11 @@ export class TmdbApi {
 		this.logFile = createWriteStream('./logs/tmdb-api.log');
 	}
 
+	async checkConnection() {
+		const response = await this.makeRequest(`${this.baseUrl}/authentication`, 'get');
+		return response.success;
+	}
+
 	async makeRequest(url: string, method: string, data?: unknown, useCached = true) {
 		// If data is cached in a JSON file in src/cache, use that
 		const cachePath = this.getCachedFilePath(url);
@@ -128,6 +133,20 @@ export class TmdbApi {
 	async getTvShowCredits(id: number) {
 		const data = await this.makeRequest(`${this.baseUrl}/tv/${id}/aggregate_credits`, 'get');
 		this.savetoCache(`/tv/${id}/`, 'aggregate_credits.json', data);
+
+		return data;
+	}
+
+	async getTvShowSeasonDetails(id: number, seasonNumber: number) {
+		const data = await this.makeRequest(`${this.baseUrl}/tv/${id}/season/${seasonNumber}`, 'get');
+		this.savetoCache(`/tv/${id}/season/${seasonNumber}/`, 'index.json', data);
+
+		return data;
+	}
+
+	async getTvShowCreditsForSpecificSeason(id: number, seasonNumber: number) {
+		const data = await this.makeRequest(`${this.baseUrl}/tv/${id}/season/${seasonNumber}/aggregate_credits`, 'get');
+		this.savetoCache(`/tv/${id}/season/${seasonNumber}/`, 'aggregate_credits.json', data);
 
 		return data;
 	}

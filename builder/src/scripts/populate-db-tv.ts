@@ -40,10 +40,11 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 	 * and return the IDs of the shows to look up for the next level of the tree.
 	 * @param personId
 	 * @param degree
+	 * @param dataFuncs - object of functions for filtering and formatting data
 	 *
 	 * @return {Promise<number[]>} An array of show IDs to look up next
 	 */
-	async getAndProcessCreditsForPerson(personId: number, degree: number): Promise<number[]> {
+	async getAndProcessCreditsForPerson(personId: number, degree: number, dataFuncs = tmdbTvData): Promise<number[]> {
 		if(this.peopleAlreadyAdded?.[this.RUN_TYPE]?.has(personId)) {
 			customConsole.warn(`Person ID ${personId} has already been processed, skipping.`, true);
 			return [];
@@ -51,18 +52,18 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 
 		const showIdsToReturn: number[] = [];
 
-		// All credits for the person, then filtered down to just the kind we're interested in
+		// All TV credits for the person, then filtered down to just the kind we're interested in
 		const credits = await this.api.getTvCreditsForPerson(personId);
 		if(!credits) {
 			customConsole.warn(`Failed to fetch credits for person ID ${personId}, skipping.`, true);
 			return [];
 		}
 
-		const mergedCredits: PersonMergedCredits = tmdbTvData.filterFormatAndMergeCredits(credits);
+		const mergedCredits: PersonMergedCredits = dataFuncs.filterFormatAndMergeCredits(credits);
 
 		// Loop through each credit (which here, is a show)
 		// remembering that a person may have multiple roles within that show/credit, e.g., writer and director
-		await async.eachSeries(mergedCredits.credits, async (credit: PersonMergedCredit) => {
+		await async.eachOfSeries(mergedCredits.credits, async (credit: PersonMergedCredit) => {
 			let cachedEpisodeCount = this.cachedEpisodeCounts?.[credit.id];
 			if (!cachedEpisodeCount) {
 				const showDetails = await this.api.getTvShowDetails(credit.id);
@@ -74,17 +75,22 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 
 			// If the person had a cast role for at least 50% of the episodes, include it
 			// TODO: Refine inclusion criteria and use/add to the tmbdTVData functions for this
-			// eslint-disable-next-line max-len
-			if (credit.roles.some((role: PersonTVRoleSummary) => role.type === 'cast' && role.episode_count && (role?.episode_count / cachedEpisodeCount >= 0.5))) {
+			if (credit.roles.some((role: PersonTVRoleSummary) => {
+				return role.type === 'cast' && role.episode_count && (role?.episode_count / cachedEpisodeCount >= 0.5);
+			})) {
 				await this.addPersonAndWorkToDatabase({
-					personId,
-					degree: degree,
-					workId: credit.id,
-					workName: credit.name
+					person: {
+						id: personId,
+						degree: degree
+					},
+					work: {
+						id: credit.id,
+						name: credit.name
+					}
 				});
 
 				// Connect the person to the show with the appropriate role ID(s) and role-based episode counts for all roles they had
-				await async.eachSeries(credit.roles, async (role: PersonTVRoleSummary) => {
+				await async.eachOfSeries(credit.roles, async (role: PersonTVRoleSummary) => {
 					await this.connect({
 						personId: personId,
 						workId: credit.id,
@@ -108,14 +114,18 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 
 				if (autoIncludedRoles.length > 0) {
 					await this.addPersonAndWorkToDatabase({
-						personId,
-						degree: degree,
-						workId: credit.id,
-						workName: credit.name
+						person: {
+							id: personId,
+							degree: degree
+						},
+						work: {
+							id: credit.id,
+							name: credit.name
+						}
 					});
 
 					// Connect the person to the show with the appropriate role IDs for the auto-included roles
-					await async.eachSeries(autoIncludedRoles, async (role: PersonTVRoleSummary) => {
+					await async.eachOfSeries(autoIncludedRoles, async (role: PersonTVRoleSummary) => {
 						// Some roles have their own episode count, but others such as Creator do not
 						// and should inherit the show's episode count
 						let episodeCountToUse = Number(role?.episode_count) && role.episode_count;
@@ -134,7 +144,7 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 
 					// Add their other roles to the db
 					if(otherRoles.length > 0) {
-						await async.eachSeries(otherRoles, async (role: PersonTVRoleSummary) => {
+						await async.eachOfSeries(otherRoles, async (role: PersonTVRoleSummary) => {
 							await this.connect({
 								personId: personId,
 								workId: credit.id,
@@ -149,26 +159,30 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 				}
 				// This person did not have auto-included roles for this credit/show, but may have multiple that add up to qualify
 				else {
-					const countFor = tmdbTvData.doesCumulativeCreditCount(credit, cachedEpisodeCount);
+					const countFor = dataFuncs.doesCumulativeCreditCount(credit, cachedEpisodeCount);
 
 					if (countFor.inclusion) {
 						// Add the person and the show to the database
 						await this.addPersonAndWorkToDatabase({
-							personId,
-							degree: degree,
-							workId: credit.id,
-							workName: credit.name
+							person: {
+								id: personId,
+								degree: degree
+							},
+							work: {
+								id: credit.id,
+								name: credit.name
+							}
 						});
 
 						// Connect the person to the show with the appropriate role ID(s) and role-based episode counts
-						for (const role of credit.roles) {
+						await async.eachOfSeries(credit.roles, async (role: PersonTVRoleSummary) => {
 							await this.connect({
 								personId: personId,
 								workId: credit.id,
 								roleName: role.type === 'cast' ? 'cast' : role.name,
 								count: (role as PersonTVRoleSummary)?.episode_count
 							});
-						}
+						});
 					}
 					if (countFor.continuation) {
 						// Add the show to the array that this function returns for further processing
@@ -186,10 +200,11 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 	 * Look up a TV show's aggregate credits, add the relevant ones to the database,
 	 * and return the IDs of the people to look up for the next level of the tree.
 	 * @param showId
+	 * @param dataFuncs - object of functions for filtering and formatting data
 	 *
 	 * @return {Promise<number[]>} An array of person IDs to look up next
 	 */
-	async getAndProcessCreditsForWork(showId: number): Promise<number[]> {
+	async getAndProcessCreditsForWork(showId: number, dataFuncs = tmdbTvData): Promise<number[]> {
 		const peopleIdsToReturn: number[] = [];
 		if(this.worksAlreadyAdded.has(showId)) {
 			customConsole.warn(`Show ID ${showId} has already been processed, skipping.`, true);
@@ -223,7 +238,7 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 		if(showCredits && episodeCount) {
 			// Cast members who meet inclusion criteria
 			const relevantCastIds = showCredits.cast
-				.filter((credit: PersonMergedCredit) => tmdbTvData.doesCumulativeCreditCount(credit, episodeCount).inclusion)
+				.filter((credit: PersonMergedCredit) => dataFuncs.doesCumulativeCreditCount(credit, episodeCount).inclusion)
 				.map((credit: PersonMergedCredit) => credit.id);
 
 			// Crew members in included roles
@@ -249,39 +264,42 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 	/**
 	 * Utility function to handle adding a person and show to the database once it's been determined that they should be included
 	 * NOTE: This assumes TV show population is done from degree 0 and before movie population, so degree should not change.
-	 * @param personId
-	 * @param degree
-	 * @param workId
-	 * @param workName
+	 * @param person
+	 * @param work
 	 *
 	 * @return {Promise<void>}
 	 */
-	async addPersonAndWorkToDatabase({ personId, degree, workId, workName }): Promise<void> {
-		// Add the person to the database if they don't already exist (because if we update them here their degree will be wrong)
-		if(!this.peopleAlreadyAdded?.[this.RUN_TYPE]?.has(personId)) { // they were not added in this session
-			const personExists = await db.getPerson(personId); // ...and they also didn't already exist in the db
-			if (!personExists) {
-				const person = await this.api.getPersonDetails(personId);
-				await db.addOrUpdatePerson({
-					id: personId,
-					name: person?.name ?? '',
-					degree: degree
+	async addPersonAndWorkToDatabase({ person, work }): Promise<void> {
+		// If neither exist in the db yet, add them together so they are done in one database transaction
+		if(!this.peopleAlreadyAdded?.[this.RUN_TYPE]?.has(person.id) && !this.worksAlreadyAdded?.has(work.id)) {
+			// At this point, we don't know the person's name yet, so we need to fetch the full details
+			const personData = await this.api.getPersonDetails(person.id);
+			await db.addOrUpdatePersonAndTvShow({ ...person, name: personData.name }, work);
+		}
+		else {
+			// Add the person to the database if they don't already exist (because if we update them here their degree will be wrong)
+			if (!this.peopleAlreadyAdded?.[this.RUN_TYPE]?.has(person.id)) { // they were not added in this session
+				const personExists = await db.getPerson(person.id); // ...and they also didn't already exist in the db
+				if (!personExists) {
+					const personData = await this.api.getPersonDetails(person.id);
+					await db.addOrUpdatePerson({ ...person, name: personData.name });
+
+					// Record that is person has been added, so we don't add them again in this run
+					this.peopleAlreadyAdded[this.RUN_TYPE].add(person.id);
+				}
+			}
+
+			// Add the show to the db if we haven't already
+			if (!this.worksAlreadyAdded?.has(work.id)) {
+				await db.addOrUpdateTvShow({
+					id: work.id,
+					name: work.name
+					// don't include credit.episode_count because it's the person's not the show's here
 				});
 
-				// Record that is person has been added, so we don't add them again in this run
-				this.peopleAlreadyAdded[this.RUN_TYPE].add(personId);
+				// We do not record that this work has been added, because it's not a full show object yet
+				// so we do want to query again in the appropriate places and update
 			}
-		}
-
-		if(!this.worksAlreadyAdded?.has(workId)) {
-			// Add the show to the db if we haven't already
-			// but don't add it to the array of shows that have been added, because it's not a full show object yet
-			await db.addOrUpdateTvShow({
-				id: workId,
-				name: workName
-				// credit.episode_count is the person's episode count so not always appropriate to add here
-				// it will be added along with other data when the show is looked up in getAndProcessCreditsForWork()
-			});
 		}
 	}
 }

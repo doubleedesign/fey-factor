@@ -9,9 +9,10 @@ import {
 import { COMEDY_GENRE_ID, EXCLUDED_GENRE_IDS, START_YEAR } from '../common.ts';
 import Case from 'case';
 import pkg from 'lodash';
+import { DataWrangler } from '../scripts/types.ts';
 const { pick } = pkg;
 
-export const tmdbFilmData = {
+export const tmdbFilmData: DataWrangler = {
 
 	filterCreditsByYearAndGenre: ({ id, cast, crew }: PersonRawCredits): PersonRawCredits => {
 		const includeCredit = (credit) => {
@@ -96,7 +97,6 @@ export const tmdbFilmData = {
 				continue: credit.roles.some(role => ['screenplay'].includes(Case.snake(role.name))),
 			},
 			cast: {
-
 				include: credit.roles.some(role => {
 					// include top 13 billed for degrees 0-1;
 					// this is a quick arbitrary choice based on Amy Poehler for original Mean Girls and Jon Hamm for the remake

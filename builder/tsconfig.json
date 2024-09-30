@@ -9,14 +9,18 @@
 			"DOM", // required to make WebStorm colour console.log as a global, not a module
 			"DOM.Iterable",
 		],
+		"types": [
+			"node"
+		],
+		"esModuleInterop": true,
+		"isolatedModules": true,
+		"resolveJsonModule": true,
+		"skipLibCheck": true,
+		"allowSyntheticDefaultImports": true,
 		"noImplicitAny": false,
 		"allowJs": false,
-		"skipLibCheck": true,
-		"esModuleInterop": true,
-		"allowSyntheticDefaultImports": true,
-		"resolveJsonModule": true,
-		"isolatedModules": true,
-		"allowImportingTsExtensions": true // required to run scripts that import other TS files
+		"allowImportingTsExtensions": true, // required to run scripts that import other TS files
+		"noEmit": true, // for allowImportingTsExtensions to work
 	},
 	"include": [
 		"src",

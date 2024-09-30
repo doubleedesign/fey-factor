@@ -5,8 +5,9 @@ type PersonCreditCommon = {
 	name: string; // name of the show/movie
 }
 
+// TODO: This name is misleading
 type PersonTVCommon = PersonCreditCommon & {
-	first_air_date: string;
+	first_air_date?: string;
 	last_air_date?: string;
 	episode_count?: number;
 }

@@ -168,6 +168,8 @@ export class CustomConsole {
 	}
 
 	clearConsole() {
-		process.stdout.write('\x1Bc');
+		if(this.style !== LoggingType.VERBOSE) {
+			process.stdout.write('\x1Bc');
+		}
 	}
 }
