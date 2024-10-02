@@ -40,7 +40,7 @@
             {
                 "fieldName": "title",
                 "fieldType": "string",
-                "required": false
+                "required": true
             },
             {
                 "fieldName": "release_year",
@@ -173,7 +173,7 @@
                 "required": false
             }
         ],
-        "isDirectlyQueryable": true,
+        "isDirectlyQueryable": false,
         "isGqlEntity": true
     },
     "TvShow": {
@@ -186,7 +186,7 @@
             {
                 "fieldName": "title",
                 "fieldType": "string",
-                "required": false
+                "required": true
             },
             {
                 "fieldName": "start_year",
@@ -243,7 +243,7 @@
             {
                 "fieldName": "title",
                 "fieldType": "string",
-                "required": false
+                "required": true
             },
             {
                 "fieldName": "rankingData",

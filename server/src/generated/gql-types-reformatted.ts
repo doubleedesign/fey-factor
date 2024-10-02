@@ -6,6 +6,13 @@ export type Person = {
 	works?: Work[];
 };
 
+export type Provider = {
+	logo_path?: string;
+	provider_id: number;
+	provider_name: string;
+	provider_type?: string;
+};
+
 export type RankingData = {
 	aggregate_episode_count?: number;
 	average_degree?: number;
@@ -22,9 +29,10 @@ export type Role = {
 export type Work = {
 	id: number;
 	people?: Person[];
+	providers?: Provider[];
 	rankingData?: RankingData;
 	roles?: Role[];
-	title?: string;
+	title: string;
 };
 
 // TODO: Generator script doesn't currently add these

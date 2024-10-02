@@ -4,7 +4,6 @@ import { readFileSync } from 'fs';
 import gql from 'graphql-tag';
 import chalk from 'chalk';
 import resolvers from './resolvers';
-import { exec } from 'child_process';
 
 const schema = createSchema({
 	typeDefs: gql`

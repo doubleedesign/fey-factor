@@ -53,9 +53,15 @@ export default {
 
 			return pick(parent, ['total_connections', 'average_degree', 'aggregate_episode_count', 'weighted_score']);
 		},
-		providers: async (parent: TvShowGql) => {
+		providers: async (parent: TvShowGql, { filter }) => {
 			try {
-				return await api.getWatchProviders(parent.id);
+				const allResults = await api.getWatchProviders(parent.id);
+
+				if(filter.provider_type) {
+					return allResults.filter(result => filter.provider_type.includes(result.provider_type));
+				}
+
+				return allResults;
 			}
 			catch(error) {
 				console.error('Error fetching watch providers:', error);

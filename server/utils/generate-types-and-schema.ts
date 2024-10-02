@@ -19,6 +19,7 @@ async function generate() {
 	try {
 		await generateTypes();
 		await renameTypes();
+		await hackInheritanceRelationships();
 		await generateSchema();
 	}
 	catch (error) {
@@ -82,6 +83,29 @@ async function renameTypes() {
 		await promises.writeFile(typesOutputFile, result, 'utf8');
 
 		console.log(chalk.green(`Successfully renamed types in ${typesOutputFile}`));
+	}
+	catch (error) {
+		handleError(error);
+	}
+}
+
+async function hackInheritanceRelationships() {
+	outputSeparator();
+	console.log('Hacking in the stuff we need from inheritance relationships to behave like foreign keys...');
+
+	try {
+		const data = readFileSync(typesOutputFile, 'utf8');
+
+		// Currently only connections has foreign keys, so this very fragile way of hacking in an extra one is ok for now
+		const result = data.replace(/foreignKeys: {[\r\n]+/g,
+			'foreignKeys: {\n' +
+			'work_id: { table: \'works\', column: \'id\', $type: null as unknown as Work },\n'
+		);
+
+		// Write the modified file back
+		await promises.writeFile(typesOutputFile, result, 'utf8');
+
+		console.log(chalk.green(`Successfully updated types with key inherited fields in ${typesOutputFile}`));
 	}
 	catch (error) {
 		handleError(error);

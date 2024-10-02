@@ -149,9 +149,12 @@ async function processExportedType(node: ts.InterfaceDeclaration | ts.TypeAliasD
 		// (this will have more fields added to it for GQL according to the table's foreign keys, in another function)
 		typeObjects[node.name.text] = {
 			fields: fields,
-			// If this table has a glue key, it will not be a standalone GraphQL type
-			// (Big assumption based on my current use case; may need to change in the future)
-			isDirectlyQueryable: !Boolean(glueKey),
+			isDirectlyQueryable:
+				// Manually set some types to not be directly queryable
+				node.name.text !== 'Role'
+				// If this table has a glue key, it will not be a standalone GraphQL type
+				// (Big assumption based on my current use case; may need to change in the future)
+				&& !Boolean(glueKey),
 			isGqlEntity: node.name.text !== 'Connection'
 		};
 
@@ -176,6 +179,7 @@ async function processExportedType(node: ts.InterfaceDeclaration | ts.TypeAliasD
 		let supertype = undefined;
 
 		if(ts.isIntersectionTypeNode(node.type)) {
+			// @ts-ignore
 			supertype = node.type.types.find(item => ts.isTypeReferenceNode(item))?.typeName?.getText();
 
 			fields = node.type.types.map(item => {
@@ -366,6 +370,9 @@ function convertAndSaveTypes() {
 		appendFileSync(typesDestFile, finalString);
 	});
 
+	// Add other filter inputs
+	appendFileSync(typesDestFile, 'input ProviderFilter {\n\tprovider_type: [String]\n}\n', 'utf8');
+
 	// Process the root types
 	rootTypes.forEach(([name, data]) => {
 		if(!data.isGqlEntity) return;
@@ -420,6 +427,9 @@ function convertAndSaveTypes() {
 			const typeName = dbTableNameFormatToTypeFormat(fieldName);
 			if(interfaces.includes(typeName)) {
 				stringParts.push(`\t${fieldName}(filter: ${typeName}Filter): ${gqlFieldType}`);
+			}
+			else if(fieldName === 'providers') {
+				stringParts.push(`\t${fieldName}(filter: ProviderFilter): [Provider]`);
 			}
 			else if(fieldName === 'id' || fieldName === 'ID') {
 				stringParts.push(`\t${fieldName}: ID!`);

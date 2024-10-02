@@ -1,6 +1,9 @@
 input WorkFilter {
 	type: String
 }
+input ProviderFilter {
+	provider_type: [String]
+}
 type Person {
 	id: ID!
 	name: String!
@@ -15,9 +18,9 @@ type Role {
 }
 interface Work {
 	id: ID!
-	title: String
+	title: String!
 	rankingData: RankingData
-	providers: [Provider]
+	providers(filter: ProviderFilter): [Provider]
 	people: [Person]
 	roles: [Role]
 }
@@ -35,22 +38,22 @@ type Provider {
 }
 type Movie implements Work {
 	id: ID!
-	title: String
+	title: String!
 	release_year: Int
 	rankingData: RankingData
-	providers: [Provider]
+	providers(filter: ProviderFilter): [Provider]
 	people: [Person]
 	roles: [Role]
 }
 type TvShow implements Work {
 	id: ID!
-	title: String
+	title: String!
 	start_year: Int
 	end_year: Int
 	season_count: Int
 	episode_count: Int
 	rankingData: RankingData
-	providers: [Provider]
+	providers(filter: ProviderFilter): [Provider]
 	people: [Person]
 	roles: [Role]
 }

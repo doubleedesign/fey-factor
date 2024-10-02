@@ -33,8 +33,8 @@ const connections = {
 	requiredForInsert: ['person_id', 'work_id', 'role_id'],
 	primaryKey: 'id',
 	foreignKeys: {
-		person_id: { table: 'people', column: 'id', $type: null as unknown as Person },
 		work_id: { table: 'works', column: 'id', $type: null as unknown as Work },
+		person_id: { table: 'people', column: 'id', $type: null as unknown as Person },
 		role_id: { table: 'roles', column: 'id', $type: null as unknown as Role },
 	},
 	$type: null as unknown as Connection,
@@ -44,18 +44,18 @@ const connections = {
 // Table movies
 export interface Movie {
 	id: number;
-	title: string | null;
+	title: string;
 	release_year: number | null;
 }
 export interface MovieInput {
 	id: number;
-	title?: string | null;
+	title: string;
 	release_year?: number | null;
 }
 const movies = {
 	tableName: 'movies',
 	columns: ['id', 'title', 'release_year'],
-	requiredForInsert: ['id'],
+	requiredForInsert: ['id', 'title'],
 	primaryKey: null,
 	foreignKeys: {},
 	$type: null as unknown as Movie,
@@ -105,7 +105,7 @@ const roles = {
 // Table tv_shows
 export interface TvShow {
 	id: number;
-	title: string | null;
+	title: string;
 	start_year: number | null;
 	end_year: number | null;
 	season_count: number | null;
@@ -113,7 +113,7 @@ export interface TvShow {
 }
 export interface TvShowInput {
 	id: number;
-	title?: string | null;
+	title: string;
 	start_year?: number | null;
 	end_year?: number | null;
 	season_count?: number | null;
@@ -122,7 +122,7 @@ export interface TvShowInput {
 const tv_shows = {
 	tableName: 'tv_shows',
 	columns: ['id', 'title', 'start_year', 'end_year', 'season_count', 'episode_count'],
-	requiredForInsert: ['id'],
+	requiredForInsert: ['id', 'title'],
 	primaryKey: null,
 	foreignKeys: {},
 	$type: null as unknown as TvShow,
@@ -132,16 +132,16 @@ const tv_shows = {
 // Table works
 export interface Work {
 	id: number;
-	title: string | null;
+	title: string;
 }
 export interface WorkInput {
 	id: number;
-	title?: string | null;
+	title: string;
 }
 const works = {
 	tableName: 'works',
 	columns: ['id', 'title'],
-	requiredForInsert: ['id'],
+	requiredForInsert: ['id', 'title'],
 	primaryKey: 'id',
 	foreignKeys: {},
 	$type: null as unknown as Work,
