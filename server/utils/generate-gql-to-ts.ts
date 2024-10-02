@@ -2,6 +2,7 @@ import { exec } from 'child_process';
 import { readFileSync, writeFileSync } from 'fs';
 import ts, { TypeLiteralNode } from 'typescript';
 import chalk from 'chalk';
+import typeObjects from '../src/generated/typeObjects.json' assert { type: 'json' };
 
 const scalarObject: Record<string, object> = {};
 const typeStrings: string[] = [];
@@ -61,7 +62,8 @@ function processExportedTypes(node: ts.Node) {
 
 	if (ts.isTypeAliasDeclaration(node)) {
 		// Skip known input types
-		if (['WorkFilter', 'PersonWorksArgs'].includes(node.name.text)) return;
+		// eslint-disable-next-line max-len
+		if (['WorkFilter', 'PersonWorksArgs', 'ProviderFilter', 'WorkProvidersArgs', 'TvShowProvidersArgs', 'MovieProvidersArgs'].includes(node.name.text)) return;
 
 		// Skip irrelevant internal types
 		if (['Maybe', 'Make', 'Incremental', 'Exact', 'InputMaybe'].some(str => node.name.text.includes(str))) return;
@@ -86,6 +88,7 @@ function processExportedTypes(node: ts.Node) {
 				}
 			});
 		}
+
 		// Process and format the other types
 		else if (ts.isTypeLiteralNode(node.type)) {
 			const typeLiteral = node.type as TypeLiteralNode;
@@ -98,6 +101,38 @@ function processExportedTypes(node: ts.Node) {
 					thisTypeString += (`${key}${operator} ${value};\n`);
 				}
 			});
+			thisTypeString += '};\n';
+			typeStrings.push(thisTypeString);
+		}
+		else if (ts.isIntersectionTypeNode(node.type)) {
+			// Get the named types in the intersection
+			const typeRefs = [];
+			const fieldNamesFromTypeRefs = [];
+			ts.forEachChild(node.type, (node: ts.Node) => {
+				if(ts.isTypeReferenceNode(node)) {
+					// Push the name into the list to include in the definition
+					typeRefs.push(node.typeName.getText());
+					// Get the field names in this type - feels kinda hacky to get them from the elsewhere-generated JSON file and not this one but oh well
+					const typeNode = typeObjects[node.typeName.getText()];
+					fieldNamesFromTypeRefs.push(...typeNode.fields.map((field) => field.fieldName));
+				}
+			});
+			// Open the definition with the named types
+			let thisTypeString = `export type ${node.name.text} = ${typeRefs.join(' & ')} & {\n`;
+			// Add the extra fields
+			ts.forEachChild(node.type, (node: ts.Node) => {
+				if(ts.isTypeLiteralNode(node)) {
+					node.members.forEach(member => {
+						if (ts.isPropertySignature(member) && ts.isIdentifier(member.name) && !fieldNamesFromTypeRefs.includes(member.name.text)) {
+							const key = member.name.text;
+							const value = convertValue(member.type.getText());
+							const operator = member.type.getText().includes('Maybe') ? '?:' : ':';
+							thisTypeString += (`${key}${operator} ${value};\n`);
+						}
+					});
+				}
+			});
+			// Close the definition
 			thisTypeString += '};\n';
 			typeStrings.push(thisTypeString);
 		}

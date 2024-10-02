@@ -35,14 +35,14 @@ export type Work = {
 	title: string;
 };
 
-// TODO: Generator script doesn't currently add these
 export type TvShow = Work & {
-	start_year?: number;
 	end_year?: number;
-	season_count?: number;
 	episode_count?: number;
+	season_count?: number;
+	start_year?: number;
 };
 
 export type Movie = Work & {
 	release_year?: number;
 };
+
