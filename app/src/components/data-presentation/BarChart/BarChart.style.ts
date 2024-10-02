@@ -30,6 +30,10 @@ export const StyledBarChart = styled.figure`
 				white-space: nowrap;
 				display: inline-block;
 			}
+			
+			> div > div {
+				background: ${props => props.theme.colors.secondary} !important;
+			}
 		}
 	}
 `;

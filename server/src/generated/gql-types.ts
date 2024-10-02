@@ -15,8 +15,11 @@ export type Scalars = {
 };
 
 export type Movie = Work & {
+	backdrop_path: Maybe<Scalars['String']['output']>;
 	id: Scalars['ID']['output'];
+	overview: Maybe<Scalars['String']['output']>;
 	people: Maybe<Array<Maybe<Person>>>;
+	poster_path: Maybe<Scalars['String']['output']>;
 	providers: Maybe<Array<Maybe<Provider>>>;
 	rankingData: Maybe<RankingData>;
 	release_year: Maybe<Scalars['Int']['output']>;
@@ -67,10 +70,13 @@ export type Role = {
 };
 
 export type TvShow = Work & {
+	backdrop_path: Maybe<Scalars['String']['output']>;
 	end_year: Maybe<Scalars['Int']['output']>;
 	episode_count: Maybe<Scalars['Int']['output']>;
 	id: Scalars['ID']['output'];
+	overview: Maybe<Scalars['String']['output']>;
 	people: Maybe<Array<Maybe<Person>>>;
+	poster_path: Maybe<Scalars['String']['output']>;
 	providers: Maybe<Array<Maybe<Provider>>>;
 	rankingData: Maybe<RankingData>;
 	roles: Maybe<Array<Maybe<Role>>>;
@@ -84,9 +90,18 @@ export type TvShowProvidersArgs = {
 	filter: InputMaybe<ProviderFilter>;
 };
 
+export type TvShowAdditionalFields = {
+	backdrop_path: Maybe<Scalars['String']['output']>;
+	overview: Maybe<Scalars['String']['output']>;
+	poster_path: Maybe<Scalars['String']['output']>;
+};
+
 export type Work = {
+	backdrop_path: Maybe<Scalars['String']['output']>;
 	id: Scalars['ID']['output'];
+	overview: Maybe<Scalars['String']['output']>;
 	people: Maybe<Array<Maybe<Person>>>;
+	poster_path: Maybe<Scalars['String']['output']>;
 	providers: Maybe<Array<Maybe<Provider>>>;
 	rankingData: Maybe<RankingData>;
 	roles: Maybe<Array<Maybe<Role>>>;

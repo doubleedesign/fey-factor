@@ -1,10 +1,11 @@
-import { FC, useMemo } from 'react';
-import { StyledShowCard } from './ShowCard.style';
+import { Suspense, useMemo } from 'react';
+import { StyledShowCardContainer } from './ShowCard.style';
 import { useLazyLoadQuery, graphql } from 'react-relay';
 import { ShowCardQuery, ShowCardQuery$data } from '../../../__generated__/ShowCardQuery.graphql.ts';
 import { Label, TooltippedElement } from '../../typography';
 import { Expandable } from '../../layout';
 import React from 'react';
+import { ShowCardInner } from './ShowCardInner.tsx';
 
 type ShowCardProps = {
 	id: number;
@@ -14,14 +15,62 @@ type ShowCardProps = {
 // @ts-ignore
 type Person = ShowCardQuery$data['TvShow']['people'][0];
 
-type ShowCardInnerProps = {
-	data: ShowCardQuery$data['TvShow'];
-	degree0: Person[];
-	degree1: Person[];
-	degree2: Person[];
-};
+export const ShowCard = ({ id, expandable }: ShowCardProps) => {
+	const data = useLazyLoadQuery<ShowCardQuery>(
+		graphql`
+            query ShowCardQuery($id: ID!) {
+                TvShow(id: $id) {
+                    id
+                    title
+                    people {
+                        id
+                        name
+                        degree
+                        roles {
+                            name
+                        }
+                    }
+                }
+            }
+		`,
+		{ id: id.toString() }
+	);
 
-const ShowCardInner: FC<ShowCardInnerProps> = ({ data, degree0, degree1, degree2 }) => {
+	const degree0 = useMemo(() => {
+		return data?.TvShow?.people?.filter(person => person?.degree === 0) ?? [];
+	}, [data.TvShow?.people]);
+
+	const degreeOne = useMemo(() => {
+		return data?.TvShow?.people?.filter(person => person?.degree === 1) ?? [];
+	}, [data?.TvShow?.people]);
+
+	const degreeTwo = useMemo(() => {
+		return data?.TvShow?.people?.filter(person => person?.degree === 2) ?? [];
+	}, [data?.TvShow?.people]);
+
+	let tag = null;
+	if(degree0.length > 0) {
+		tag = <TooltippedElement id={`feyjacent-tooltip-${data?.TvShow?.id}`} tooltip="This is a Tina Fey production" position="bottom">
+			<Label text="It's Fey day" type="success"/>
+		</TooltippedElement>;
+	}
+	else if(degreeOne.length > 4) {
+		tag = <TooltippedElement id={`feyjacent-tooltip-${data?.TvShow?.id}`} tooltip={`${degreeOne.length} first-degree connections`} position="bottom">
+			<Label text="Highly Feyjacent" type="accent" />
+		</TooltippedElement>;
+	}
+	else if(degreeOne.length > 2 && degreeTwo.length > 10) {
+		// eslint-disable-next-line max-len
+		tag = <TooltippedElement id={`feyjacent-tooltip-${data?.TvShow?.id}`} tooltip={`${degreeOne.length} first-degree and ${degreeTwo.length} second-degree connections`} position="bottom">
+			<Label text="Pretty Feyjacent" type="subtle" />
+		</TooltippedElement>;
+	}
+	else if(degreeOne.length > 0 && degreeTwo.length > 4) {
+		// eslint-disable-next-line max-len
+		tag = <TooltippedElement id={`feyjacent-tooltip-${data?.TvShow?.id}`} tooltip={`${degreeOne.length} first-degree and ${degreeTwo.length} second-degree connections`} position="bottom">
+			<Label text="Somewhat Feyjacent" type="subtler" />
+		</TooltippedElement>;
+	}
 
 	const renderConnectionSummary = (connections: any[]) => {
 		if (connections.length === 0) return null;
@@ -48,88 +97,29 @@ const ShowCardInner: FC<ShowCardInnerProps> = ({ data, degree0, degree1, degree2
 		);
 	};
 
-
-	return data && (
-		<StyledShowCard data-testid="ShowCard">
-			{degree0.length > 0 && <p>{degree0[0].name} is {degree0[0]?.roles?.map((role: { name: string; }) => {
-				return role?.name?.replace('_', ' ');
-			}).join(', ')}.</p>}
-
-			{renderConnectionSummary([...degree1, ...degree2])}
-
-			<a href={`https://www.themoviedb.org/tv/${data.id}`} target="_blank">
-				View on TMDB <i className="fa-light fa-arrow-up-right-from-square"></i>
-			</a>
-		</StyledShowCard>
-	);
-};
-
-export const ShowCard = ({ id, expandable }: ShowCardProps) => {
-	const data = useLazyLoadQuery<ShowCardQuery>(
-		graphql`
-            query ShowCardQuery($id: ID!) {
-                TvShow(id: $id) {
-                    id
-                    title
-                    start_year
-                    end_year
-                    season_count
-                    episode_count
-                    people {
-	                    id
-                        name
-                        degree
-                        roles {
-                            name
-                        }
-                    }
-                }
-            }
-		`,
-		{ id: id.toString() }
-	);
-
-	const isFey = useMemo(() => {
-		return data?.TvShow?.people?.filter(person => person?.degree === 0) ?? [];
-	}, [data.TvShow?.people]);
-
-	const degreeOne = useMemo(() => {
-		return data?.TvShow?.people?.filter(person => person?.degree === 1) ?? [];
-	}, [data?.TvShow?.people]);
-
-	const degreeTwo = useMemo(() => {
-		return data?.TvShow?.people?.filter(person => person?.degree === 2) ?? [];
-	}, [data?.TvShow?.people]);
-
-	let tag = null;
-	if(isFey.length > 0) {
-		tag = <TooltippedElement id={`feyjacent-tooltip-${data?.TvShow?.id}`} tooltip="This is a Tina Fey production" position="bottom">
-			<Label text="It's Fey day" type="success"/>
-		</TooltippedElement>;
-	}
-	else if(degreeOne.length > 4) {
-		tag = <TooltippedElement id={`feyjacent-tooltip-${data?.TvShow?.id}`} tooltip={`${degreeOne.length} first-degree connections`} position="bottom">
-			<Label text="Highly Feyjacent" type="accent" />
-		</TooltippedElement>;
-	}
-	else if(degreeOne.length > 2 && degreeTwo.length > 10) {
-		// eslint-disable-next-line max-len
-		tag = <TooltippedElement id={`feyjacent-tooltip-${data?.TvShow?.id}`} tooltip={`${degreeOne.length} first-degree and ${degreeTwo.length} second-degree connections`} position="bottom">
-			<Label text="Pretty Feyjacent" type="subtle" />
-		</TooltippedElement>;
-	}
-	else if(degreeOne.length > 0 && degreeTwo.length > 4) {
-		// eslint-disable-next-line max-len
-		tag = <TooltippedElement id={`feyjacent-tooltip-${data?.TvShow?.id}`} tooltip={`${degreeOne.length} first-degree and ${degreeTwo.length} second-degree connections`} position="bottom">
-			<Label text="Somewhat Feyjacent" type="subtler" />
-		</TooltippedElement>;
-	}
-
-	return expandable && data?.TvShow ? (
+	return expandable && data?.TvShow?.title ? (
 		<Expandable title={data.TvShow?.title ?? ''} titleTag={tag}>
-			<ShowCardInner data={data.TvShow} degree0={isFey} degree1={degreeOne} degree2={degreeTwo} />
+			<Suspense>
+				<ShowCardInner id={data.TvShow.id} tag={tag} renderTitle={false}>
+					{degree0.length > 0 && <p>{degree0[0]?.name} is {degree0[0]?.roles?.map((role) => {
+						return role?.name?.replace('_', ' ');
+					}).join(', ')}.</p>}
+					{renderConnectionSummary([...degreeOne, ...degreeTwo])}
+				</ShowCardInner>
+			</Suspense>
 		</Expandable>
 	) : (
-		<ShowCardInner data={data.TvShow} degree0={isFey} degree1={degreeOne} degree2={degreeTwo} />
+		<StyledShowCardContainer>
+			{data.TvShow?.id && (
+				<Suspense>
+					<ShowCardInner id={data.TvShow.id} tag={tag}>
+						{degree0.length > 0 && <p>{degree0[0]?.name} is {degree0[0]?.roles?.map((role) => {
+							return role?.name?.replace('_', ' ');
+						}).join(', ')}.</p>}
+						{renderConnectionSummary([...degreeOne, ...degreeTwo])}
+					</ShowCardInner>
+				</Suspense>
+			)}
+		</StyledShowCardContainer>
 	);
 };

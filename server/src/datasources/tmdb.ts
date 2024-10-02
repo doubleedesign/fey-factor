@@ -1,6 +1,11 @@
 import * as dotenv from 'dotenv';
 import { Provider } from '../types';
+
 dotenv.config();
+
+function wait(time:number) {
+	return new Promise(resolve => setTimeout(resolve, time));
+}
 
 export class TmdbApiConnection {
 	authToken: string;
@@ -9,20 +14,47 @@ export class TmdbApiConnection {
 	constructor() {
 		this.authToken = process.env.TMDB_AUTH_TOKEN as string;
 	}
-	
-	async getWatchProviders(tvShowId: number) {
+
+	/**
+	 * Utility function for making GET requests to the TMDB API
+	 * so that I can easily and consistently do things like log when requests are made
+	 * and if I want to add file-based caching like the builder has, I can do it in one place
+	 * @param url
+	 * @param method
+	 * @param data
+	 * @param useCached
+	 */
+	async makeFetchHappen(url: string, method: string, data?: unknown, useCached = true) {
 		try {
-			const response = await fetch(`${this.baseUrl}/tv/${tvShowId}/watch/providers`, {
-				method: 'GET',
+			const response = await fetch(url, {
+				method,
 				headers: {
 					'Authorization': `Bearer ${this.authToken}`,
 					'Cache-Control': 'max-age=86400', // 24 hours
 				},
-				cache: 'default'
+				cache: useCached ? 'default' : 'no-store'
 			});
 
-			const data = await response.json();
+			return response.json();
+		}
+		catch (error) {
+			if (error.response && error.response.status === 429) {
+				console.warn('Rate limit exceeded. Waiting for 30 seconds before retrying...');
+				await wait(30000);
 
+				return this.makeFetchHappen(url, method, data); // Retry the request
+			}
+			else {
+				console.error(`Error ${error?.response?.status}: ${error?.response?.statusText} for request to ${url}`);
+
+				return null;
+			}
+		}
+	}
+	
+	async getWatchProviders(tvShowId: number) {
+		try {
+			const data = await this.makeFetchHappen(`${this.baseUrl}/tv/${tvShowId}/watch/providers`, 'GET');
 			if (!data.results['AU']) return [];
 
 			return Object.entries(data.results['AU']).reduce((acc: Provider[], [key, values]: [string, Partial<Provider>[]]) => {
@@ -43,6 +75,17 @@ export class TmdbApiConnection {
 			console.error(error.message);
 
 			return [];
+		}
+	}
+
+	async getTvShowDetails(tvShowId: number) {
+		try {
+			return await this.makeFetchHappen(`${this.baseUrl}/tv/${tvShowId}`, 'GET');
+		}
+		catch(error) {
+			console.error(error.message);
+
+			return null;
 		}
 	}
 }

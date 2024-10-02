@@ -30,6 +30,9 @@ interface Work {
 	title: String!
 	rankingData: RankingData
 	providers(filter: ProviderFilter): [Provider]
+	overview: String
+	poster_path: String
+	backdrop_path: String
 	people: [Person]
 	roles: [Role]
 }
@@ -38,6 +41,11 @@ type RankingData {
 	average_degree: Float
 	aggregate_episode_count: Int
 	weighted_score: Float
+}
+type TvShowAdditionalFields {
+	poster_path: String
+	backdrop_path: String
+	overview: String
 }
 type Provider {
 	provider_id: Int!
@@ -51,6 +59,9 @@ type Movie implements Work {
 	release_year: Int
 	rankingData: RankingData
 	providers(filter: ProviderFilter): [Provider]
+	overview: String
+	poster_path: String
+	backdrop_path: String
 	people: [Person]
 	roles: [Role]
 }
@@ -63,6 +74,9 @@ type TvShow implements Work {
 	episode_count: Int
 	rankingData: RankingData
 	providers(filter: ProviderFilter): [Provider]
+	overview: String
+	poster_path: String
+	backdrop_path: String
 	people: [Person]
 	roles: [Role]
 }

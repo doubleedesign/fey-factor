@@ -53,14 +53,24 @@ export const StyledExpandableTitle = styled.summary`
 
 export const StyledExpandable = styled.details`
 	line-height: 1.25;
-	height: calc(1rem * 1.25);
-	transition: height 0.2s ease-in-out;
+	display: grid;
+	grid-template-rows: 0fr;
+	min-height: 0;
+	transition: grid-template-rows 0.2s ease-out, min-height 0.2s ease-in-out;
 	
 	&[open] {
-		// the data is currently predictable enough that that fixed height is ok to keep the animation simple
-		height: 160px;
+		grid-template-rows: 1fr;
+		min-height: 200px;
 		
-		${StyledExpandableTitle} { 
+		${StyledExpandableTitle} {
+			margin-block-end: ${props => props.theme.spacing.sm};
+			
+			> span {
+				font-weight: ${props => props.theme.fontWeights.bold};
+				color: ${props => props.theme.colors.info};
+				text-decoration-color: ${props => props.theme.colors.info};
+			}
+			
 			svg {
 				transform: rotate(45deg);
 			}

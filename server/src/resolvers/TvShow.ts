@@ -68,6 +68,23 @@ export default {
 
 				return [];
 			}
-		}
+		},
+		// TODO: If I query for the overview, backdrop_path, and poster_path at the same time,
+		//  presumably that will make 3 identical API requests and should be cached or something.
+		overview: async (parent: TvShowGql) => {
+			const details = await api.getTvShowDetails(parent.id);
+
+			return details?.overview ?? '';
+		},
+		backdrop_path: async (parent: TvShowGql) => {
+			const details = await api.getTvShowDetails(parent.id);
+
+			return details?.backdrop_path ?? '';
+		},
+		poster_path: async (parent: TvShowGql) => {
+			const details = await api.getTvShowDetails(parent.id);
+
+			return details?.poster_path ?? '';
+		},
 	},
 };

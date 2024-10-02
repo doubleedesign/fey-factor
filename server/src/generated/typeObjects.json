@@ -58,6 +58,21 @@
                 "required": false
             },
             {
+                "fieldName": "overview",
+                "fieldType": "string",
+                "required": false
+            },
+            {
+                "fieldName": "poster_path",
+                "fieldType": "string",
+                "required": false
+            },
+            {
+                "fieldName": "backdrop_path",
+                "fieldType": "string",
+                "required": false
+            },
+            {
                 "fieldName": "people",
                 "fieldType": "Person[]",
                 "required": false
@@ -219,6 +234,21 @@
                 "required": false
             },
             {
+                "fieldName": "overview",
+                "fieldType": "string",
+                "required": false
+            },
+            {
+                "fieldName": "poster_path",
+                "fieldType": "string",
+                "required": false
+            },
+            {
+                "fieldName": "backdrop_path",
+                "fieldType": "string",
+                "required": false
+            },
+            {
                 "fieldName": "people",
                 "fieldType": "Person[]",
                 "required": false
@@ -232,6 +262,27 @@
         "isDirectlyQueryable": true,
         "isGqlEntity": true,
         "isSubtypeOf": "Work"
+    },
+    "TvShowAdditionalFields": {
+        "fields": [
+            {
+                "fieldName": "poster_path",
+                "fieldType": "string",
+                "required": false
+            },
+            {
+                "fieldName": "backdrop_path",
+                "fieldType": "string",
+                "required": false
+            },
+            {
+                "fieldName": "overview",
+                "fieldType": "string",
+                "required": false
+            }
+        ],
+        "isDirectlyQueryable": false,
+        "isGqlEntity": true
     },
     "Work": {
         "fields": [
@@ -253,6 +304,21 @@
             {
                 "fieldName": "providers",
                 "fieldType": "Provider[]",
+                "required": false
+            },
+            {
+                "fieldName": "overview",
+                "fieldType": "string",
+                "required": false
+            },
+            {
+                "fieldName": "poster_path",
+                "fieldType": "string",
+                "required": false
+            },
+            {
+                "fieldName": "backdrop_path",
+                "fieldType": "string",
                 "required": false
             },
             {

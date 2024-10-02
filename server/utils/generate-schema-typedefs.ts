@@ -171,6 +171,14 @@ async function processExportedType(node: ts.InterfaceDeclaration | ts.TypeAliasD
 				fieldType: 'Provider[]',
 				required: false
 			});
+
+			['overview', 'poster_path', 'backdrop_path'].forEach(fieldName => {
+				typeObjects[node.name.text].fields.push({
+					fieldName,
+					fieldType: 'string',
+					required: false
+				});
+			});
 		}
 	}
 

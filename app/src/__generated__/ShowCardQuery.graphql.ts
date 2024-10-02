@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<b79c8d467032ae1a4924e61fa80ed0a0>>
+ * @generated SignedSource<<1e4d1da341968bdc3b8b941a70039c6a>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -14,8 +14,6 @@ export type ShowCardQuery$variables = {
 };
 export type ShowCardQuery$data = {
   readonly TvShow: {
-    readonly end_year: number | null | undefined;
-    readonly episode_count: number | null | undefined;
     readonly id: string;
     readonly people: ReadonlyArray<{
       readonly degree: number | null | undefined;
@@ -25,8 +23,6 @@ export type ShowCardQuery$data = {
         readonly name: string | null | undefined;
       } | null | undefined> | null | undefined;
     } | null | undefined> | null | undefined;
-    readonly season_count: number | null | undefined;
-    readonly start_year: number | null | undefined;
     readonly title: string;
   } | null | undefined;
 };
@@ -68,38 +64,10 @@ v4 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "start_year",
-  "storageKey": null
-},
-v5 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "end_year",
-  "storageKey": null
-},
-v6 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "season_count",
-  "storageKey": null
-},
-v7 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "episode_count",
-  "storageKey": null
-},
-v8 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
   "name": "name",
   "storageKey": null
 },
-v9 = {
+v5 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
@@ -123,10 +91,6 @@ return {
         "selections": [
           (v2/*: any*/),
           (v3/*: any*/),
-          (v4/*: any*/),
-          (v5/*: any*/),
-          (v6/*: any*/),
-          (v7/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -136,8 +100,8 @@ return {
             "plural": true,
             "selections": [
               (v2/*: any*/),
-              (v8/*: any*/),
-              (v9/*: any*/),
+              (v4/*: any*/),
+              (v5/*: any*/),
               {
                 "alias": null,
                 "args": null,
@@ -146,7 +110,7 @@ return {
                 "name": "roles",
                 "plural": true,
                 "selections": [
-                  (v8/*: any*/)
+                  (v4/*: any*/)
                 ],
                 "storageKey": null
               }
@@ -176,10 +140,6 @@ return {
         "selections": [
           (v2/*: any*/),
           (v3/*: any*/),
-          (v4/*: any*/),
-          (v5/*: any*/),
-          (v6/*: any*/),
-          (v7/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -189,8 +149,8 @@ return {
             "plural": true,
             "selections": [
               (v2/*: any*/),
-              (v8/*: any*/),
-              (v9/*: any*/),
+              (v4/*: any*/),
+              (v5/*: any*/),
               {
                 "alias": null,
                 "args": null,
@@ -199,7 +159,7 @@ return {
                 "name": "roles",
                 "plural": true,
                 "selections": [
-                  (v8/*: any*/),
+                  (v4/*: any*/),
                   (v2/*: any*/)
                 ],
                 "storageKey": null
@@ -213,16 +173,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "a5dbd20a8afa50f27b0da45966a5e30d",
+    "cacheID": "08788514b28eeef30966be34307c5786",
     "id": null,
     "metadata": {},
     "name": "ShowCardQuery",
     "operationKind": "query",
-    "text": "query ShowCardQuery(\n  $id: ID!\n) {\n  TvShow(id: $id) {\n    id\n    title\n    start_year\n    end_year\n    season_count\n    episode_count\n    people {\n      id\n      name\n      degree\n      roles {\n        name\n        id\n      }\n    }\n  }\n}\n"
+    "text": "query ShowCardQuery(\n  $id: ID!\n) {\n  TvShow(id: $id) {\n    id\n    title\n    people {\n      id\n      name\n      degree\n      roles {\n        name\n        id\n      }\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "7507e801dc9a94ff2910bddf7374a7c5";
+(node as any).hash = "e19f99bb6a69f006588f289a1710377e";
 
 export default node;

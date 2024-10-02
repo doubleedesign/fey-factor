@@ -1,5 +1,6 @@
 import { FC, PropsWithChildren, useState, useEffect, useCallback, ReactNode, Fragment } from 'react';
 import { StyledModalContent, StyledModalDialog, StyledModalDialogWrapper, StyledModalHeader } from './ModalDialog.style';
+import { CloseButton, StyledButton, StyledButtonGroup } from '../../common.ts';
 
 type ModalDialogProps = {
 	open: boolean;
@@ -19,7 +20,7 @@ const ModalDialogContentList: FC<{ items: ReactNode[] }> = ({ items }) => {
 	);
 };
 
-export const ModalDialog: FC<PropsWithChildren<ModalDialogProps>> = ({ open, title, isList, batchSize = 5, onClose, children }) => {
+export const ModalDialog: FC<PropsWithChildren<ModalDialogProps>> = ({ open, title, isList, batchSize = 3, onClose, children }) => {
 	const [items, setItems] = useState<ReactNode[]>([]);
 
 	useEffect(() => {
@@ -44,14 +45,16 @@ export const ModalDialog: FC<PropsWithChildren<ModalDialogProps>> = ({ open, tit
 			{open &&
 				<StyledModalDialog data-testid="ModalDialog" role="dialog" data-open={open} aria-modal="true">
 					<StyledModalHeader>
-						{title}
-						<button onClick={onClose}>Close</button>
+						<h2>{title}</h2>
+						<CloseButton onClick={onClose} aria-label="Close dialog"><i className="fa-light fa-xmark"></i></CloseButton>
 					</StyledModalHeader>
 					<StyledModalContent>
 						<ModalDialogContentList items={items} />
-						{isList && Array.isArray(children) && children.length > items.length && (
-							<button onClick={handleLoadMore}>Load more</button>
-						)}
+						<StyledButtonGroup $align="center">
+							{isList && Array.isArray(children) && children.length > items.length && (
+								<StyledButton onClick={handleLoadMore}>Load more</StyledButton>
+							)}
+						</StyledButtonGroup>
 					</StyledModalContent>
 				</StyledModalDialog>
 			}

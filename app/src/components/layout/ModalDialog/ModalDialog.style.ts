@@ -1,5 +1,6 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { transparentize } from 'polished';
+import { breakpointUp } from '@doubleedesign/styled-media-queries';
 
 export const StyledModalDialogWrapper = styled.div<{ $open: boolean }>`
 	position: fixed;
@@ -28,9 +29,27 @@ export const StyledModalDialog = styled.section`
 	max-width: 40rem;
 	border-radius: ${props => props.theme.spacing.xs};
 	max-height: calc(100dvh - 2 * ${props => props.theme.spacing.xl});
-	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+
+	${props => breakpointUp(props.theme.breakpoints.lg, css`
+		padding: ${props.theme.spacing.lg};
+	`)};
 `;
 
-export const StyledModalHeader = styled.header``;
+export const StyledModalHeader = styled.header`
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-block-end: ${props => props.theme.spacing.md};
+	
+	h2 {
+		font-size: ${props => props.theme.fontSizes.lg};
+		font-weight: ${props => props.theme.fontWeights.bold};
+	}
+`;
 
-export const StyledModalContent = styled.div``;
+export const StyledModalContent = styled.div`
+	flex-grow: 1;
+	overflow-y: auto;
+`;

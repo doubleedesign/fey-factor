@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { tint } from 'polished';
+import { readableColor, shade, tint } from 'polished';
 
 export const Container = styled.section<{ $stretch?: boolean }>`
 	width: 100%;
@@ -20,7 +20,6 @@ export const GridColumn = styled.div`
 	display: flex;
 	flex-direction: column;
 `;
-
 
 export const StyledTable = styled.table`
 	width: 100%;
@@ -70,5 +69,52 @@ export const StyledTable = styled.table`
 		text-align: left;
 		position: relative;
 		z-index: 600;
+	}
+`;
+
+export const CloseButton = styled.button`
+	border: 0;
+	background: 0;
+	cursor: pointer;
+	font-size: 1.5rem;
+	
+	&:hover, &:focus, &:active {
+		color: ${props => props.theme.colors.secondary};
+	}
+`;
+
+export const StyledButtonGroup = styled.div<{ $align?: 'left' | 'center' | 'right' }>`
+	display: flex;
+	align-items: center;
+	justify-content: ${props => {
+		switch (props.$align) {
+			case 'left':
+				return 'flex-start';
+			case 'center':
+				return 'center';
+			case 'right':
+				return 'flex-end';
+			default:
+				return 'flex-start';
+		}
+	}};
+	margin-block: ${props => props.theme.spacing.sm};
+`;
+
+export const StyledButton = styled.button`
+	background-color: ${props => props.theme.colors.secondary};
+	color: ${props => readableColor(props.theme.colors.secondary)};
+	font-size: ${props => props.theme.fontSizes.sm};
+	border-radius: ${props => props.theme.spacing.xs};
+	border: 0;
+	padding: ${props => props.theme.spacing.sm} ${props => props.theme.spacing.md};
+	cursor: pointer;
+	text-decoration: underline;
+	text-decoration-color: transparent;
+	transition: all 0.2s ease-in-out;
+	
+	&:hover, &:focus, &:active {
+		background-color: ${props => shade(0.2, props.theme.colors.secondary)};
+		text-decoration-color: currentColor;
 	}
 `;
