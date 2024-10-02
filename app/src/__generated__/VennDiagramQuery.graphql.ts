@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<44d0a4fb1767625dd529782eae5d7a4f>>
+ * @generated SignedSource<<67d20cd79a1618a074ce22f9be8a972e>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -19,7 +19,7 @@ export type VennDiagramQuery$data = {
       readonly id: string;
       readonly name: string;
     } | null | undefined> | null | undefined;
-    readonly title: string | null | undefined;
+    readonly title: string;
   } | null | undefined> | null | undefined;
 };
 export type VennDiagramQuery = {

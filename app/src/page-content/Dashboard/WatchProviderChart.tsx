@@ -1,9 +1,10 @@
-import { FC, useMemo } from 'react';
+import { FC, ReactNode, Suspense, useMemo } from 'react';
 import { graphql, useLazyLoadQuery } from 'react-relay';
 import { BarChart } from '../../components/data-presentation';
 import { WatchProviderChartQuery } from '../../__generated__/WatchProviderChartQuery.graphql.ts';
 import { Provider } from '../../types';
 import { uniq } from 'lodash';
+import { ShowCard } from '../../components/data-presentation';
 
 function excludeProvider(provider_name: string): boolean {
 	return provider_name.includes('Amazon Channel')
@@ -12,13 +13,15 @@ function excludeProvider(provider_name: string): boolean {
 }
 
 export const WatchProviderChart: FC = () => {
+	const max = 10;
+
 	const top100 = useLazyLoadQuery<WatchProviderChartQuery>(
 		graphql`
             query WatchProviderChartQuery($limit: Int!) {
                 TvShows(limit: $limit) {
                     id
                     title
-                    providers {
+                    providers(filter: { provider_type: ["flatrate", "free"] }) {
                         provider_id
                         provider_name
                         provider_type
@@ -41,39 +44,48 @@ export const WatchProviderChart: FC = () => {
 			return acc;
 		}, {} as Record<string, number>);
 		
-		return Object.entries(providerCounts).map(([provider, count]) => ({ key: provider, data: count })).sort((a, b) => b.data - a.data);
+		return Object.entries(providerCounts).map(([provider, count]) => {
+			return ({ key: provider, data: count });
+		}).sort((a, b) => {
+			return b.data - a.data;
+		}).slice(0, max);
 	}, [top100]);
 
-	const providerLists = useMemo(() => {
+	const providerDataLists = useMemo(() => {
 		const providers: Provider[] = top100?.TvShows?.flatMap(show => show?.providers) as Provider[] ?? [];
 		const order = providerCounts.map(provider => provider.key);
 		const providerKeys = uniq(providers.map(provider => provider.provider_name))
 			.filter(provider_name => !excludeProvider(provider_name))
 			.sort((a, b) => order.indexOf(a) - order.indexOf(b));
 
-		const emptyProviderLists = providerKeys.reduce((acc, provider) => {
+		const emptyProviderDataLists = providerKeys.reduce((acc, provider) => {
 			acc[provider] = [];
 
 			return acc;
-		}, {} as Record<string, string[]>);
+		}, {} as Record<string, ReactNode[]>);
 
-		const providerLists = top100?.TvShows?.reduce((acc, show) => {
+		return top100?.TvShows?.reduce((acc, show) => {
 			show?.providers?.forEach((provider => {
-				if(provider && provider.provider_name && !excludeProvider(provider.provider_name)) {
-					acc[provider.provider_name].push(show.title as string);
+				if(provider && provider.provider_name && acc[provider.provider_name] && !excludeProvider(provider.provider_name) && show.id) {
+					acc[provider.provider_name].push(
+						<Suspense>
+							<ShowCard key={show.id} id={parseInt(show.id)} />
+						</Suspense>
+					);
 				}
 			}));
 
 			return acc;
-		}, emptyProviderLists as Record<string, string[]>);
+		}, emptyProviderDataLists as Record<string, ReactNode[]>);
 
-		return providerLists;
 	}, [top100, providerCounts]);
 
 	return (
-		<BarChart title="Watch providers for top 100 shows"
+		<BarChart
+			title="Top 10 streaming providers for top 100 shows"
+			description="Excludes purchase/rent availability and sub-channels (e.g. Paramount+ via Amazon)"
 			data={providerCounts}
-			lists={providerLists}
+			lists={providerDataLists}
 		/>
 	);
 };

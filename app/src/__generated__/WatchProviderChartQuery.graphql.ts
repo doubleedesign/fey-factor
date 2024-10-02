@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<75ddf61c7e1c65f80d5a8e743a3fa7b7>>
+ * @generated SignedSource<<7716d8813c6c30435920726c9b5251c3>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -21,7 +21,7 @@ export type WatchProviderChartQuery$data = {
       readonly provider_name: string;
       readonly provider_type: string | null | undefined;
     } | null | undefined> | null | undefined;
-    readonly title: string | null | undefined;
+    readonly title: string;
   } | null | undefined> | null | undefined;
 };
 export type WatchProviderChartQuery = {
@@ -68,7 +68,18 @@ v1 = [
       },
       {
         "alias": null,
-        "args": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "filter",
+            "value": {
+              "provider_type": [
+                "flatrate",
+                "free"
+              ]
+            }
+          }
+        ],
         "concreteType": "Provider",
         "kind": "LinkedField",
         "name": "providers",
@@ -103,7 +114,7 @@ v1 = [
             "storageKey": null
           }
         ],
-        "storageKey": null
+        "storageKey": "providers(filter:{\"provider_type\":[\"flatrate\",\"free\"]})"
       }
     ],
     "storageKey": null
@@ -127,16 +138,16 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "766f0cef371600d31af87255281fdf82",
+    "cacheID": "f633fe585878cf195435bcf487d382bb",
     "id": null,
     "metadata": {},
     "name": "WatchProviderChartQuery",
     "operationKind": "query",
-    "text": "query WatchProviderChartQuery(\n  $limit: Int!\n) {\n  TvShows(limit: $limit) {\n    id\n    title\n    providers {\n      provider_id\n      provider_name\n      provider_type\n      logo_path\n    }\n  }\n}\n"
+    "text": "query WatchProviderChartQuery(\n  $limit: Int!\n) {\n  TvShows(limit: $limit) {\n    id\n    title\n    providers(filter: {provider_type: [\"flatrate\", \"free\"]}) {\n      provider_id\n      provider_name\n      provider_type\n      logo_path\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "f9b8ff7a56a22cccf321101a87e355fe";
+(node as any).hash = "7248f7cbcf1f59c9d953488aa03a7dab";
 
 export default node;

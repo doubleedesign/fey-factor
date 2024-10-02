@@ -82,5 +82,7 @@ export const fetchWatchProviders = async () => {
 	}
 	catch (error) {
 		console.error('Error fetching providers: ', error);
+
+		return [];
 	}
 };

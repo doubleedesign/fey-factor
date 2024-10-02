@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<8bc76cb5cdf42baf6e1dadb60dec6ecb>>
+ * @generated SignedSource<<b79c8d467032ae1a4924e61fa80ed0a0>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -27,7 +27,7 @@ export type ShowCardQuery$data = {
     } | null | undefined> | null | undefined;
     readonly season_count: number | null | undefined;
     readonly start_year: number | null | undefined;
-    readonly title: string | null | undefined;
+    readonly title: string;
   } | null | undefined;
 };
 export type ShowCardQuery = {

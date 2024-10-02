@@ -1,14 +1,14 @@
 import { FC } from 'react';
-import { StyledSkeletonTable } from './SkeletonTable.style';
+import { StyledTableSkeleton } from './TableSkeleton.style';
 import { Column } from '../../../types.ts';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 
-type SkeletonTableProps = {
+type TableSkeletonProps = {
 	rows: number;
 };
 
-export const SkeletonTable: FC<SkeletonTableProps> = ({ rows }) => {
+export const TableSkeleton: FC<TableSkeletonProps> = ({ rows }) => {
 	const columns: Column[] = [
 		{ value: 'rank', label: 'Rank' },
 		{ value: 'id', label: 'ID' },
@@ -29,7 +29,7 @@ export const SkeletonTable: FC<SkeletonTableProps> = ({ rows }) => {
 	];
 
 	return (
-		<StyledSkeletonTable data-testid="SkeletonTable">
+		<StyledTableSkeleton data-testid="TableSkeleton">
 			<thead>
 				<tr>
 					{columns.map((column) => (
@@ -50,6 +50,6 @@ export const SkeletonTable: FC<SkeletonTableProps> = ({ rows }) => {
 					</tr>
 				))}
 			</tbody>
-		</StyledSkeletonTable>
+		</StyledTableSkeleton>
 	);
 };

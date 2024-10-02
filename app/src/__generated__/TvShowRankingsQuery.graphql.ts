@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<c4729a6106d164a58381b0df2c301f06>>
+ * @generated SignedSource<<357f8f19693b48e03d702619967b1f89>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -27,7 +27,7 @@ export type TvShowRankingsQuery$data = {
       readonly total_connections: number | null | undefined;
       readonly weighted_score: number | null | undefined;
     } | null | undefined;
-    readonly title: string | null | undefined;
+    readonly title: string;
   } | null | undefined> | null | undefined;
 };
 export type TvShowRankingsQuery = {
@@ -113,7 +113,18 @@ v1 = [
       },
       {
         "alias": null,
-        "args": null,
+        "args": [
+          {
+            "kind": "Literal",
+            "name": "filter",
+            "value": {
+              "provider_type": [
+                "flatrate",
+                "free"
+              ]
+            }
+          }
+        ],
         "concreteType": "Provider",
         "kind": "LinkedField",
         "name": "providers",
@@ -148,7 +159,7 @@ v1 = [
             "storageKey": null
           }
         ],
-        "storageKey": null
+        "storageKey": "providers(filter:{\"provider_type\":[\"flatrate\",\"free\"]})"
       }
     ],
     "storageKey": null
@@ -172,16 +183,16 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "b9309f12004683e14bb3bb53d7502b6b",
+    "cacheID": "ca3ee8180a2a1e0dc1a31803f839b165",
     "id": null,
     "metadata": {},
     "name": "TvShowRankingsQuery",
     "operationKind": "query",
-    "text": "query TvShowRankingsQuery(\n  $limit: Int!\n) {\n  TvShows(limit: $limit) {\n    id\n    title\n    episode_count\n    rankingData {\n      total_connections\n      average_degree\n      weighted_score\n    }\n    providers {\n      provider_id\n      provider_name\n      provider_type\n      logo_path\n    }\n  }\n}\n"
+    "text": "query TvShowRankingsQuery(\n  $limit: Int!\n) {\n  TvShows(limit: $limit) {\n    id\n    title\n    episode_count\n    rankingData {\n      total_connections\n      average_degree\n      weighted_score\n    }\n    providers(filter: {provider_type: [\"flatrate\", \"free\"]}) {\n      provider_id\n      provider_name\n      provider_type\n      logo_path\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "7c35bb826519d0027ca8dbbc0040f4f4";
+(node as any).hash = "00c25037e0b6b7cc53ca15bc6427c10d";
 
 export default node;

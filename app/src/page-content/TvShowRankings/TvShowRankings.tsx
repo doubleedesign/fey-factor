@@ -25,7 +25,7 @@ export const TvShowRankings: FC<TvShowRankingsProps> = ({ limit, loadingRows }) 
                         average_degree
                         weighted_score
                     }
-	                providers {
+	                providers(filter: { provider_type: ["flatrate", "free"] }) {
 		                provider_id
 		                provider_name
 		                provider_type

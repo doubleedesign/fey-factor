@@ -45,6 +45,17 @@
 				"component": "./templates/TemplateName.tsx",
 				"style": "./templates/TemplateName.style.ts"
 			}
+		},
+		"skeleton": {
+			"path": "src/components/loading",
+			"withStyle": true,
+			"withTest": false,
+			"withStory": false,
+			"withLazy": false,
+			"customTemplates": {
+				"component": "./templates/TemplateName.tsx",
+				"style": "./templates/TemplateName.style.ts"
+			}
 		}
 	},
 	"testLibrary": "Testing Library"

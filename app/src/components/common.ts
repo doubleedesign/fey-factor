@@ -10,6 +10,18 @@ export const Container = styled.section<{ $stretch?: boolean }>`
 	flex-direction: ${props => props.$stretch ? 'column' : 'row'};
 `;
 
+export const Grid = styled.div<{ $maxCols: number }>`
+	display: grid;
+	grid-template-columns: repeat(${props => props.$maxCols}, 1fr);
+	gap: ${props => props.theme.spacing.md};
+`;
+
+export const GridColumn = styled.div`
+	display: flex;
+	flex-direction: column;
+`;
+
+
 export const StyledTable = styled.table`
 	width: 100%;
 	margin-bottom: 1rem;
