@@ -6,6 +6,7 @@ import { Label, TooltippedElement } from '../../typography';
 import { Expandable } from '../../layout';
 import React from 'react';
 import { ShowCardInner } from './ShowCardInner.tsx';
+import { ShowCardSkeleton } from '../../loading/ShowCardSkeleton/ShowCardSkeleton.tsx';
 
 type ShowCardProps = {
 	id: number;
@@ -99,7 +100,7 @@ export const ShowCard = ({ id, expandable }: ShowCardProps) => {
 
 	return expandable && data?.TvShow?.title ? (
 		<Expandable title={data.TvShow?.title ?? ''} titleTag={tag}>
-			<Suspense>
+			<Suspense fallback={<ShowCardSkeleton />}>
 				<ShowCardInner id={data.TvShow.id} tag={tag} renderTitle={false}>
 					{degree0.length > 0 && <p>{degree0[0]?.name} is {degree0[0]?.roles?.map((role) => {
 						return role?.name?.replace('_', ' ');
@@ -111,7 +112,7 @@ export const ShowCard = ({ id, expandable }: ShowCardProps) => {
 	) : (
 		<StyledShowCardContainer>
 			{data.TvShow?.id && (
-				<Suspense>
+				<Suspense fallback={<ShowCardSkeleton />}>
 					<ShowCardInner id={data.TvShow.id} tag={tag}>
 						{degree0.length > 0 && <p>{degree0[0]?.name} is {degree0[0]?.roles?.map((role) => {
 							return role?.name?.replace('_', ' ');
