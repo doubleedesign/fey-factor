@@ -1,7 +1,7 @@
 import pg from 'pg';
 import chalk from 'chalk';
 import { Film, Person, TvShow } from './types.ts';
-import { customConsole, logToFile } from '../common.ts';
+import { convertIdToInteger, convertIdToString, customConsole, logToFile } from '../common.ts';
 import { WriteStream, createWriteStream } from 'fs';
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -151,9 +151,10 @@ export class DatabaseConnection {
 			console.log(chalk.cyan('Creating Works table...'));
 			await this.pgClient.query(`CREATE TABLE public.works
 	            (
-	                id             integer UNIQUE NOT NULL,
+	                id             varchar UNIQUE NOT NULL,
 	                title          varchar NOT NULL,
-		            PRIMARY KEY (id)
+		            PRIMARY KEY (id),
+                    CONSTRAINT id_pattern_check CHECK (id ~ '^[0-9]+(_T|_F)$')
 	            );
 			`);
 		}
@@ -209,10 +210,11 @@ export class DatabaseConnection {
 	            (
 					id             	SERIAL PRIMARY KEY,
 	                person_id	  	integer NOT NULL REFERENCES people(id),
-	                work_id       	integer NOT NULL, -- can't use foreign key here because of inheritance - child tables are not checked. 
+	                work_id       	VARCHAR NOT NULL, -- can't use foreign key here because of inheritance - child tables are not checked. 
 	                role_id       	integer NOT NULL REFERENCES roles(id),
 	                episode_count	integer,
-                    UNIQUE 			(person_id, work_id, role_id)
+                    UNIQUE 			(person_id, work_id, role_id),
+                    CONSTRAINT id_pattern_check CHECK (work_id ~ '^[0-9]+(_T|_F)$')
 	            );
 			`);
 
@@ -315,12 +317,14 @@ export class DatabaseConnection {
 			values: [id]
 		});
 
-		return response.rows ? response.rows.map(row => row.id) : [];
+		return response.rows ? response.rows.map(row => convertIdToInteger(row.id)) : [];
 	}
 
 	/**
 	 * Add or update a TV show in the database
 	 * Note: TV Shows inherit fields from Works
+	 * Episode count MUST be passed, and 0 used not NULL if it is unavailable
+	 * This is to enable use of this field to help differentiate works between TV shows and movies because TMDB IDs are not unique
 	 * @param work
 	 */
 	async addOrUpdateTvShow(work: TvShow): Promise<Partial<TvShow>> {
@@ -340,7 +344,7 @@ export class DatabaseConnection {
                             episode_count = COALESCE(EXCLUDED.episode_count, tv_shows.episode_count)
                     RETURNING id, title
 				`,
-				values: [work.id, work.name, work.start_year, work.end_year, work.season_count, work.episode_count]
+				values: [convertIdToString(work.id, 'T'), work.name, work.start_year, work.end_year, work.season_count, work.episode_count]
 			});
 
 			await this.pgClient.query('COMMIT');
@@ -375,7 +379,7 @@ export class DatabaseConnection {
                             release_year = COALESCE(EXCLUDED.release_year, movies.release_year)
                     RETURNING id, title
 				`,
-				values: [work.id, work.name, work.release_year]
+				values: [convertIdToString(work.id, 'F'), work.name, work.release_year]
 			});
 
 			await this.pgClient.query('COMMIT');
@@ -415,13 +419,28 @@ export class DatabaseConnection {
 	}
 
 	/**
-	 * Get a single work by its ID (only the minimal fields that are in the Works table)
+	 * Get a single TV show by its ID
 	 * @param id
 	 */
-	async getWork(id: number): Promise<Partial<TvShow|Film> | undefined> {
+	async getTvShow(id: number): Promise<Partial<TvShow> | undefined> {
+		const convertedId = convertIdToString(id, 'T');
+
 		const response = await this.pgClient.query({
 			text: 'SELECT * FROM works WHERE id = $1',
-			values: [id]
+			values: [convertedId]
+		});
+
+		return response.rows[0] ?? undefined;
+	}
+
+	/**
+	 * Get a single movie by its ID
+	 * @param id
+	 */
+	async getMovie(id: number): Promise<Partial<Film> | undefined> {
+		const response = await this.pgClient.query({
+			text: 'SELECT * FROM works WHERE id = $1',
+			values: [`${id}_F`]
 		});
 
 		return response.rows[0] ?? undefined;
@@ -437,11 +456,10 @@ export class DatabaseConnection {
 
 	/**
 	 * Get TV shows that are missing episode counts so they can be populated by subsequent functions
-	 * @param qty
 	 */
 	async getTvShowsMissingEpisodeCounts() {
 		const response = await this.pgClient.query(
-			'SELECT id, title FROM tv_shows WHERE episode_count IS NULL;'
+			'SELECT id, title FROM tv_shows WHERE episode_count = 0 OR episode_count IS NULL'
 		);
 
 		return response.rows;
@@ -451,7 +469,7 @@ export class DatabaseConnection {
 		const response = await this.pgClient.query(`
 			SELECT DISTINCT(work_id) from connections 
 			    JOIN tv_shows ON connections.work_id = tv_shows.id 
-             	WHERE connections.episode_count is NULL
+             	WHERE connections.episode_count = 0;
 		`);
 
 		return response.rows;
@@ -473,14 +491,18 @@ export class DatabaseConnection {
 	 * @param roleId
 	 * @param episodeCount
 	 */
-	async connectPersonToWork(personId: number, workId: number, roleId: number, episodeCount: number) {
+	async connectPersonToWork(personId: number, workId: number, roleId: number, episodeCount?: number) {
 		try {
 			await this.pgClient.query('BEGIN');
 
 			// Check that the work ID exists, because we can't use a foreign key constraint here due to the inheritance relationship
-			const workExists = await this.getWork(workId);
+			const workExists = (episodeCount !== null) ?
+				await this.getTvShow(workId)
+				: await this.getMovie(workId);
+
 			if(!workExists) {
-				throw new Error(`Work ID ${workId} does not exist in the database.`);
+				// eslint-disable-next-line max-len
+				throw new Error(`${episodeCount ? 'TV show' : 'Movie'} ID ${workId} does not exist in the database, or the wrong work type was looked up for it.`);
 			}
 
 			const response = await this.pgClient.query({
@@ -488,7 +510,12 @@ export class DatabaseConnection {
 						VALUES($1, $2, $3, $4)
 						ON CONFLICT (person_id, work_id, role_id)
 					    DO UPDATE SET episode_count = EXCLUDED.episode_count`,
-				values: [personId, workId, roleId, episodeCount]
+				values: [
+					personId,
+					episodeCount ? convertIdToString(workId, 'T') : convertIdToString(workId, 'F'),
+					roleId,
+					episodeCount
+				]
 			});
 
 			await this.pgClient.query('COMMIT');

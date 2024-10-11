@@ -36,6 +36,8 @@ The resultant database schema is intentionally minimal, with a focus on raw data
 
 ![Database schema diagram](./database.png)
 
+**Note:** Work/TV show/Movie IDs are actually `varchar`s now - I just haven't updated the diagram. See [A note about work IDs](#a-note-about-work-ids) below for more information.
+
 | Table name  | Inherits from | Unique fields                                     | Foreign keys                |
 |-------------|---------------|---------------------------------------------------|-----------------------------|
 | connections | -             | id (PK), episode_count                            | person_id, work_id, role_id |
@@ -47,6 +49,17 @@ The resultant database schema is intentionally minimal, with a focus on raw data
 
 
 *The database does need to be updated periodically or else the data will go out of date, just in terms of shows still airing at the time of last update, new shows that should be added, etc. We don't need to fetch the episode count of _30 Rock_ from TMDB every time it appears in the app, for example - so we store that; but where we can watch it may change relatively frequently, so we don't store that.
+
+### A note about work IDs
+
+TMDB IDs are used as the primary key for works (TV shows and movies) in the database. I discovered after I designed this that they are not unique - a TV show and a movie can have the same ID, which as you can imagine, is an absolute pain. My solution is to append the ID with `_T` for TV show or `_F` for film, which I'm aware is a dirty hack but I was too invested in my database design by the time I discovered this to implement an objectively better solution. 
+
+My way of doing this as cleanly as possible is to:
+- handle this suffix centrally in the database class only, not in the data population scripts
+- include a check constraint in the database to enforce correctly suffixed IDs (i.e., no missing, doubled-up, other letters).
+
+Caveats this introduces:
+- When an episode count is not available for a TV show connection, 0 must be used instead of `null`, because `null` is my shortcut way of differentiating that a work is a movie.
 
 ---
 ## 2. Back-end server

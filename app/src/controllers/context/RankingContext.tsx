@@ -44,14 +44,10 @@ export const RankingContextProvider: FC<PropsWithChildren> = ({ children }) => {
 	
 	// Sort the data when active sort field changes
 	const handleSort = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
-		const sort = (field: keyof Row, order: 'asc' | 'desc') => {
-			setData(datawranglers.sort(data, field, order));
-		};
-
 		const field = event.currentTarget.closest('th')?.dataset.fieldkey as keyof Row;
 		if(field) {
 			const newOrder = ordering[field] === 'asc' ? 'desc' : 'asc';
-			sort(field, newOrder);
+			setData(datawranglers.sort(data, field, newOrder));
 			setActiveSortField(field);
 			setOrdering(prevOrdering => ({
 				...prevOrdering,

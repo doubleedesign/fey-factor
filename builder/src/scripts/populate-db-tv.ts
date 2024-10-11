@@ -85,7 +85,8 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 					},
 					work: {
 						id: credit.id,
-						name: credit.name
+						name: credit.name,
+						episode_count: cachedEpisodeCount[credit.id] ?? 0
 					}
 				});
 
@@ -95,7 +96,7 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 						personId: personId,
 						workId: credit.id,
 						roleName: role.type === 'cast' ? 'cast' : role.name,
-						count: role?.episode_count
+						count: role?.episode_count ?? 0
 					});
 				});
 
@@ -120,7 +121,8 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 						},
 						work: {
 							id: credit.id,
-							name: credit.name
+							name: credit.name,
+							episode_count: cachedEpisodeCount[credit.id] ?? 0
 						}
 					});
 
@@ -138,7 +140,7 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 							personId: personId,
 							workId: credit.id,
 							roleName: role.type === 'cast' ? 'cast' : role.name,
-							count: episodeCountToUse
+							count: episodeCountToUse ?? 0
 						});
 					});
 
@@ -149,7 +151,7 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 								personId: personId,
 								workId: credit.id,
 								roleName: role.type === 'cast' ? 'cast' : role.name,
-								count: role.episode_count
+								count: role.episode_count ?? 0
 							});
 						});
 					}
@@ -180,7 +182,7 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 								personId: personId,
 								workId: credit.id,
 								roleName: role.type === 'cast' ? 'cast' : role.name,
-								count: (role as PersonTVRoleSummary)?.episode_count
+								count: (role as PersonTVRoleSummary)?.episode_count ?? 0
 							});
 						});
 					}

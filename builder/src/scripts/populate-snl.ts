@@ -135,7 +135,7 @@ class SnlHandler extends DataPopulatorCommon {
 					return;
 				}
 
-				await db.connectPersonToWork(credit.id, 1667, roleId, role.episode_count);
+				await db.connectPersonToWork(credit.id, 1667, roleId, role.episode_count ?? 0);
 			});
 		});
 	}

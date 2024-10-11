@@ -21,13 +21,16 @@ export const ShowCard = ({ id, expandable }: ShowCardProps) => {
 		graphql`
             query ShowCardQuery($id: ID!) {
                 TvShow(id: $id) {
+	                __typename
                     id
                     title
                     people {
+						__typename
                         id
                         name
                         degree
                         roles {
+	                        __typename
                             name
                         }
                     }

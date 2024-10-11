@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<67d20cd79a1618a074ce22f9be8a972e>>
+ * @generated SignedSource<<898de47f41807f49c56de7e9b0977366>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -16,8 +16,8 @@ export type VennDiagramQuery$data = {
   readonly TvShows: ReadonlyArray<{
     readonly id: string;
     readonly people: ReadonlyArray<{
-      readonly id: string;
       readonly name: string;
+      readonly personId: string;
     } | null | undefined> | null | undefined;
     readonly title: string;
   } | null | undefined> | null | undefined;
@@ -35,66 +35,75 @@ var v0 = [
     "name": "limit"
   }
 ],
-v1 = {
+v1 = [
+  {
+    "kind": "Variable",
+    "name": "limit",
+    "variableName": "limit"
+  }
+],
+v2 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
   "name": "id",
   "storageKey": null
 },
-v2 = [
-  {
-    "alias": null,
-    "args": [
-      {
-        "kind": "Variable",
-        "name": "limit",
-        "variableName": "limit"
-      }
-    ],
-    "concreteType": "TvShow",
-    "kind": "LinkedField",
-    "name": "TvShows",
-    "plural": true,
-    "selections": [
-      (v1/*: any*/),
-      {
-        "alias": null,
-        "args": null,
-        "kind": "ScalarField",
-        "name": "title",
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "concreteType": "Person",
-        "kind": "LinkedField",
-        "name": "people",
-        "plural": true,
-        "selections": [
-          (v1/*: any*/),
-          {
-            "alias": null,
-            "args": null,
-            "kind": "ScalarField",
-            "name": "name",
-            "storageKey": null
-          }
-        ],
-        "storageKey": null
-      }
-    ],
-    "storageKey": null
-  }
-];
+v3 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "title",
+  "storageKey": null
+},
+v4 = {
+  "alias": "personId",
+  "args": null,
+  "kind": "ScalarField",
+  "name": "id",
+  "storageKey": null
+},
+v5 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "name",
+  "storageKey": null
+};
 return {
   "fragment": {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "VennDiagramQuery",
-    "selections": (v2/*: any*/),
+    "selections": [
+      {
+        "alias": null,
+        "args": (v1/*: any*/),
+        "concreteType": "TvShow",
+        "kind": "LinkedField",
+        "name": "TvShows",
+        "plural": true,
+        "selections": [
+          (v2/*: any*/),
+          (v3/*: any*/),
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "Person",
+            "kind": "LinkedField",
+            "name": "people",
+            "plural": true,
+            "selections": [
+              (v4/*: any*/),
+              (v5/*: any*/)
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ],
     "type": "Query",
     "abstractKey": null
   },
@@ -103,19 +112,47 @@ return {
     "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
     "name": "VennDiagramQuery",
-    "selections": (v2/*: any*/)
+    "selections": [
+      {
+        "alias": null,
+        "args": (v1/*: any*/),
+        "concreteType": "TvShow",
+        "kind": "LinkedField",
+        "name": "TvShows",
+        "plural": true,
+        "selections": [
+          (v2/*: any*/),
+          (v3/*: any*/),
+          {
+            "alias": null,
+            "args": null,
+            "concreteType": "Person",
+            "kind": "LinkedField",
+            "name": "people",
+            "plural": true,
+            "selections": [
+              (v4/*: any*/),
+              (v5/*: any*/),
+              (v2/*: any*/)
+            ],
+            "storageKey": null
+          }
+        ],
+        "storageKey": null
+      }
+    ]
   },
   "params": {
-    "cacheID": "3c43e741a9136324ceddc9a9d7972406",
+    "cacheID": "a3bcb6962760767255be64fc4d462351",
     "id": null,
     "metadata": {},
     "name": "VennDiagramQuery",
     "operationKind": "query",
-    "text": "query VennDiagramQuery(\n  $limit: Int!\n) {\n  TvShows(limit: $limit) {\n    id\n    title\n    people {\n      id\n      name\n    }\n  }\n}\n"
+    "text": "query VennDiagramQuery(\n  $limit: Int!\n) {\n  TvShows(limit: $limit) {\n    id\n    title\n    people {\n      personId: id\n      name\n      id\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "d9e084d9f7749c6fd305f830922d0bcd";
+(node as any).hash = "aaa6dfaab641602ac450bffaa51bec33";
 
 export default node;

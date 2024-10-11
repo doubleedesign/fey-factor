@@ -1,9 +1,9 @@
 import { DataPopulatorCommon } from './DataPopulatorCommon.ts';
 import { PopulationScriptSettings } from './types.ts';
 import { customConsole, db } from '../common.ts';
-import async from 'async';
-import { PersonMergedCredits, PersonMergedTVCredit, PersonTVRoleSummary } from '../datasources/types-person.ts';
+import { PersonTVRoleSummary } from '../datasources/types-person.ts';
 import { tmdbTvData } from '../datasources/tmdb-tv-utils.ts';
+import async from 'async';
 import Case from 'case';
 
 class DegreeUpdater extends DataPopulatorCommon {
@@ -35,7 +35,7 @@ class DegreeUpdater extends DataPopulatorCommon {
 						return {
 							name: 'cast',
 							type: 'cast',
-							episode_count: role.episode_count
+							episode_count: role.episode_count ?? 0
 						};
 					})
 				};
@@ -48,7 +48,7 @@ class DegreeUpdater extends DataPopulatorCommon {
 						return {
 							name: role.job,
 							type: 'crew',
-							episode_count: role.episode_count
+							episode_count: role.episode_count ?? 0
 						};
 					})
 				};
@@ -85,7 +85,7 @@ class DegreeUpdater extends DataPopulatorCommon {
 							customConsole.warn(`Role ID not found for ${role.name}, skipping.`, true);
 							return;
 						}
-						await db.connectPersonToWork(credit.id, showId, roleId, role.episode_count);
+						await db.connectPersonToWork(credit.id, showId, roleId, role?.episode_count ?? 0);
 					});
 				}
 			});

@@ -58,6 +58,7 @@ export class GapFiller extends DataPopulatorCommon {
 	 */
 	async fixCreatorRoles() {
 		let updated = 0;
+		const creatorRole = await db.getRoleId('creator');
 
 		// Get connections that don't have episode counts
 		const shows = await db.getConnectionsMissingEpisodeCounts();
@@ -70,9 +71,8 @@ export class GapFiller extends DataPopulatorCommon {
 			if(show.rows.length > 0) {
 				const episodeCount = show.rows[0].episode_count;
 				await db.pgClient.query({
-					// TODO: This assumes null counts are creators or other roles that can use the show's total, which may not be true
-					text: 'UPDATE connections SET episode_count = $1 WHERE work_id = $2',
-					values: [episodeCount, showId]
+					text: 'UPDATE connections SET episode_count = $1 WHERE work_id = $2 AND role_id = $3',
+					values: [episodeCount, showId, creatorRole]
 				});
 
 				updated++;
@@ -92,8 +92,7 @@ export class GapFiller extends DataPopulatorCommon {
 					});
 
 					await db.pgClient.query({
-						// TODO: This assumes null counts are creators or other roles that can use the show's total, which may not be true
-						text: 'UPDATE connections SET episode_count = $1 WHERE work_id = $2',
+						text: 'UPDATE connections SET episode_count = $1 WHERE work_id = $2 and role_id = 1',
 						values: [showDetails.number_of_episodes, showId]
 					});
 

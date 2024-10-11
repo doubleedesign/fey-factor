@@ -12,7 +12,7 @@ export const VennDiagram: FC = () => {
 					id
 					title
                     people {
-                        id
+                        personId: id
                         name
                     }
 	            }

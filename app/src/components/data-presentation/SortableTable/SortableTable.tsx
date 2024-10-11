@@ -6,6 +6,7 @@ import { ShowCard } from '../../data-presentation';
 import { ProviderLogos } from '../../misc/ProviderLogos/ProviderLogos.tsx';
 import Skeleton from 'react-loading-skeleton';
 import { useRankingContext } from '../../../controllers/context/RankingContext.tsx';
+import { kebabCase } from 'lodash';
 
 
 export const SortableTable: FC = () => {
@@ -88,7 +89,7 @@ export const SortableTable: FC = () => {
 			</thead>
 			<tbody>
 				{data && data.map((row) => (
-					<tr key={`row-${row.id}`} data-loaded={row.id > 0}>
+					<tr key={`row-${row.id}-${kebabCase(row.title)}`} data-loaded={row.id > 0}>
 						{columns.map((column, columnIndex) => (
 							<td key={columnIndex} data-fieldkey={column.value}>
 								{cellContent(row, column.value)}

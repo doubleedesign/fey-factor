@@ -45,16 +45,14 @@ export const Rankings: FC = () => {
 	}, []);
 
 	const handleLimitChange = useCallback((newLimit: number) => {
-		if(newLimit > limit) {
-			setLoadingRows(newLimit - limit);
-		}
-		else {
-			setLoadingRows(0);
-		}
-
 		startTransition(() => {
 			setLimit(newLimit);
-			setLoadingRows(0);
+			if(newLimit > limit) {
+				setLoadingRows(newLimit - limit);
+			}
+			else {
+				setLoadingRows(0);
+			}
 		});
 	}, [limit]);
 
@@ -84,6 +82,5 @@ export const Rankings: FC = () => {
 				<TvShowRankings limit={limit} loadingRows={loadingRows} />
 			</Suspense>
 		</PageWrapper>
-
 	);
 };

@@ -216,7 +216,7 @@ export class DbWorks  {
 					    	tv_shows.id,
 							works.title AS title,
 							tv_shows.episode_count,
-							COUNT(DISTINCT fc.person_id)::INTEGER              AS total_connections,
+							COUNT(DISTINCT fc.person_id)::INTEGER     AS total_connections,
 							ROUND(AVG(people.degree), 2)::DECIMAL     AS average_degree,
 							2 - ROUND(AVG(people.degree), 2)::DECIMAL AS inverted_average_degree,
 							SUM(fc.episode_count)::INTEGER            AS aggregate_episode_count
@@ -227,7 +227,7 @@ export class DbWorks  {
 						INNER JOIN works ON tv_shows.id = works.id
 						WHERE 
 						    works.title IS NOT NULL
-							AND works.id != 1667 -- exclude SNL
+							AND tv_shows.id != 1667 -- exclude SNL
 						GROUP BY 
 						    tv_shows.id, works.title, tv_shows.episode_count
 						ORDER BY 

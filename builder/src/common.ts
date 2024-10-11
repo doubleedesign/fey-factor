@@ -25,6 +25,19 @@ export const EXCLUDED_GENRE_IDS = [
 
 export const START_YEAR = new Date().getFullYear() - 20;
 
+export function convertIdToInteger(id: string) {
+	return parseInt(id.replace('_T', '').replace('_F', ''));
+}
+
+export function convertIdToString(id: number | string, type: 'T' | 'F') {
+	// Sometimes pre-suffixed IDs are making it to the db functions that expect a number without TypeScript picking it up
+	if(id.toString().endsWith('_T') || id.toString().endsWith('_F')) {
+		return id.toString();
+	}
+
+	return `${id}_${type}`;
+}
+
 export function logToFile(logFile: WriteStream, message: string) {
 	logFile.write(`${new Date().toLocaleString('en-AU', {
 		year: 'numeric',

@@ -17,6 +17,7 @@ export const TvShowRankings: FC<TvShowRankingsProps> = ({ limit, loadingRows }) 
 		graphql`
             query TvShowRankingsQuery($limit: Int!) {
                 TvShows(limit: $limit) {
+					__typename
                     id
                     title
 					episode_count

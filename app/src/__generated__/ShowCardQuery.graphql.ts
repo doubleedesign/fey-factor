@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<1e4d1da341968bdc3b8b941a70039c6a>>
+ * @generated SignedSource<<aa52a38cd80ba4bbac48a27cf11a6d2d>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -14,12 +14,15 @@ export type ShowCardQuery$variables = {
 };
 export type ShowCardQuery$data = {
   readonly TvShow: {
+    readonly __typename: "TvShow";
     readonly id: string;
     readonly people: ReadonlyArray<{
+      readonly __typename: "Person";
       readonly degree: number | null | undefined;
       readonly id: string;
       readonly name: string;
       readonly roles: ReadonlyArray<{
+        readonly __typename: "Role";
         readonly name: string | null | undefined;
       } | null | undefined> | null | undefined;
     } | null | undefined> | null | undefined;
@@ -50,24 +53,31 @@ v2 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "id",
+  "name": "__typename",
   "storageKey": null
 },
 v3 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "title",
+  "name": "id",
   "storageKey": null
 },
 v4 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "name",
+  "name": "title",
   "storageKey": null
 },
 v5 = {
+  "alias": null,
+  "args": null,
+  "kind": "ScalarField",
+  "name": "name",
+  "storageKey": null
+},
+v6 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
@@ -91,6 +101,7 @@ return {
         "selections": [
           (v2/*: any*/),
           (v3/*: any*/),
+          (v4/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -100,8 +111,9 @@ return {
             "plural": true,
             "selections": [
               (v2/*: any*/),
-              (v4/*: any*/),
+              (v3/*: any*/),
               (v5/*: any*/),
+              (v6/*: any*/),
               {
                 "alias": null,
                 "args": null,
@@ -110,7 +122,8 @@ return {
                 "name": "roles",
                 "plural": true,
                 "selections": [
-                  (v4/*: any*/)
+                  (v2/*: any*/),
+                  (v5/*: any*/)
                 ],
                 "storageKey": null
               }
@@ -140,6 +153,7 @@ return {
         "selections": [
           (v2/*: any*/),
           (v3/*: any*/),
+          (v4/*: any*/),
           {
             "alias": null,
             "args": null,
@@ -149,8 +163,9 @@ return {
             "plural": true,
             "selections": [
               (v2/*: any*/),
-              (v4/*: any*/),
+              (v3/*: any*/),
               (v5/*: any*/),
+              (v6/*: any*/),
               {
                 "alias": null,
                 "args": null,
@@ -159,8 +174,9 @@ return {
                 "name": "roles",
                 "plural": true,
                 "selections": [
-                  (v4/*: any*/),
-                  (v2/*: any*/)
+                  (v2/*: any*/),
+                  (v5/*: any*/),
+                  (v3/*: any*/)
                 ],
                 "storageKey": null
               }
@@ -173,16 +189,16 @@ return {
     ]
   },
   "params": {
-    "cacheID": "08788514b28eeef30966be34307c5786",
+    "cacheID": "b23302ba663c84a5533abe66f43adf8f",
     "id": null,
     "metadata": {},
     "name": "ShowCardQuery",
     "operationKind": "query",
-    "text": "query ShowCardQuery(\n  $id: ID!\n) {\n  TvShow(id: $id) {\n    id\n    title\n    people {\n      id\n      name\n      degree\n      roles {\n        name\n        id\n      }\n    }\n  }\n}\n"
+    "text": "query ShowCardQuery(\n  $id: ID!\n) {\n  TvShow(id: $id) {\n    __typename\n    id\n    title\n    people {\n      __typename\n      id\n      name\n      degree\n      roles {\n        __typename\n        name\n        id\n      }\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "e19f99bb6a69f006588f289a1710377e";
+(node as any).hash = "60c63e6c8f36dd174529a40f6f2914e2";
 
 export default node;
