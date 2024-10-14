@@ -1,6 +1,7 @@
 import pg from 'pg';
 import { Movie, Person, Role, TvShow } from '../../generated/source-types';
 import { RankingData } from '../../types';
+import { convertIdToInteger, convertIdToString } from '../../utils';
 
 type TvShowWithRankingData = TvShow & RankingData;
 
@@ -11,7 +12,7 @@ export class DbWorks  {
 		try {
 			const response = await this.pgClient.query({
 				text: `SELECT tv_shows.id,
-                              COALESCE(tv_shows.title, works.title) AS title,
+                              tv_shows.title,
                               start_year,
                               end_year,
                               season_count,
@@ -21,10 +22,13 @@ export class DbWorks  {
                             works ON tv_shows.id = works.id
                        WHERE tv_shows.id = $1;
 `,
-				values: [id]
+				values: [convertIdToString(id, 'T')]
 			});
 
-			return response.rows[0] ?? null;
+			return response.rows[0] ? {
+				...response.rows[0],
+				id: convertIdToInteger(response.rows[0].id),
+			} : null;
 		}
 		catch(error) {
 			console.error(error);
@@ -40,7 +44,10 @@ export class DbWorks  {
 				values: [ids]
 			});
 
-			return response.rows;
+			return response.rows.map(row => ({
+				...row,
+				id: convertIdToInteger(row.id),
+			}));
 		}
 		catch(error) {
 			console.error(error);
@@ -56,7 +63,10 @@ export class DbWorks  {
 				values: [id]
 			});
 
-			return response.rows[0] ?? null;
+			return response.rows[0] ? {
+				...response.rows[0],
+				id: convertIdToInteger(response.rows[0].id),
+			} : null;
 		}
 		catch (error) {
 			console.error(error);
@@ -72,7 +82,10 @@ export class DbWorks  {
 				values: [ids]
 			});
 
-			return response.rows;
+			return response.rows.map(row => ({
+				...row,
+				id: convertIdToInteger(row.id),
+			}));
 		}
 		catch(error) {
 			console.error(error);
@@ -122,13 +135,13 @@ export class DbWorks  {
                     HAVING
                         people.degree <= 1 OR
                         --- Exclude people at degree > 1 connected to only one work (this is the same as other_works_count, we just can't use that here)
-                        (people.degree > 1 AND COUNT(DISTINCT CASE WHEN connections.work_id != 94951 THEN connections.work_id END) > 0)
+                        (people.degree > 1 AND COUNT(DISTINCT CASE WHEN connections.work_id != $1 THEN connections.work_id END) > 0)
 			        ORDER BY
 			            degree ASC,
                         other_works_count DESC,
 			            aggregate_episode_count DESC
 			    `,
-				values: [id]
+				values: [convertIdToString(id, 'T')]
 			});
 
 			return response.rows.map(row => ({
@@ -144,11 +157,11 @@ export class DbWorks  {
 		}
 	}
 
-	async getRolesForWork(id: number): Promise<Role[]> {
+	async getRolesForWork(id: number, workType: 'T' | 'F'): Promise<Role[]> {
 		try {
 			const response = await this.pgClient.query({
 				text: 'SELECT * FROM roles WHERE id IN (SELECT role_id FROM connections WHERE work_id = $1)',
-				values: [id]
+				values: [convertIdToString(id, workType)]
 			});
 
 			return response.rows;
@@ -161,21 +174,21 @@ export class DbWorks  {
 	}
 
 	async getRolesForTvshow(id: number): Promise<Role[]> {
-		return this.getRolesForWork(id);
+		return this.getRolesForWork(id, 'T');
 	}
 
 	async getRolesForMovie(id: number): Promise<Role[]> {
-		return this.getRolesForWork(id);
+		return this.getRolesForWork(id, 'F');
 	}
 
-	async getPersonsRolesForWork(personId: number, workId: number): Promise<Role[]> {
+	async getPersonsRolesForWork(personId: number, workId: number, workType: 'T' | 'F'): Promise<Role[]> {
 		try {
 			const response = await this.pgClient.query({
 				text: `SELECT role_id, roles.name, episode_count FROM connections
                               JOIN roles ON connections.role_id = roles.id
                               WHERE person_id = $1 and work_id = $2
 `,
-				values: [personId, workId]
+				values: [personId, convertIdToString(workId, workType)]
 			});
 
 			return response.rows;
@@ -227,7 +240,7 @@ export class DbWorks  {
 						INNER JOIN works ON tv_shows.id = works.id
 						WHERE 
 						    works.title IS NOT NULL
-							AND tv_shows.id != 1667 -- exclude SNL
+							AND tv_shows.id != '1667_T' -- exclude SNL
 						GROUP BY 
 						    tv_shows.id, works.title, tv_shows.episode_count
 						ORDER BY 
@@ -255,7 +268,10 @@ export class DbWorks  {
 				values: [limit]
 			});
 
-			return response.rows;
+			return response.rows.map(row => ({
+				...row,
+				id: convertIdToInteger(row.id),
+			}));
 		}
 		catch (error) {
 			console.error(error);
@@ -323,7 +339,7 @@ export class DbWorks  {
 			            AND ad.total_connections > 1
 			            AND ad.id = $1;
 			    `,
-				values: [id]
+				values: [convertIdToString(id, 'T')]
 			});
 
 			return response.rows[0];

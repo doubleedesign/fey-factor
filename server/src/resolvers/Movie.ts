@@ -46,7 +46,7 @@ export default {
 		// TODO: Make Roles field more useful for Works, or remove it
 		roles: async (parent: MovieGql & { personId?: number }) => {
 			if (parent.personId) {
-				return db.works.getPersonsRolesForWork(parent.personId, parent.id);
+				return db.works.getPersonsRolesForWork(parent.personId, parent.id, 'F');
 			}
 
 			return db.works.getRolesForMovie(parent.id);
