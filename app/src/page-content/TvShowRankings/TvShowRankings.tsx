@@ -11,7 +11,7 @@ type TvShowRankingsProps = {
 };
 
 export const TvShowRankings: FC<TvShowRankingsProps> = ({ limit, loadingRows }) => {
-	const { setRawData, data } = useRankingContext();
+	const { setRawData } = useRankingContext();
 
 	const result = useLazyLoadQuery<TvShowRankingsQuery>(
 		graphql`
@@ -57,8 +57,7 @@ export const TvShowRankings: FC<TvShowRankingsProps> = ({ limit, loadingRows }) 
 	}, [result.TvShows, setRawData]);
 
 	useEffect(() => {
-		//console.log(data.length, ' items,', loadingRows, ' loading rows');
-		if(loadingRows >= data.length) {
+		if(loadingRows > 0) {
 			const skeletonRows: Row[] = Array.from({ length: loadingRows }, (_, index) => {
 				return {
 					id: -index,
@@ -71,7 +70,11 @@ export const TvShowRankings: FC<TvShowRankingsProps> = ({ limit, loadingRows }) 
 
 			setRawData(prevState => [...prevState, ...skeletonRows]);
 		}
-	}, [data.length, loadingRows, setRawData]);
+		else {
+			// Remove any loading rows that are present
+			setRawData(prevState => prevState.filter(row => row.title !== 'Loading...'));
+		}
+	}, [loadingRows, setRawData]);
 
 	return (
 		<div data-testid="TvShowRankings">

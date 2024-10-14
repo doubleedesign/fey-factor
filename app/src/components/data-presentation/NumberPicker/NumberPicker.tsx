@@ -12,12 +12,11 @@ export const NumberPicker: FC<NumberPickerProps> = ({ label, defaultValue, onCha
 	const [selectedOption, setSelectedOption] = useState<{ value: number; label: number }>({ value: defaultValue, label: defaultValue });
 
 	const options = useMemo(() => {
-		return [{ value: 10, label: 10 }]
-			.concat(Array.from({ length: 6 }, (_, i) => {
-				const value = Math.floor((defaultValue * i));
+		return Array.from({ length: 6 }, (_, i) => {
+			const value = Math.floor((defaultValue * i));
 
-				return { value, label: value };
-			}))
+			return { value, label: value };
+		})
 			.filter(option => option.value > 0);
 	}, [defaultValue]);
 

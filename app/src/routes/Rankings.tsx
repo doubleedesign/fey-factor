@@ -45,14 +45,15 @@ export const Rankings: FC = () => {
 	}, []);
 
 	const handleLimitChange = useCallback((newLimit: number) => {
+		if(newLimit > limit) {
+			setLoadingRows(newLimit - limit);
+		}
+		else {
+			setLoadingRows(0);
+		}
+
 		startTransition(() => {
 			setLimit(newLimit);
-			if(newLimit > limit) {
-				setLoadingRows(newLimit - limit);
-			}
-			else {
-				setLoadingRows(0);
-			}
 		});
 	}, [limit]);
 
@@ -69,7 +70,7 @@ export const Rankings: FC = () => {
 					<LeadParagraph>Raw and (experimentally) aggregated scores</LeadParagraph>
 				</div>
 				<SelectionInputs>
-					<NumberPicker label="Show top:" defaultValue={25} onChange={handleLimitChange} />
+					<NumberPicker label="Show top:" defaultValue={10} onChange={handleLimitChange} />
 					<MultiSelect
 						label={`Filter top ${limit} by streaming availability:`}
 						options={providers}
