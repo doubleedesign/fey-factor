@@ -11,6 +11,15 @@ import { ThemeProvider } from 'styled-components';
 import theme from './theme.ts';
 import './global.css';
 
+// Suppress warning about defaultProps coming from Reaviz because it's annoying and I don't care
+const originalConsoleError = console.error;
+console.error = (...args) => {
+	if (typeof args[0] === 'string' && args[0].includes('Support for defaultProps will be removed')) {
+		return;
+	}
+	originalConsoleError(...args);
+};
+
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
 		<RelayEnvironmentProvider environment={environment}>
