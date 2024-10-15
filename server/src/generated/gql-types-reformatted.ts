@@ -54,3 +54,16 @@ export type TvShowAdditionalFields = {
 	overview?: string;
 	poster_path?: string;
 };
+
+export type Edge = {
+	id: number;
+	nodes: Node[];
+	title: string;
+};
+
+export type Node = {
+	degree: number;
+	edges: Edge[];
+	id: number;
+	name: string;
+};

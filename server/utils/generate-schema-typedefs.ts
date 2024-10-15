@@ -151,7 +151,7 @@ async function processExportedType(node: ts.InterfaceDeclaration | ts.TypeAliasD
 			fields: fields,
 			isDirectlyQueryable:
 				// Manually set some types to not be directly queryable
-				node.name.text !== 'Role'
+				!['Role', 'Edge'].includes(node.name.text)
 				// If this table has a glue key, it will not be a standalone GraphQL type
 				// (Big assumption based on my current use case; may need to change in the future)
 				&& !Boolean(glueKey),
@@ -244,7 +244,7 @@ async function processExportedType(node: ts.InterfaceDeclaration | ts.TypeAliasD
  * Note: We can't do this in the previous step because we need all types to be available to be checked against
  */
 function detectSubtypes() {
-	const knownToSkip = ['Role'];
+	const knownToSkip = ['Role', 'Node', 'Edge'];
 
 	Object.entries(typeObjects).forEach(([typeName, data]) => {
 		// At the time of writing, I know that no types with subtypes have isDirectlyQueryable set to true, and they should be skipped
@@ -378,8 +378,9 @@ function convertAndSaveTypes() {
 		appendFileSync(typesDestFile, finalString);
 	});
 
-	// Add other filter inputs
+	// Manually other filter inputs for particular types
 	appendFileSync(typesDestFile, 'input ProviderFilter {\n\tprovider_type: [String]\n}\n', 'utf8');
+	appendFileSync(typesDestFile, 'input NodeFilter {\n\tid: Int\n}\n', 'utf8');
 
 	// Process the root types
 	rootTypes.forEach(([name, data]) => {

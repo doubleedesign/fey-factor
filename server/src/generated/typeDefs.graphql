@@ -4,6 +4,9 @@ input WorkFilter {
 input ProviderFilter {
 	provider_type: [String]
 }
+input NodeFilter {
+	id: Int
+}
 type Person {
 	id: ID!
 	name: String!
@@ -43,6 +46,17 @@ type Provider {
 	provider_name: String!
 	logo_path: String
 	provider_type: String
+}
+type Node {
+	id: ID!
+	name: String!
+	degree: Int!
+	edges: [Edge!]!
+}
+type Edge {
+	id: ID!
+	title: String!
+	nodes: [Node!]!
 }
 type Movie implements Work {
 	id: ID!

@@ -24,3 +24,20 @@ export type Provider = {
 	logo_path?: string;
 	provider_type?: string;
 };
+
+// Basically the core Person fields from the db source types + edges,
+// we just can't import from generated types file here because it breaks the generator
+export interface Node {
+	id: number;
+	name: string;
+	degree: number;
+	edges: Edge[];
+}
+
+// Basically a TvShow + nodes,
+// we just can't import from generated types file here because it breaks the generator
+export interface Edge {
+	id: number;
+	title: string;
+	nodes: Node[];
+}

@@ -30,6 +30,27 @@
         "isDirectlyQueryable": false,
         "isGqlEntity": false
     },
+    "Edge": {
+        "fields": [
+            {
+                "fieldName": "id",
+                "fieldType": "number",
+                "required": true
+            },
+            {
+                "fieldName": "title",
+                "fieldType": "string",
+                "required": true
+            },
+            {
+                "fieldName": "nodes",
+                "fieldType": "Node[]",
+                "required": true
+            }
+        ],
+        "isDirectlyQueryable": false,
+        "isGqlEntity": true
+    },
     "Movie": {
         "fields": [
             {
@@ -86,6 +107,32 @@
         "isDirectlyQueryable": true,
         "isGqlEntity": true,
         "isSubtypeOf": "Work"
+    },
+    "Node": {
+        "fields": [
+            {
+                "fieldName": "id",
+                "fieldType": "number",
+                "required": true
+            },
+            {
+                "fieldName": "name",
+                "fieldType": "string",
+                "required": true
+            },
+            {
+                "fieldName": "degree",
+                "fieldType": "number",
+                "required": true
+            },
+            {
+                "fieldName": "edges",
+                "fieldType": "Edge[]",
+                "required": true
+            }
+        ],
+        "isDirectlyQueryable": true,
+        "isGqlEntity": true
     },
     "Person": {
         "fields": [

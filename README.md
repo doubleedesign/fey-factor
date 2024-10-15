@@ -95,7 +95,12 @@ To add a field to the GraphQL schema that doesn't belong in the database, add it
 
 #### Generating resolver skeletons
 
-I have also created a script to generate skeletons/templates for resolvers based on the generated schema and likely function names. (**Note:** This overwrites any existing resolvers in the `./src/resolvers` folder, so is really an initial dev tool that will stop being used once the resolvers are fleshed out.)
+I have also created a script to generate skeletons/templates for resolvers based on the generated schema and likely function names.
+
+It skips any types that already have a resolver file, so it can be run when adding new types without overwriting existing resolvers.
+
+**Note:** It also intentionally skips types from a manually set list - see `generate-resolver-skeleton.ts` to see and adjust this list if needed.
+
 ```bash
 npm run generate:resolvers
 ```

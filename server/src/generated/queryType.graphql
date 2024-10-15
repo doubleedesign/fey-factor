@@ -7,4 +7,6 @@ type Query {
 	TvShows(ids: [ID], limit: Int): [TvShow]
 	Work(id: ID!): Work
 	Works(ids: [ID], limit: Int): [Work]
+	Node(id: ID!): Node
+	Nodes(ids: [ID], limit: Int): [Node]
 }

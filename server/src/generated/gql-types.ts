@@ -14,6 +14,12 @@ export type Scalars = {
 	Float: { input: number; output: number; }
 };
 
+export type Edge = {
+	id: Scalars['ID']['output'];
+	nodes: Array<Node>;
+	title: Scalars['String']['output'];
+};
+
 export type Movie = Work & {
 	backdrop_path: Maybe<Scalars['String']['output']>;
 	id: Scalars['ID']['output'];
@@ -30,6 +36,17 @@ export type Movie = Work & {
 
 export type MovieProvidersArgs = {
 	filter: InputMaybe<ProviderFilter>;
+};
+
+export type Node = {
+	degree: Scalars['Int']['output'];
+	edges: Array<Edge>;
+	id: Scalars['ID']['output'];
+	name: Scalars['String']['output'];
+};
+
+export type NodeFilter = {
+	id: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type Person = {
