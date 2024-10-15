@@ -3,16 +3,20 @@ import type { Movie } from '../generated/source-types';
 import type { Movie as MovieGql } from '../generated/gql-types-reformatted';
 import { RankingData } from '../types';
 import pick from 'lodash/pick';
+import { convertIdToInteger } from '../utils';
 
 const db = new DatabaseConnection();
 type MovieWithRankingData = Movie & RankingData;
 
 export default {
 	Query: {
-		Movie: async (_, { id }): Promise<Movie> => {
+		Movie: async (_, { id }): Promise<MovieGql> => {
 			const coreFields = await db.works.getMovie(id);
 
-			return { ...coreFields };
+			return {
+				...coreFields,
+				id: convertIdToInteger(coreFields.id),
+			};
 		},
 		Movies: async (_, { ids, limit }): Promise<Movie[] | MovieWithRankingData[]> => {
 			if (ids && ids.length > 0) {

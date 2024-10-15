@@ -2,6 +2,7 @@ import { DatabaseConnection } from '../datasources/database';
 import type { TvShow as TvShowGql } from '../generated/gql-types-reformatted';
 import pick from 'lodash/pick';
 import { TmdbApiConnection } from '../datasources/tmdb';
+import { convertIdToInteger } from '../utils';
 
 const db = new DatabaseConnection();
 const api = new TmdbApiConnection();
@@ -14,6 +15,7 @@ export default {
 
 			return {
 				...coreFields,
+				id: convertIdToInteger(coreFields.id),
 				rankingData: rankingData
 			};
 		},
