@@ -16,14 +16,14 @@ export type Json = unknown;
 export interface Connection {
 	id: number;
 	person_id: number;
-	work_id: number;
+	work_id: string;
 	role_id: number;
 	episode_count: number | null;
 }
 export interface ConnectionInput {
 	id?: number;
 	person_id: number;
-	work_id: number;
+	work_id: string;
 	role_id: number;
 	episode_count?: number | null;
 }
@@ -43,12 +43,12 @@ const connections = {
 
 // Table movies
 export interface Movie {
-	id: number;
+	id: string;
 	title: string;
 	release_year: number | null;
 }
 export interface MovieInput {
-	id: number;
+	id: string;
 	title: string;
 	release_year?: number | null;
 }
@@ -104,7 +104,7 @@ const roles = {
 
 // Table tv_shows
 export interface TvShow {
-	id: number;
+	id: string;
 	title: string;
 	start_year: number | null;
 	end_year: number | null;
@@ -112,7 +112,7 @@ export interface TvShow {
 	episode_count: number | null;
 }
 export interface TvShowInput {
-	id: number;
+	id: string;
 	title: string;
 	start_year?: number | null;
 	end_year?: number | null;
@@ -131,11 +131,11 @@ const tv_shows = {
 
 // Table works
 export interface Work {
-	id: number;
+	id: string;
 	title: string;
 }
 export interface WorkInput {
-	id: number;
+	id: string;
 	title: string;
 }
 const works = {

@@ -57,7 +57,6 @@ export class DbPeople {
                        FROM public.tv_shows t
                            JOIN public.works w ON t.id = w.id
                     	WHERE w.id IN (SELECT work_id FROM public.connections WHERE person_id = $1)
-                          AND w.title IS NOT NULL
 				`,
 				values: [id]
 			});

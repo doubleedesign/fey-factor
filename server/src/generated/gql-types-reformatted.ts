@@ -1,3 +1,7 @@
+export type Movie = Work & {
+	release_year?: number;
+};
+
 export type Person = {
 	degree?: number;
 	id: number;
@@ -27,8 +31,11 @@ export type Role = {
 };
 
 export type Work = {
+	backdrop_path?: string;
 	id: number;
+	overview?: string;
 	people?: Person[];
+	poster_path?: string;
 	providers?: Provider[];
 	rankingData?: RankingData;
 	roles?: Role[];
@@ -42,7 +49,8 @@ export type TvShow = Work & {
 	start_year?: number;
 };
 
-export type Movie = Work & {
-	release_year?: number;
+export type TvShowAdditionalFields = {
+	backdrop_path?: string;
+	overview?: string;
+	poster_path?: string;
 };
-

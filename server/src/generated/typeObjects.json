@@ -13,7 +13,7 @@
             },
             {
                 "fieldName": "work_id",
-                "fieldType": "number",
+                "fieldType": "string",
                 "required": true
             },
             {
@@ -34,7 +34,7 @@
         "fields": [
             {
                 "fieldName": "id",
-                "fieldType": "number",
+                "fieldType": "string",
                 "required": true
             },
             {
@@ -195,7 +195,7 @@
         "fields": [
             {
                 "fieldName": "id",
-                "fieldType": "number",
+                "fieldType": "string",
                 "required": true
             },
             {
@@ -288,7 +288,7 @@
         "fields": [
             {
                 "fieldName": "id",
-                "fieldType": "number",
+                "fieldType": "string",
                 "required": true
             },
             {
