@@ -1,5 +1,5 @@
 /**
- * TODO: This is copied over from the docs folder, de-duplicate it
+ * TODO: Much of this is copied over from the docs folder, de-duplicate it
  */
 
 import upperFirst from 'lodash/upperFirst';

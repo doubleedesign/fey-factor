@@ -108,11 +108,11 @@ function generateResolverForType(node: ObjectTypeDefinitionNode, tsSourceFile: t
 	const diff = difference(gqlFields, tsFields);
 	if (diff.length > 0) {
 		diff.forEach(field => {
-			const functionName = `db.${groupName}.get${capitalize(field)}For${capitalize(typeName)}`;
-			const arg = field === 'id' ? 'id' : `${typeName.toLowerCase()}.id`;
+			//const functionName = `db.${groupName}.get${capitalize(field)}For${capitalize(typeName)}`;
+			//const arg = field === 'id' ? 'id' : `${typeName.toLowerCase()}.id`;
 
 			resolverFunctions.push(`${field}: async (${typeName.toLowerCase()}: ${typeName}) => {
-				return ${functionName}(${arg});
+				return ${typeName.toLowerCase()}.${field};
 			},`);
 		});
 	}
