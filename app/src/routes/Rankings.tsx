@@ -5,8 +5,8 @@ import { MultiSelect, NumberPicker, SelectionInputs } from '../components/data-p
 import { TvShowRankings } from '../page-content';
 import { Filters, MultiSelectOption, Provider } from '../types';
 import { MultiValue } from 'react-select';
-import { fetchWatchProviders, sortProviders } from '../controllers';
-import { useRankingContext } from '../controllers/context/RankingContext.tsx';
+import { fetchWatchProviders, sortProviders } from '../controllers/watch-providers.ts';
+import { useRankingContext } from '../controllers/RankingContext.tsx';
 import { TableSkeleton } from '../components/loading';
 
 

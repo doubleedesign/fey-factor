@@ -3,7 +3,7 @@ import { graphql, useLazyLoadQuery } from 'react-relay';
 import { TvShowRankingsQuery, TvShowRankingsQuery$data } from '../../__generated__/TvShowRankingsQuery.graphql.ts';
 import { SortableTable } from '../../components/data-presentation';
 import { Row } from '../../types.ts';
-import { useRankingContext } from '../../controllers/context/RankingContext.tsx';
+import { useRankingContext } from '../../controllers/RankingContext.tsx';
 
 type TvShowRankingsProps = {
 	limit: number;

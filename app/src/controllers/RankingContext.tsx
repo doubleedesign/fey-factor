@@ -1,6 +1,6 @@
-import { Column, Row, Filters } from '../../types.ts';
+import { Column, Row, Filters } from '../types.ts';
 import React, { createContext, FC, PropsWithChildren, useCallback, useContext, useEffect, useState } from 'react';
-import { datawranglers } from '../index.ts';
+import { tableDataWranglers } from '../wranglers/table.ts';
 
 type RankingContextState = {
 	// Raw data can be set from outside this context, but not directly retrieved - it is used to populate the `data` state
@@ -47,7 +47,7 @@ export const RankingContextProvider: FC<PropsWithChildren> = ({ children }) => {
 		const field = event.currentTarget.closest('th')?.dataset.fieldkey as keyof Row;
 		if(field) {
 			const newOrder = ordering[field] === 'asc' ? 'desc' : 'asc';
-			setData(datawranglers.sort(data, field, newOrder));
+			setData(tableDataWranglers.sort(data, field, newOrder));
 			setActiveSortField(field);
 			setOrdering(prevOrdering => ({
 				...prevOrdering,
@@ -57,7 +57,7 @@ export const RankingContextProvider: FC<PropsWithChildren> = ({ children }) => {
 	}, [data, ordering]);
 
 	const handleFilter = useCallback((filters: Filters) => {
-		setData(datawranglers.filter(rawData, filters));
+		setData(tableDataWranglers.filter(rawData, filters));
 	}, [rawData]);
 
 	return (

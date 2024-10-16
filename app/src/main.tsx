@@ -6,7 +6,7 @@ import environment from './relayEnvironment.ts';
 import { Dashboard, Rankings, Network, Venn, About, ErrorPage } from './routes';
 import { GlobalHeader } from './components/layout';
 import { GlobalFooter } from './components/layout/GlobalFooter/GlobalFooter.tsx';
-import { RankingContextProvider } from './controllers/context/RankingContext.tsx';
+import { RankingContextProvider } from './controllers/RankingContext.tsx';
 import { ThemeProvider } from 'styled-components';
 import theme from './theme.ts';
 import './global.css';

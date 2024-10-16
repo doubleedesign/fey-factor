@@ -5,7 +5,7 @@ import { Row } from '../../../types.ts';
 import { ShowCard } from '../../data-presentation';
 import { ProviderLogos } from '../../misc/ProviderLogos/ProviderLogos.tsx';
 import Skeleton from 'react-loading-skeleton';
-import { useRankingContext } from '../../../controllers/context/RankingContext.tsx';
+import { useRankingContext } from '../../../controllers/RankingContext.tsx';
 import { kebabCase } from 'lodash';
 
 
