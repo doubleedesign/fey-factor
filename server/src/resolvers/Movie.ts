@@ -18,7 +18,7 @@ export default {
 				id: convertIdToInteger(coreFields.id),
 			};
 		},
-		Movies: async (_, { ids, limit }): Promise<Movie[] | MovieWithRankingData[]> => {
+		Movies: async (_, { ids, limit }): Promise<MovieGql[] | MovieWithRankingData[]> => {
 			if (ids && ids.length > 0) {
 				return await db.works.getMovies(ids);
 			}

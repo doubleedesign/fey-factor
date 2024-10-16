@@ -48,7 +48,7 @@
                 "required": true
             }
         ],
-        "isDirectlyQueryable": false,
+        "isDirectlyQueryable": true,
         "isGqlEntity": true
     },
     "Movie": {

@@ -1,5 +1,6 @@
 import pg from 'pg';
-import { Connection, Movie, Person, Role, TvShow, Work } from '../../generated/source-types';
+import { Connection, Person, Role } from '../../generated/source-types';
+import { Work, Movie, TvShow } from '../../generated/gql-types-reformatted';
 
 export class DbPeople {
 	constructor(private pgClient: pg.Pool) {}
@@ -20,12 +21,49 @@ export class DbPeople {
 		}
 	}
 
+	async getDegreeZero() {
+		try {
+			const response = await this.pgClient.query({
+				text: 'SELECT * FROM people WHERE degree = 0'
+			});
+
+			return response.rows[0] ?? null;
+		}
+		catch(error) {
+			console.error(error);
+
+			return null;
+		}
+	}
+
 	async getConnectionsForPerson(id: number): Promise<Connection[]> {
 		try {
 			const response = await this.pgClient.query({
 				text: 'SELECT * FROM connections WHERE person_id = $1',
 				values: [id]
 			});
+
+			return response.rows;
+		}
+		catch(error) {
+			console.error(error);
+
+			return null;
+		}
+	}
+
+	async getFilteredConnectionsForPerson(id: number, type: 'T' | 'F'): Promise<Connection[]> {
+		try {
+			const response = await this.pgClient.query({
+				text: `SELECT *
+                       FROM connections
+                       WHERE person_id = $1
+                         AND work_id LIKE '%' || $2
+				`,
+				values: [id, type]
+			});
+
+			console.log(response.rows);
 
 			return response.rows;
 		}

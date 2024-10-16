@@ -1,5 +1,18 @@
+export type Edge = {
+	id: number;
+	nodes?: Node[];
+	title: string;
+};
+
 export type Movie = Work & {
 	release_year?: number;
+};
+
+export type Node = {
+	degree: number;
+	edges?: Edge[];
+	id: number;
+	name: string;
 };
 
 export type Person = {
@@ -30,18 +43,6 @@ export type Role = {
 	name?: string;
 };
 
-export type Work = {
-	backdrop_path?: string;
-	id: number;
-	overview?: string;
-	people?: Person[];
-	poster_path?: string;
-	providers?: Provider[];
-	rankingData?: RankingData;
-	roles?: Role[];
-	title: string;
-};
-
 export type TvShow = Work & {
 	end_year?: number;
 	episode_count?: number;
@@ -55,15 +56,14 @@ export type TvShowAdditionalFields = {
 	poster_path?: string;
 };
 
-export type Edge = {
+export type Work = {
+	backdrop_path?: string;
 	id: number;
-	nodes: Node[];
+	overview?: string;
+	people?: Person[];
+	poster_path?: string;
+	providers?: Provider[];
+	rankingData?: RankingData;
+	roles?: Role[];
 	title: string;
-};
-
-export type Node = {
-	degree: number;
-	edges: Edge[];
-	id: number;
-	name: string;
 };

@@ -12,6 +12,7 @@ import { dbTableNameFormatToTypeFormat, pascalCase, toPlural, typeFormatToDbTabl
 import difference from 'lodash/difference';
 import compact from 'lodash/compact';
 import uniqBy from 'lodash/uniqBy';
+import snakeCase from 'lodash/snakeCase';
 
 const db = new DatabaseConnection();
 
@@ -151,7 +152,7 @@ async function processExportedType(node: ts.InterfaceDeclaration | ts.TypeAliasD
 			fields: fields,
 			isDirectlyQueryable:
 				// Manually set some types to not be directly queryable
-				!['Role', 'Edge'].includes(node.name.text)
+				!['Role'].includes(node.name.text)
 				// If this table has a glue key, it will not be a standalone GraphQL type
 				// (Big assumption based on my current use case; may need to change in the future)
 				&& !Boolean(glueKey),
@@ -381,6 +382,7 @@ function convertAndSaveTypes() {
 	// Manually other filter inputs for particular types
 	appendFileSync(typesDestFile, 'input ProviderFilter {\n\tprovider_type: [String]\n}\n', 'utf8');
 	appendFileSync(typesDestFile, 'input NodeFilter {\n\tid: Int\n}\n', 'utf8');
+	appendFileSync(typesDestFile, 'input EdgeFilter {\n\tid: Int\n}\n', 'utf8');
 
 	// Process the root types
 	rootTypes.forEach(([name, data]) => {
@@ -439,6 +441,12 @@ function convertAndSaveTypes() {
 			}
 			else if(fieldName === 'providers') {
 				stringParts.push(`\t${fieldName}(filter: ProviderFilter): [Provider]`);
+			}
+			else if(fieldName === 'nodes') {
+				stringParts.push('\t$nodes(limit: Int): [Node]');
+			}
+			else if(fieldName === 'edges') {
+				stringParts.push('\tedges(limit: Int): [Edge]');
 			}
 			else if(fieldName === 'id' || fieldName === 'ID') {
 				stringParts.push(`\t${fieldName}: ID!`);
@@ -500,7 +508,15 @@ function createAndSaveQueryType() {
 		// Singular query
 		queryObject += `\t${queryType}(id: ID!): ${returnType}\n`;
 		// Plural type - fetch multiple items
-		queryObject += `\t${pascalCase(toPlural(queryType))}(ids: [ID], limit: Int): [${returnType}]\n`;
+		if(queryType === 'Node') {
+			queryObject += '\tnodes(edgeId: [ID], limit: Int): [Node]\n';
+		}
+		else if(queryType === 'Edge') {
+			queryObject += '\tedges(nodeId: [ID], limit: Int): [Edge]\n';
+		}
+		else {
+			queryObject += `\t${pascalCase(toPlural(queryType))}(ids: [ID], limit: Int): [${returnType}]\n`;
+		}
 	});
 	queryObject += '}';
 

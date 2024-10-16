@@ -63,7 +63,7 @@ function processExportedTypes(node: ts.Node) {
 	if (ts.isTypeAliasDeclaration(node)) {
 		// Skip known input types
 		// eslint-disable-next-line max-len
-		if (['WorkFilter', 'PersonWorksArgs', 'ProviderFilter', 'NodeFilter', 'WorkProvidersArgs', 'TvShowProvidersArgs', 'MovieProvidersArgs'].includes(node.name.text)) return;
+		if (['WorkFilter', 'PersonWorksArgs', 'ProviderFilter', 'NodeFilter', 'EdgeFilter', 'WorkProvidersArgs', 'TvShowProvidersArgs', 'MovieProvidersArgs', 'EdgeNodesArgs', 'NodeEdgesArgs'].includes(node.name.text)) return;
 
 		// Skip irrelevant internal types
 		if (['Maybe', 'Make', 'Incremental', 'Exact', 'InputMaybe'].some(str => node.name.text.includes(str))) return;

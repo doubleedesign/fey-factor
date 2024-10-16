@@ -7,6 +7,9 @@ input ProviderFilter {
 input NodeFilter {
 	id: Int
 }
+input EdgeFilter {
+	id: Int
+}
 type Person {
 	id: ID!
 	name: String!
@@ -51,12 +54,12 @@ type Node {
 	id: ID!
 	name: String!
 	degree: Int!
-	edges: [Edge!]!
+	edges(limit: Int): [Edge]
 }
 type Edge {
 	id: ID!
 	title: String!
-	nodes: [Node!]!
+	nodes(limit: Int): [Node]
 }
 type Movie implements Work {
 	id: ID!

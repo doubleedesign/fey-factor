@@ -16,8 +16,17 @@ export type Scalars = {
 
 export type Edge = {
 	id: Scalars['ID']['output'];
-	nodes: Array<Node>;
+	nodes: Maybe<Array<Maybe<Node>>>;
 	title: Scalars['String']['output'];
+};
+
+
+export type EdgeNodesArgs = {
+	limit: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type EdgeFilter = {
+	id: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type Movie = Work & {
@@ -40,9 +49,14 @@ export type MovieProvidersArgs = {
 
 export type Node = {
 	degree: Scalars['Int']['output'];
-	edges: Array<Edge>;
+	edges: Maybe<Array<Maybe<Edge>>>;
 	id: Scalars['ID']['output'];
 	name: Scalars['String']['output'];
+};
+
+
+export type NodeEdgesArgs = {
+	limit: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type NodeFilter = {

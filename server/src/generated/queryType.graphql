@@ -8,5 +8,7 @@ type Query {
 	Work(id: ID!): Work
 	Works(ids: [ID], limit: Int): [Work]
 	Node(id: ID!): Node
-	Nodes(ids: [ID], limit: Int): [Node]
+	nodes(edgeId: [ID], limit: Int): [Node]
+	Edge(id: ID!): Edge
+	edges(nodeId: [ID], limit: Int): [Edge]
 }

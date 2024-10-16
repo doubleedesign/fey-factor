@@ -1,5 +1,6 @@
 import pg from 'pg';
-import { Movie, Person, Role, TvShow } from '../../generated/source-types';
+import { Person, Role } from '../../generated/source-types';
+import { Movie, TvShow } from '../../generated/gql-types-reformatted';
 import { RankingData } from '../../types';
 import { convertIdToInteger, convertIdToString } from '../../utils';
 
