@@ -1,0 +1,8 @@
+projects:
+  server:
+    schema:
+      - server/src/generated/typeDefs.graphql
+      - server/src/generated/queryType.graphql
+  app:
+    schema:
+      - app/src/schema.graphql
