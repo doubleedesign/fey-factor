@@ -1,14 +1,14 @@
 type Query {
+	Edge(id: ID!): Edge
+	edges(nodeId: [ID], limit: Int): [Edge]
 	Movie(id: ID!): Movie
 	Movies(ids: [ID], limit: Int): [Movie]
+	Node(id: ID!): Node
+	nodes(edgeId: [ID], limit: Int): [Node]
 	Person(id: ID!): Person
 	People(ids: [ID], limit: Int): [Person]
 	TvShow(id: ID!): TvShow
 	TvShows(ids: [ID], limit: Int): [TvShow]
 	Work(id: ID!): Work
 	Works(ids: [ID], limit: Int): [Work]
-	Node(id: ID!): Node
-	nodes(edgeId: [ID], limit: Int): [Node]
-	Edge(id: ID!): Edge
-	edges(nodeId: [ID], limit: Int): [Edge]
 }

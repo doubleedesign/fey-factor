@@ -443,7 +443,7 @@ function convertAndSaveTypes() {
 				stringParts.push(`\t${fieldName}(filter: ProviderFilter): [Provider]`);
 			}
 			else if(fieldName === 'nodes') {
-				stringParts.push('\t$nodes(limit: Int): [Node]');
+				stringParts.push('\tnodes(limit: Int): [Node]');
 			}
 			else if(fieldName === 'edges') {
 				stringParts.push('\tedges(limit: Int): [Edge]');
@@ -498,12 +498,14 @@ function createAndSaveQueryType() {
 			return key;
 		}
 	}));
-	const types = queryableTypes.map(type => {
-		return {
-			queryType: type,
-			returnType: type
-		};
+
+	const types = queryableTypes.map(type => ({
+		queryType: type,
+		returnType: type
+	})).sort((a, b) => {
+		return a.queryType.localeCompare(b.queryType);
 	});
+
 	types.forEach(({ queryType, returnType }) => {
 		// Singular query
 		queryObject += `\t${queryType}(id: ID!): ${returnType}\n`;
