@@ -12,6 +12,7 @@ const dbConnectionString = `postgresql://${username}:${password}@localhost:5432/
 const typesOutputFile = './src/generated/source-types.ts';
 const gqlTypesOutputFile = './src/generated/gql-types.ts';
 const gqlTypesReformattedOutputFile = './src/generated/gql-types-reformatted.ts';
+const frontendOutputFile = '../app/src/schema.graphql';
 
 generate().then();
 
@@ -28,6 +29,12 @@ async function generate() {
 	}
 	try {
 		await formatFiles();
+	}
+	catch (error) {
+		handleError(error);
+	}
+	try {
+		await mergeSchemaForFrontend();
 	}
 	catch (error) {
 		handleError(error);
@@ -157,6 +164,24 @@ async function generateSchema() {
 
 	// Go back the other way - run graphql-codegen to generate TypeScript types from the updated GraphQL schema
 	await generateGqlToTs(gqlTypesOutputFile, gqlTypesReformattedOutputFile);
+}
+
+
+async function mergeSchemaForFrontend() {
+	outputSeparator();
+	console.log('Merging schema for frontend...');
+
+	return new Promise((resolve, reject) => {
+		exec(`cat ./src/generated/queryType.graphql ./src/generated/typeDefs.graphql > ${frontendOutputFile}`, (error, stdout, stderr) => {
+			if(error || stderr) {
+				reject(error || stderr);
+				handleError(error || stderr);
+			}
+
+			console.log(chalk.green(`Successfully merged types in ${frontendOutputFile}`));
+			resolve(stdout);
+		});
+	});
 }
 
 /**

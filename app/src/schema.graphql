@@ -1,6 +1,10 @@
 type Query {
+	Edge(id: ID!): Edge
+	edges(nodeId: [ID], limit: Int): [Edge]
 	Movie(id: ID!): Movie
 	Movies(ids: [ID], limit: Int): [Movie]
+	Node(id: ID!): Node
+	nodes(edgeId: [ID], limit: Int): [Node]
 	Person(id: ID!): Person
 	People(ids: [ID], limit: Int): [Person]
 	TvShow(id: ID!): TvShow
@@ -12,6 +16,12 @@ type Query {
 }
 input ProviderFilter {
 	provider_type: [String]
+}
+input NodeFilter {
+	id: Int
+}
+input EdgeFilter {
+	id: Int
 }
 type Person {
 	id: ID!
@@ -52,6 +62,17 @@ type Provider {
 	provider_name: String!
 	logo_path: String
 	provider_type: String
+}
+type Node {
+	id: ID!
+	name: String!
+	degree: Int!
+	edges(limit: Int): [Edge]
+}
+type Edge {
+	id: ID!
+	title: String!
+	nodes(limit: Int): [Node]
 }
 type Movie implements Work {
 	id: ID!
