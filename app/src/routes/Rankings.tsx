@@ -11,7 +11,7 @@ import { TableSkeleton } from '../components/loading';
 
 
 export const Rankings: FC = () => {
-	const [limit, setLimit] = useState<number>(25);
+	const [limit, setLimit] = useState<number>(10);
 	const [loadingRows, setLoadingRows] = useState<number>(0);
 	const [providers, setProviders] = useState<MultiSelectOption[]>([]);
 	const [selectedProviders, setSelectedProviders] = useState<MultiSelectOption[]>([]);

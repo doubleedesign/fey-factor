@@ -3,6 +3,7 @@ import React, { createContext, FC, PropsWithChildren, useCallback, useContext, u
 import { tableDataWranglers } from '../wranglers/table.ts';
 
 type RankingContextState = {
+	degreeZero: number;
 	// Raw data can be set from outside this context, but not directly retrieved - it is used to populate the `data` state
 	setRawData: (data: (prevState: Row[]) => Row[]) => void;
 	// It is intended that the data can only be manipulated through the context, not directly
@@ -62,6 +63,7 @@ export const RankingContextProvider: FC<PropsWithChildren> = ({ children }) => {
 
 	return (
 		<RankingContext.Provider value={{
+			degreeZero: 56323,
 			setRawData,
 			data,
 			columns, setColumns,

@@ -4,10 +4,13 @@ import { Link, NavLink } from 'react-router-dom';
 import { Container } from '../../common.ts';
 import { Heading, Label, TooltippedElement } from '../../typography';
 import { EditionMenu } from '../../misc/EditionMenu/EditionMenu';
+import { useRankingContext } from '../../../controllers/RankingContext.tsx';
 
 type GlobalHeaderProps = {};
 
 export const GlobalHeader: FC<GlobalHeaderProps> = () => {
+	const { degreeZero } = useRankingContext();
+
 	return (
 		<StyledGlobalHeader data-testid="GlobalHeader">
 			<Container>
@@ -38,7 +41,7 @@ export const GlobalHeader: FC<GlobalHeaderProps> = () => {
 							</TooltippedElement>
 						</StyledMainMenuListIconItem>
 						<li>
-							<EditionMenu selected={56323}/>
+							<EditionMenu selected={degreeZero}/>
 						</li>
 					</StyledMainMenuList>
 				</StyledMainMenu>

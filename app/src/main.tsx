@@ -22,11 +22,11 @@ console.error = (...args) => {
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
-		<RelayEnvironmentProvider environment={environment}>
-			<ThemeProvider theme={theme}>
-				<BrowserRouter>
-					<GlobalHeader />
-					<RankingContextProvider>
+		<RankingContextProvider>
+			<RelayEnvironmentProvider environment={environment}>
+				<ThemeProvider theme={theme}>
+					<BrowserRouter>
+						<GlobalHeader />
 						<Routes>
 							<Route path="/" element={<Dashboard />} />
 							<Route path="/rankings" element={<Rankings />} />
@@ -35,10 +35,10 @@ createRoot(document.getElementById('root')!).render(
 							<Route path="/about" element={<About />} />
 							<Route path="*" element={<ErrorPage/>} />
 						</Routes>
-					</RankingContextProvider>
-					<GlobalFooter />
-				</BrowserRouter>
-			</ThemeProvider>
-		</RelayEnvironmentProvider>
+						<GlobalFooter />
+					</BrowserRouter>
+				</ThemeProvider>
+			</RelayEnvironmentProvider>
+		</RankingContextProvider>
 	</StrictMode>,
 );

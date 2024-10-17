@@ -5,17 +5,19 @@ import { Edition } from '../../../types';
 import Select, { components, ControlProps, OptionProps, SingleValueProps } from 'react-select';
 import { useTheme } from 'styled-components';
 import { tint } from 'polished';
+import { useRankingContext } from '../../../controllers/RankingContext.tsx';
 
 type EditionMenuProps = {
 	selected?: number;
 };
 
-export const EditionMenu: FC<EditionMenuProps> = ({ selected = 56323 }) => {
+export const EditionMenu: FC<EditionMenuProps> = ({ selected }) => {
 	const myTheme = useTheme();
+	const { degreeZero } = useRankingContext();
 
 	const editions: Edition[] = [
 		{
-			personId: 56323,
+			personId: degreeZero,
 			title: 'American Comedy',
 			tag: 'The OG'
 		},

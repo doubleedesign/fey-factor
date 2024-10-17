@@ -1,8 +1,9 @@
 import { FC, useMemo } from 'react';
 import { StyledMoreProvidersIndicator, StyledProviderItem, StyledProviderList } from './ProviderLogos.style';
-import { Provider } from '../../../types';
 import { TooltippedElement } from '../../typography';
-import { sortProviders } from '../../../controllers';
+import { sortProviders } from '../../../controllers/watch-providers.ts';
+import type { Provider } from '../../../types.ts';
+
 
 type ProviderLogosProps = {
 	providers: Provider[];
