@@ -1,90 +1,85 @@
 import { NetworkDiagramQuery$data } from '../__generated__/NetworkDiagramQuery.graphql.ts';
-import { GraphProps, GraphLink, GraphNode } from 'react-d3-graph';
 import uniqBy from 'lodash/uniqBy';
 import uniq from 'lodash/uniq';
+import cytoscape from 'cytoscape';
+import { NetworkObject } from '../types.ts';
 
-type Item = {
-	id: string;
-	name: string;
-};
-
-type NodeItem = Item & {
-	edges?: EdgeItem[];
-};
-
-type EdgeItem = Item & {
-	nodes?: NodeItem[];
-};
-
-type GraphLinkWithLabel = GraphLink & { label: string };
 
 export const networkWranglers = {
 	// Format the data into a standard network configuration where a GraphQL Node is a node and an Edge is an edge/link
-	formatStandard: (data: NetworkDiagramQuery$data): GraphProps<GraphNode, GraphLink>['data'] => {
-		const nodes: GraphNode[] = [];
-		const edges: GraphLink[] = [];
+	formatStandard: (data: NetworkDiagramQuery$data): NetworkObject => {
+		const nodes: cytoscape.NodeDataDefinition[] = [];
+		const edges: cytoscape.EdgeDataDefinition[] = [];
 
 		// Start the recursive processing with the root node
 		if (data?.Node) {
-			processNode(data.Node as Item, nodes, edges);
+			processNode(data.Node, nodes, edges);
 		}
 
+		console.log(edges);
+
 		return {
-			nodes: uniqBy(nodes, 'id'),
-			links: consolidateEdges(edges as GraphLinkWithLabel[])
+			nodes: uniqBy(nodes, 'id').map(node => ({ data: node })),
+			edges: consolidateEdges(edges).map(edge => ({ data: edge }))
 		};
 	},
 	// Format the data into a swapped network configuration where a GraphQL Node is an edge/link and an Edge is a node
-	formatSwapped: (data: NetworkDiagramQuery$data): GraphProps<GraphNode, GraphLink>['data'] => {
-		const nodes: GraphNode[] = [];
-		const edges: GraphLink[] = [];
+	formatSwapped: (data: NetworkDiagramQuery$data): NetworkObject => {
+		const nodes: cytoscape.NodeDataDefinition[] = [];
+		const edges: cytoscape.EdgeDataDefinition[] = [];
 
 		data?.Node?.edges?.forEach(edge => {
-			processEdgeAsNode(edge as EdgeItem, nodes, edges);
+			if (!edge) return;
+			processEdgeAsNode({
+				id: edge.id,
+				source: data.Node?.id as string,
+				target: edge.nodes?.[0]?.id as string,
+			}, nodes, edges);
 		});
 
 		return {
-			nodes: uniqBy(nodes, 'id'),
-			links: consolidateEdges(edges as GraphLinkWithLabel[])
+			nodes: uniqBy(nodes, 'id').map(node => ({ data: node })),
+			edges: consolidateEdges(edges).map(edge => ({ data: edge }))
 		};
 	}
 };
 
 // Recursive helper functions
-function processNode(node: NodeItem, nodesArray: GraphNode[], edgesArray: GraphLink[]) {
-	if (!node?.id) return;
+function processNode(
+	node: cytoscape.NodeDataDefinition,
+	nodesArray: cytoscape.NodeDataDefinition[],
+	edgesArray: cytoscape.EdgeDataDefinition[]) {
+	if (!node?.id || node.edges.length < 2) return;
 
-	// Check if the node already exists in the nodes array
-	if (!nodesArray.some(n => n.id === node.id)) {
-		nodesArray.push(node);
-	}
+	nodesArray.push({
+		id: node.id,
+		label: node.name
+	});
 
-	// Process each edge linked to this node
-	node.edges?.forEach((edge: EdgeItem) => {
-		const targetNode = edge?.nodes?.[0];
-		if (targetNode?.id) {
-			// If the target node doesn't exist, add it
-			if (!nodesArray.some(n => n.id === targetNode.id)) {
-				nodesArray.push(targetNode);
-			}
+	node.edges.forEach((edge: cytoscape.EdgeDataDefinition) => {
+		if (!edge) return;
+		const edgeId = edge.id;
 
-			// Add the edge, ensuring no self-loops
-			if (node.id !== targetNode.id) {
-				edgesArray.push({
-					source: node.id,
-					target: targetNode.id,
-					// @ts-expect-error TS2353: Object literal may only specify known properties, and label does not exist in type GraphLink
-					label: edge.name
-				});
-			}
+		if(edge.nodes) {
 
-			// Recursively process the target node to handle nested structures
-			processNode(targetNode, nodesArray, edgesArray);
+			edge.nodes.forEach((node: cytoscape.NodeDataDefinition) => {
+				if(!node) return;
+				if(target && target.id !== node.id) {
+					edgesArray.push({
+						id: edge.id,
+						source: node.id as string,
+						target: target.id,
+						label: edge.name
+					});
+				}
+
+				processNode(node, nodesArray, edgesArray);
+			});
 		}
 	});
 }
 
-function processEdgeAsNode(edge: EdgeItem, nodesArray: GraphNode[], edgesArray: GraphLink[]) {
+function processEdgeAsNode(edge: cytoscape.EdgeDataDefinition, nodesArray: cytoscape.NodeDataDefinition[], edgesArray: cytoscape.EdgeDataDefinition[]) {
 	if(!edge?.id) return;
 
 	// Check if the edge already exists in the nodes array
@@ -93,7 +88,7 @@ function processEdgeAsNode(edge: EdgeItem, nodesArray: GraphNode[], edgesArray: 
 	}
 
 	// Process each node, but treat it as an edge
-	edge.nodes?.forEach((node: NodeItem) => {
+	edge.nodes?.forEach((node: cytoscape.NodeDataDefinition) => {
 		const targetEdge = node?.edges?.[0];
 		if(targetEdge?.id) {
 			// If the target edge doesn't exist, add it
@@ -104,9 +99,9 @@ function processEdgeAsNode(edge: EdgeItem, nodesArray: GraphNode[], edgesArray: 
 			// Add the edge, ensuring no self-loops
 			if(edge.id !== targetEdge.id) {
 				edgesArray.push({
-					source: edge.id,
+					id: node.id,
+					source: edge.id as string,
 					target: targetEdge.id,
-					// @ts-expect-error TS2353: Object literal may only specify known properties, and label does not exist in type GraphLink
 					label: node.name
 				});
 			}
@@ -117,21 +112,21 @@ function processEdgeAsNode(edge: EdgeItem, nodesArray: GraphNode[], edgesArray: 
 	});
 }
 
-function consolidateEdges(edges: GraphLinkWithLabel[]): GraphLinkWithLabel[] {
-	const initialResult = edges.reduce((acc: GraphLinkWithLabel[], edge) => {
+function consolidateEdges(edges: cytoscape.EdgeDataDefinition[]): cytoscape.EdgeDataDefinition[] {
+	const initialResult = edges.reduce((acc: cytoscape.EdgeDataDefinition[], edge) => {
 		const match = acc.find(
-			(e: GraphLinkWithLabel) => (e.source === edge.source && e.target === edge.target)
+			(e) => (e.source === edge.source && e.target === edge.target)
 		);
 		const reverseMatch = acc.find(
-			(e: GraphLinkWithLabel) => (e.source === edge.target && e.target === edge.source)
+			(e) => (e.source === edge.target && e.target === edge.source)
 		);
 
 		if(match || reverseMatch) {
 			if (match) {
-				(match as GraphLinkWithLabel).label += `,${edge.label.trim()}`;
+				match.label += `,${edge.label.trim()}`;
 			}
 			if (reverseMatch) {
-				(reverseMatch as GraphLinkWithLabel).label += `,${edge.label.trim()}`;
+				reverseMatch.label += `,${edge.label.trim()}`;
 			}
 		}
 		else {
@@ -141,7 +136,7 @@ function consolidateEdges(edges: GraphLinkWithLabel[]): GraphLinkWithLabel[] {
 		return acc;
 	}, []);
 
-	return initialResult.map((edge: GraphLinkWithLabel) => {
+	return initialResult.map((edge: cytoscape.EdgeDataDefinition) => {
 		const labelsArray = edge.label.split(',');
 		edge.label = uniq(labelsArray)?.join(',');
 

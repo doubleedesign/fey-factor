@@ -1,24 +1,20 @@
 import { FC, useCallback, useState } from 'react';
 import { StyledSingleValueSelect } from './SingleValueSelect.style';
 import Select, { SingleValue } from 'react-select';
-
-type Option = {
-	label: string;
-	value: string;
-};
+import { SingleSelectOption } from '../../../types.ts';
 
 type SingleValueSelectProps = {
 	label: string;
-	options: Option[];
-	defaultSelected: SingleValue<Option>;
+	options: SingleSelectOption[];
+	defaultSelected: SingleValue<SingleSelectOption>;
 	onChange: (value: string) => void;
 };
 
 export const SingleValueSelect: FC<SingleValueSelectProps> = ({ label, options, defaultSelected, onChange }) => {
-	const [selectedOption, setSelectedOption] = useState<SingleValue<Option>>(defaultSelected);
+	const [selectedOption, setSelectedOption] = useState<SingleValue<SingleSelectOption>>(defaultSelected);
 
 	const handleChange = useCallback(
-		(selected: SingleValue<Option>) => {
+		(selected: SingleValue<SingleSelectOption>) => {
 			if (selected) {
 				setSelectedOption(selected);
 				onChange(selected.value as string);
