@@ -13,16 +13,15 @@ export default {
 
 			return { ...show, nodes };
 		},
-		edges: async(_, { nodeId, limit }): Promise<Edge[]> => {
-			// TODO: Exclude edges resolved higher in the tree
-			return await db.network.getEdgesForPersonNode(convertIdToInteger(nodeId), 'T', limit);
+		edges: async(_, { nodeId }): Promise<Edge[]> => {
+			return await db.network.getEdgesForPersonNode(convertIdToInteger(nodeId), 'T');
 		}
 	},
 	Edge: {
 		id: (edge: Edge) => edge.id,
 		title: (edge: Edge) => edge.title,
-		nodes: async (edge: Edge, { limit }): Promise<Node[]> => {
-			return NodeResolver.Query.nodes(null, { edgeId: edge.id, limit });
+		nodes: async (edge: Edge): Promise<Node[]> => {
+			return NodeResolver.Query.nodes(null, { edgeId: edge.id });
 		},
 	}
 };

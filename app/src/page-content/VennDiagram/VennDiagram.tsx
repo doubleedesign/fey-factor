@@ -21,8 +21,6 @@ export const VennDiagram: FC = () => {
 		{ limit: 20 }
 	);
 
-	console.log(rawData);
-
 	const formattedData = useMemo(() => {
 		if(rawData.TvShows) {
 			return rawData.TvShows.map((show) => {

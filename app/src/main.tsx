@@ -17,6 +17,11 @@ console.error = (...args) => {
 	if (typeof args[0] === 'string' && args[0].includes('Support for defaultProps will be removed')) {
 		return;
 	}
+	// TODO: I guess I should probably fix this by giving everything unique IDs at the GraphQL server level
+	//  but I don't really want to add that complexity unless it actually becomes a problem
+	if(typeof args[0] === 'string' && args[0].includes('Warning: RelayModernRecord: Invalid record update, expected both versions of record')) {
+		return;
+	}
 	originalConsoleError(...args);
 };
 

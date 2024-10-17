@@ -56,6 +56,17 @@
 				"component": "./templates/TemplateName.tsx",
 				"style": "./templates/TemplateName.style.ts"
 			}
+		},
+		"content": {
+			"path": "src/page-content",
+			"withStyle": true,
+			"withTest": false,
+			"withStory": false,
+			"withLazy": false,
+			"customTemplates": {
+				"component": "./templates/TemplateName.tsx",
+				"style": "./templates/TemplateName.style.ts"
+			}
 		}
 	},
 	"testLibrary": "Testing Library"
