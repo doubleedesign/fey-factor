@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<c50365b5cb9eccd18b87bfe7d303edd8>>
+ * @generated SignedSource<<39ef0ed84fcdb8c58c03f61402e77cf9>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -21,10 +21,6 @@ export type NetworkDiagramQuery$data = {
         readonly edges: ReadonlyArray<{
           readonly id: string;
           readonly name: string;
-          readonly nodes: ReadonlyArray<{
-            readonly id: string;
-            readonly name: string;
-          } | null | undefined> | null | undefined;
         } | null | undefined> | null | undefined;
         readonly id: string;
         readonly name: string;
@@ -114,20 +110,7 @@ v4 = [
                 "plural": true,
                 "selections": [
                   (v1/*: any*/),
-                  (v3/*: any*/),
-                  {
-                    "alias": null,
-                    "args": null,
-                    "concreteType": "Node",
-                    "kind": "LinkedField",
-                    "name": "nodes",
-                    "plural": true,
-                    "selections": [
-                      (v1/*: any*/),
-                      (v2/*: any*/)
-                    ],
-                    "storageKey": null
-                  }
+                  (v3/*: any*/)
                 ],
                 "storageKey": null
               }
@@ -159,16 +142,16 @@ return {
     "selections": (v4/*: any*/)
   },
   "params": {
-    "cacheID": "0e954d4122bf9fcaf778948a901dcd31",
+    "cacheID": "17c4e8dc47598bc699e8c68e2cfcf84c",
     "id": null,
     "metadata": {},
     "name": "NetworkDiagramQuery",
     "operationKind": "query",
-    "text": "query NetworkDiagramQuery(\n  $degreeZero: ID!\n) {\n  Node(id: $degreeZero) {\n    id\n    name\n    edges {\n      id\n      name: title\n      nodes {\n        id\n        name\n        edges {\n          id\n          name: title\n          nodes {\n            id\n            name\n          }\n        }\n      }\n    }\n  }\n}\n"
+    "text": "query NetworkDiagramQuery(\n  $degreeZero: ID!\n) {\n  Node(id: $degreeZero) {\n    id\n    name\n    edges {\n      id\n      name: title\n      nodes {\n        id\n        name\n        edges {\n          id\n          name: title\n        }\n      }\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "3328afa790ed116faf3de89f4b72c57b";
+(node as any).hash = "e041c32f8b7ffd61a5333c047bfdd2cd";
 
 export default node;

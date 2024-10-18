@@ -1,5 +1,6 @@
 import theme from './theme.ts';
 import { ReactNode } from 'react';
+import cytoscape from 'cytoscape';
 
 export type ThemeColor = keyof typeof theme.colors;
 
@@ -42,6 +43,11 @@ export type Edition = {
 	tag?: string;
 };
 
+export type SingleSelectOption = {
+	label: string;
+	value: string;
+};
+
 export type MultiSelectOption = {
 	value: string;
 	label: ReactNode;
@@ -52,3 +58,7 @@ export type Filters = {
 	// TODO: Add more filter keys here and then make sure they're accounted for in the filter function
 };
 
+export type NetworkObject = {
+	nodes: cytoscape.NodeDefinition[];
+	edges: cytoscape.EdgeDefinition[];
+};

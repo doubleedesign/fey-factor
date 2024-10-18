@@ -2,9 +2,12 @@ import { NetworkDiagramQuery$data } from '../__generated__/NetworkDiagramQuery.g
 import uniqBy from 'lodash/uniqBy';
 import uniq from 'lodash/uniq';
 import cytoscape from 'cytoscape';
+import { NetworkObject } from '../types.ts';
+
+
 export const networkWranglers = {
 	// Format the data into a standard network configuration where a GraphQL Node is a node and an Edge is an edge/link
-	formatStandard: (data: NetworkDiagramQuery$data): cytoscape.ElementDefinition[] => {
+	formatStandard: (data: NetworkDiagramQuery$data): NetworkObject => {
 		const nodes: cytoscape.NodeDataDefinition[] = [];
 		const edges: cytoscape.EdgeDataDefinition[] = [];
 
@@ -13,58 +16,65 @@ export const networkWranglers = {
 			processNode(data.Node, nodes, edges);
 		}
 
-		return [
-			...uniqBy(nodes, 'id').map(node => ({ data: node })),
-			...consolidateEdges(edges).map(edge => ({ data: edge }))
-		];
+		console.log(edges);
+
+		return {
+			nodes: uniqBy(nodes, 'id').map(node => ({ data: node })),
+			edges: consolidateEdges(edges).map(edge => ({ data: edge }))
+		};
 	},
 	// Format the data into a swapped network configuration where a GraphQL Node is an edge/link and an Edge is a node
-	formatSwapped: (data: NetworkDiagramQuery$data): cytoscape.ElementDefinition[] => {
+	formatSwapped: (data: NetworkDiagramQuery$data): NetworkObject => {
 		const nodes: cytoscape.NodeDataDefinition[] = [];
 		const edges: cytoscape.EdgeDataDefinition[] = [];
 
 		data?.Node?.edges?.forEach(edge => {
 			if (!edge) return;
-			processEdgeAsNode(edge, nodes, edges);
+			processEdgeAsNode({
+				id: edge.id,
+				source: data.Node?.id as string,
+				target: edge.nodes?.[0]?.id as string,
+			}, nodes, edges);
 		});
 
-		return [
-			...uniqBy(nodes, 'id').map(node => ({ data: node })),
-			...consolidateEdges(edges).map(edge => ({ data: edge }))
-		];
+		return {
+			nodes: uniqBy(nodes, 'id').map(node => ({ data: node })),
+			edges: consolidateEdges(edges).map(edge => ({ data: edge }))
+		};
 	}
 };
 
 // Recursive helper functions
-function processNode(node: cytoscape.NodeDataDefinition, nodesArray: cytoscape.NodeDataDefinition[], edgesArray: cytoscape.EdgeDataDefinition[]) {
-	if (!node?.id) return;
+function processNode(
+	node: cytoscape.NodeDataDefinition,
+	nodesArray: cytoscape.NodeDataDefinition[],
+	edgesArray: cytoscape.EdgeDataDefinition[]) {
+	if (!node?.id || node.edges.length < 2) return;
 
-	// Check if the node already exists in the nodes array
-	if (!nodesArray.some(n => n.id === node.id)) {
-		nodesArray.push(node);
-	}
+	nodesArray.push({
+		id: node.id,
+		label: node.name
+	});
 
-	// Process each edge linked to this node
-	node.edges?.forEach((edge: cytoscape.EdgeDataDefinition) => {
-		const targetNode = edge?.nodes?.[0];
-		if (targetNode?.id) {
-			// If the target node doesn't exist, add it
-			if (!nodesArray.some(n => n.id === targetNode.id)) {
-				nodesArray.push(targetNode);
-			}
+	node.edges.forEach((edge: cytoscape.EdgeDataDefinition) => {
+		if (!edge) return;
+		const edgeId = edge.id;
 
-			// Add the edge, ensuring no self-loops
-			if (node.id !== targetNode.id) {
-				edgesArray.push({
-					id: edge.id,
-					source: node.id as string,
-					target: targetNode.id,
-					label: edge.name
-				});
-			}
+		if(edge.nodes) {
 
-			// Recursively process the target node to handle nested structures
-			processNode(targetNode, nodesArray, edgesArray);
+			edge.nodes.forEach((node: cytoscape.NodeDataDefinition) => {
+				if(!node) return;
+				if(target && target.id !== node.id) {
+					edgesArray.push({
+						id: edge.id,
+						source: node.id as string,
+						target: target.id,
+						label: edge.name
+					});
+				}
+
+				processNode(node, nodesArray, edgesArray);
+			});
 		}
 	});
 }

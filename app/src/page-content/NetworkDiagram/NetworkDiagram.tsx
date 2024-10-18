@@ -13,12 +13,12 @@ type NetworkDiagramProps = {
 
 export const NetworkDiagram: FC<NetworkDiagramProps> = ({ nodesAre }) => {
 	const { degreeZero } = useRankingContext();
-	const containerRef = useRef(undefined);
-	const dimensions= useResizeObserver(containerRef, []);
+	const containerRef = useRef<HTMLDivElement | null>(null);
+	const dimensions= useResizeObserver(containerRef, [], 300);
 
 	// Note: Edge titles are renamed so they have the same fields as Nodes, allowing for swapping of nodes and edges
 	const data = useLazyLoadQuery<NetworkDiagramQuery>(graphql`
-            query NetworkDiagramQuery($degreeZero: ID!){
+        query NetworkDiagramQuery($degreeZero: ID!){
             Node(id: $degreeZero){
                 id
                 name
@@ -31,10 +31,6 @@ export const NetworkDiagram: FC<NetworkDiagramProps> = ({ nodesAre }) => {
                         edges {
                             id
                             name:title
-                            nodes {
-                                id
-                                name
-                            }
                         }
                     }
                 }
@@ -52,9 +48,8 @@ export const NetworkDiagram: FC<NetworkDiagramProps> = ({ nodesAre }) => {
 	}, [data, nodesAre]);
 
 	return (
-		// @ts-expect-error Type MutableRefObject<undefined> is not assignable to type LegacyRef<HTMLDivElement> | undefined
 		<StyledNetworkDiagram data-testid="NetworkDiagram" ref={containerRef}>
-			<Network key={nodesAre} formattedData={formattedData} dimensions={dimensions} />
+			{formattedData && <Network key={nodesAre} formattedData={formattedData} dimensions={dimensions} />}
 		</StyledNetworkDiagram>
 	);
 };
