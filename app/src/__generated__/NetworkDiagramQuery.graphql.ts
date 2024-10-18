@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<39ef0ed84fcdb8c58c03f61402e77cf9>>
+ * @generated SignedSource<<31da09651c6ba6148447f2c08e73c309>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -21,6 +21,14 @@ export type NetworkDiagramQuery$data = {
         readonly edges: ReadonlyArray<{
           readonly id: string;
           readonly name: string;
+          readonly nodes: ReadonlyArray<{
+            readonly edges: ReadonlyArray<{
+              readonly id: string;
+              readonly name: string;
+            } | null | undefined> | null | undefined;
+            readonly id: string;
+            readonly name: string;
+          } | null | undefined> | null | undefined;
         } | null | undefined> | null | undefined;
         readonly id: string;
         readonly name: string;
@@ -110,7 +118,33 @@ v4 = [
                 "plural": true,
                 "selections": [
                   (v1/*: any*/),
-                  (v3/*: any*/)
+                  (v3/*: any*/),
+                  {
+                    "alias": null,
+                    "args": null,
+                    "concreteType": "Node",
+                    "kind": "LinkedField",
+                    "name": "nodes",
+                    "plural": true,
+                    "selections": [
+                      (v1/*: any*/),
+                      (v2/*: any*/),
+                      {
+                        "alias": null,
+                        "args": null,
+                        "concreteType": "Edge",
+                        "kind": "LinkedField",
+                        "name": "edges",
+                        "plural": true,
+                        "selections": [
+                          (v1/*: any*/),
+                          (v3/*: any*/)
+                        ],
+                        "storageKey": null
+                      }
+                    ],
+                    "storageKey": null
+                  }
                 ],
                 "storageKey": null
               }
@@ -142,16 +176,16 @@ return {
     "selections": (v4/*: any*/)
   },
   "params": {
-    "cacheID": "17c4e8dc47598bc699e8c68e2cfcf84c",
+    "cacheID": "7d13ff84df9e6239250d0d79e20122c9",
     "id": null,
     "metadata": {},
     "name": "NetworkDiagramQuery",
     "operationKind": "query",
-    "text": "query NetworkDiagramQuery(\n  $degreeZero: ID!\n) {\n  Node(id: $degreeZero) {\n    id\n    name\n    edges {\n      id\n      name: title\n      nodes {\n        id\n        name\n        edges {\n          id\n          name: title\n        }\n      }\n    }\n  }\n}\n"
+    "text": "query NetworkDiagramQuery(\n  $degreeZero: ID!\n) {\n  Node(id: $degreeZero) {\n    id\n    name\n    edges {\n      id\n      name: title\n      nodes {\n        id\n        name\n        edges {\n          id\n          name: title\n          nodes {\n            id\n            name\n            edges {\n              id\n              name: title\n            }\n          }\n        }\n      }\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "e041c32f8b7ffd61a5333c047bfdd2cd";
+(node as any).hash = "83fc921faf400b9dde003a4b64f827a2";
 
 export default node;

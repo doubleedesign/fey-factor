@@ -2,7 +2,7 @@ import { FC, useMemo, useRef } from 'react';
 import { StyledNetworkDiagram } from './NetworkDiagram.style';
 import { graphql, useLazyLoadQuery } from 'react-relay';
 import { NetworkDiagramQuery } from '../../__generated__/NetworkDiagramQuery.graphql.ts';
-import { networkWranglers } from '../../wranglers/network.ts';
+import { NetworkWrangler } from '../../wranglers/network.ts';
 import { useRankingContext } from '../../controllers/RankingContext.tsx';
 import { Network } from '../../components/data-presentation/Network/Network.tsx';
 import { useResizeObserver } from '../../hooks/use-resize-observer.ts';
@@ -20,17 +20,25 @@ export const NetworkDiagram: FC<NetworkDiagramProps> = ({ nodesAre }) => {
 	const data = useLazyLoadQuery<NetworkDiagramQuery>(graphql`
         query NetworkDiagramQuery($degreeZero: ID!){
             Node(id: $degreeZero){
-                id
-                name
+                id 
+                name 
                 edges {
-                    id
-                    name:title
+                    id 
+                    name:title 
                     nodes {
-                        id
-                        name
+                        id 
+                        name 
                         edges {
-                            id
+                            id 
                             name:title
+	                        nodes {
+		                        id 
+		                        name 
+		                        edges {
+			                        id
+			                        name:title
+                                }
+	                        }
                         }
                     }
                 }
@@ -39,11 +47,17 @@ export const NetworkDiagram: FC<NetworkDiagramProps> = ({ nodesAre }) => {
 	`, { degreeZero: degreeZero.toString() }, { fetchPolicy: 'store-or-network' });
 
 	const formattedData = useMemo(() => {
-		if(nodesAre === 'shows') {
-			return networkWranglers.formatSwapped(data);
-		}
+		const wrangler = new NetworkWrangler(data);
+
 		if(nodesAre === 'people') {
-			return networkWranglers.formatStandard(data);
+			wrangler.formatStandard();
+
+			return wrangler.getFormattedData();
+		}
+		if(nodesAre === 'shows') {
+			wrangler.formatSwapped();
+
+			return wrangler.getFormattedData();
 		}
 	}, [data, nodesAre]);
 
