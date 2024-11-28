@@ -5,6 +5,8 @@ export const StyledSelectionInputs = styled.div`
 	display: flex;
 	flex-wrap: nowrap;
 	gap: ${props => props.theme.spacing.xs};
+	position: relative;
+	z-index: 9000;
 	
 	label {
 		width: 100%;

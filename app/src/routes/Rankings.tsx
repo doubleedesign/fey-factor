@@ -11,11 +11,11 @@ import { TableSkeleton } from '../components/loading';
 
 
 export const Rankings: FC = () => {
-	const [limit, setLimit] = useState<number>(10);
+	const [limit, setLimit] = useState<number>(20);
 	const [loadingRows, setLoadingRows] = useState<number>(0);
 	const [providers, setProviders] = useState<MultiSelectOption[]>([]);
 	const [selectedProviders, setSelectedProviders] = useState<MultiSelectOption[]>([]);
-	const { filter } = useRankingContext();
+	const { filter, columns, visibleColumns, setVisibleColumns, alwaysVisibleColumns } = useRankingContext();
 
 	// Load watch providers on initial render
 	useEffect(() => {
@@ -57,6 +57,12 @@ export const Rankings: FC = () => {
 		});
 	}, [limit]);
 
+	const handleColumnVisibilityChange = useCallback((selected: MultiValue<MultiSelectOption>) => {
+		// @ts-expect-error TS2345: Argument of type MultiSelectOption[] is not assignable to parameter of type Pick<Column, 'value' | 'label'>[].
+		// Type string is not assignable to type Column['value']
+		setVisibleColumns(selected as MultiSelectOption[]);
+	}, [setVisibleColumns]);
+
 	const handleProviderFilterChange = useCallback((selected: MultiValue<MultiSelectOption>) => {
 		setSelectedProviders(selected as MultiSelectOption[]);
 		filter({ available_on: selected.map(option => option.value) } as Filters);
@@ -71,6 +77,13 @@ export const Rankings: FC = () => {
 				</div>
 				<SelectionInputs>
 					<NumberPicker label="Show top:" defaultValue={10} onChange={handleLimitChange} />
+					<MultiSelect
+						label="Show columns"
+						options={columns.filter(col => !alwaysVisibleColumns.includes(col.value))} // these should always be visible
+						selectedOptions={visibleColumns}
+						onChange={handleColumnVisibilityChange}
+						showAs="checkboxes"
+					/>
 					<MultiSelect
 						label={`Filter top ${limit} by streaming availability:`}
 						options={providers}

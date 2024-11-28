@@ -12,6 +12,9 @@ type RankingContextState = {
 	setColumns: (columns: Column[]) => void;
 	sortableColumns: Column[];
 	setSortableColumns: (columns: Column[]) => void;
+	alwaysVisibleColumns: string[];
+	visibleColumns: Pick<Column, 'label' | 'value'>[];
+	setVisibleColumns: (columns: Pick<Column, 'label' | 'value'>[]) => void;
 	activeSortField: string;
 	sort: (event: React.MouseEvent<HTMLButtonElement>) => void;
 	filter: (filters: Filters) => void;
@@ -28,6 +31,8 @@ export const RankingContextProvider: FC<PropsWithChildren> = ({ children }) => {
 	// Sorting
 	const [columns, setColumns] = useState<Column[]>([]);
 	const [sortableColumns, setSortableColumns] = useState<Column[]>([]);
+	const [visibleColumns, setVisibleColumns] = useState<Pick<Column, 'label' | 'value'>[]>([]);
+	const alwaysVisibleColumns = ['rank', 'id', 'title'];
 	const [activeSortField, setActiveSortField] = useState<string>('weighted_score');
 	const [ordering, setOrdering] = useState<{ [key: string]: 'asc' | 'desc' }>(() => {
 		const order = {};
@@ -42,7 +47,7 @@ export const RankingContextProvider: FC<PropsWithChildren> = ({ children }) => {
 	useEffect(() => {
 		setData(rawData);
 	}, [rawData]);
-	
+
 	// Sort the data when active sort field changes
 	const handleSort = useCallback((event: React.MouseEvent<HTMLButtonElement>) => {
 		const field = event.currentTarget.closest('th')?.dataset.fieldkey as keyof Row;
@@ -68,6 +73,8 @@ export const RankingContextProvider: FC<PropsWithChildren> = ({ children }) => {
 			data,
 			columns, setColumns,
 			sortableColumns, setSortableColumns,
+			visibleColumns, setVisibleColumns,
+			alwaysVisibleColumns,
 			activeSortField,
 			sort: handleSort,
 			filter: handleFilter,

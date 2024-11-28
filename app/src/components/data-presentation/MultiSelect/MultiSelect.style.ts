@@ -54,3 +54,15 @@ export const StyledMultiSelectInvisibleCheckbox = styled.input`
 	width: 0;
 	height: 0;
 `;
+
+export const StyledMultiSelectCheckbox = styled.input`
+`;
+
+export const StyledMultiSelectSelectedPlainText = styled.div`
+	color: black;
+	width: 12rem;
+	font-size: ${props => props.theme.fontSizes.sm};
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+`;
