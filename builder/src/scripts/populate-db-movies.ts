@@ -39,7 +39,7 @@ class MoviePopulator extends DataPopulator implements DataPopulatorInterface {
 	 */
 	async getAndProcessCreditsForPerson(personId: number, degree: number, dataFuncs = tmdbFilmData): Promise<number[]> {
 		if(this.peopleAlreadyAdded?.[this.RUN_TYPE]?.has(personId)) {
-			customConsole.warn(`Person ID ${personId} has already been processed, skipping.`, true);
+			customConsole.warn(`Person ID ${personId} has already been processed, skipping.`);
 			return;
 		}
 
@@ -48,7 +48,7 @@ class MoviePopulator extends DataPopulator implements DataPopulatorInterface {
 		// All film credits for the person, then filtered down to just the kind we're interested in
 		const credits = await this.api.getFilmCreditsForPerson(personId);
 		if(!credits) {
-			customConsole.warn(`Failed to fetch credits for person ID ${personId}, skipping.`, true);
+			customConsole.warn(`Failed to fetch credits for person ID ${personId}, skipping.`);
 			return;
 		}
 
@@ -97,7 +97,7 @@ class MoviePopulator extends DataPopulator implements DataPopulatorInterface {
 	 * @param movieId
 	 */
 	async getAndProcessCreditsForWork(movieId: number, dataFuncs = tmdbFilmData): Promise<number[]> {
-		customConsole.info(`Processing movie ID ${movieId}.`, false);
+		customConsole.info(`Processing movie ID ${movieId}.`);
 		const peopleIdsToReturn: number[] = [];
 
 		// We shouldn't need to fetch movie details and immediately add/update them in the db here
@@ -121,7 +121,7 @@ class MoviePopulator extends DataPopulator implements DataPopulatorInterface {
 			peopleIdsToReturn.push(...relevantCastIds, ...crewIds);
 		}
 		else {
-			customConsole.warn(`Failed to fetch credits for movie ID ${movieId}, which may have impacted cast and crew inclusion.`, true);
+			customConsole.warn(`Failed to fetch credits for movie ID ${movieId}, which may have impacted cast and crew inclusion.`);
 			logToFile(this.logFile, `Failed to fetch credits for movie ID ${movieId}, which may have impacted cast and crew inclusion.`);
 		}
 
@@ -166,8 +166,6 @@ class MoviePopulator extends DataPopulator implements DataPopulatorInterface {
 
 export function populateDbMovies({ startPersonId, maxDegree }) {
 	new MoviePopulator({ startPersonId, maxDegree }).run().then(() => {
-		customConsole.stopAllProgressBars();
 		customConsole.success('Movie population complete.');
-		customConsole.logProgress('Movie population complete.');
 	});
 }

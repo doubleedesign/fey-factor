@@ -12,10 +12,12 @@ export class TmdbApi {
 	authToken: string;
 	baseUrl: string = 'https://api.themoviedb.org/3';
 	logFile: WriteStream;
+	defaultUseCached: boolean = true;
 
-	constructor() {
+	constructor({ defaultUseCached }) {
 		this.authToken = process.env.TMDB_AUTH_TOKEN as string;
 		this.logFile = createWriteStream('./logs/tmdb-api.log');
+		this.defaultUseCached = defaultUseCached;
 	}
 
 	async checkConnection() {
@@ -23,19 +25,25 @@ export class TmdbApi {
 		return response.success;
 	}
 
+	setUseCached(useCached: boolean) {
+		this.defaultUseCached = useCached;
+	}
+
 	/**
 	 * Utility function for making requests to the TMDB API
+	 * // TODO: More granular cache use settings for refreshing data without re-fetching absolutely everything
+	 *     e.g., don't refetch shows that have ended
 	 * @param url
 	 * @param method
 	 * @param data
 	 * @param useCached
 	 */
-	async makeFetchHappen(url: string, method: string, data?: unknown, useCached = true) {
+	async makeFetchHappen(url: string, method: string, data?: unknown, useCached = this.defaultUseCached) {
 		// If data is cached in a JSON file in src/cache, use that
 		const cachePath = this.getCachedFilePath(url);
 		if(useCached && existsSync(cachePath)) {
 			try {
-				customConsole.info(`Using cached data for ${url}`, false);
+				customConsole.info(`Using cached data for ${url}`);
 				const data = readFileSync(cachePath, 'utf-8');
 				return JSON.parse(data);
 			}
@@ -49,7 +57,12 @@ export class TmdbApi {
 			}
 		}
 
-		customConsole.info(`No cached data at ${cachePath}, making request to ${url}...`);
+		if(this.defaultUseCached) {
+			customConsole.info(`Making request to ${url}...`);
+		}
+		else {
+			customConsole.info(`No cached data at ${cachePath}, making request to ${url}...`);
+		}
 		try {
 			const response = await axios.request({
 				url: url,

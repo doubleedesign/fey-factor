@@ -82,7 +82,7 @@ class DegreeUpdater extends DataPopulatorCommon {
 						// TODO: It'd be better not to query the db every time here
 						const roleId: number = await db.getRoleId(Case.snake(role.name));
 						if(!roleId) {
-							customConsole.warn(`Role ID not found for ${role.name}, skipping.`, true);
+							customConsole.warn(`Role ID not found for ${role.name}, skipping.`);
 							return;
 						}
 						await db.connectPersonToWork(credit.id, showId, roleId, role?.episode_count ?? 0);
@@ -95,8 +95,6 @@ class DegreeUpdater extends DataPopulatorCommon {
 
 export function degreeUpdate(settings: PopulationScriptSettings) {
 	new DegreeUpdater(settings).run().then(() => {
-		customConsole.stopAllProgressBars();
 		customConsole.success('Update of eligible degree 2 people to degree 1 complete.');
-		customConsole.logProgress('Update of eligible degree 2 people to degree 1 complete.');
 	});
 }

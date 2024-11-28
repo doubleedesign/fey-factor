@@ -131,7 +131,7 @@ class SnlHandler extends DataPopulatorCommon {
 				// TODO: It'd be better not to query the db every time here
 				const roleId: number = await db.getRoleId(Case.snake(role.name));
 				if(!roleId) {
-					customConsole.warn(`Role ID not found for ${role.name}, skipping.`, true);
+					customConsole.warn(`Role ID not found for ${role.name}, skipping.`);
 					return;
 				}
 
@@ -143,8 +143,6 @@ class SnlHandler extends DataPopulatorCommon {
 
 export function addOrUpdateRelevantSnlPeople(settings: PopulationScriptSettings) {
 	new SnlHandler(settings).run().then(() => {
-		customConsole.stopAllProgressBars();
 		customConsole.success('Addition of relevant SNL people complete.');
-		customConsole.logProgress('Relevant SNL people added or updated in database.');
 	});
 }

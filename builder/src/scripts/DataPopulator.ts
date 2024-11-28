@@ -65,11 +65,9 @@ export class DataPopulator extends DataPopulatorCommon implements DataPopulatorI
 		let peopleIdsToProcessNext = [this.startPersonId];
 		let peopleProcessedCount = 0;
 		let worksProcessedCount = 0;
-		customConsole.addProgressBar('degrees', this.maxDegree);
 
 		while(this.degree < this.maxDegree + 1) {
-			customConsole.announce(`${peopleIdsToProcessNext.length} people to process at degree ${this.degree}`, true);
-			customConsole.addProgressBar(`people[${this.degree}]`, peopleIdsToProcessNext.length);
+			customConsole.announce(`${peopleIdsToProcessNext.length} people to process at degree ${this.degree}`);
 
 			// Sequentially process the credits for each person at the current degree and get the work IDs
 			// Doing things synchronously helps reduce duplicate requests and makes it easier to track progress and debug issues
@@ -78,12 +76,11 @@ export class DataPopulator extends DataPopulatorCommon implements DataPopulatorI
 					const result = await this.getAndProcessCreditsForPerson(personId, this.degree);
 					peopleProcessedCount++;
 					// eslint-disable-next-line max-len
-					customConsole.success(`Processed ${peopleProcessedCount} of ${peopleIdsToProcessNext.length} at degree ${this.degree}\t (Person ID ${personId})\t Work IDs returned: ${result}`, true);
-					customConsole.updateProgress(`people[${this.degree}]`, peopleProcessedCount);
+					customConsole.success(`Processed ${peopleProcessedCount} of ${peopleIdsToProcessNext.length} at degree ${this.degree}\t (Person ID ${personId})\t Work IDs returned: ${result}`);
 					return result;
 				}
 				catch (error) {
-					customConsole.error(`Error processing person ID ${personId}:\t ${error}`, true);
+					customConsole.error(`Error processing person ID ${personId}:\t ${error}`);
 					logToFile(this.logFile, `Error processing person ID ${personId}:\t ${error}`);
 					return [];
 				}
@@ -94,14 +91,12 @@ export class DataPopulator extends DataPopulatorCommon implements DataPopulatorI
 
 
 			// Work IDs have been gathered, now process them and get the next level of people IDs
-			customConsole.announce(`${workIdsToProcessNext.length} ${Case.sentence(RUN_TYPE)} to process at degree ${this.degree}.`, true);
-			customConsole.addProgressBar(`${RUN_TYPE}[${this.degree}]`, workIdsToProcessNext.length);
+			customConsole.announce(`${workIdsToProcessNext.length} ${Case.sentence(RUN_TYPE)} to process at degree ${this.degree}.`);
 
 			const peopleIds = await async.mapSeries(workIdsToProcessNext, (async (workId: number) => {
 				const result = await this.getAndProcessCreditsForWork(workId);
 				worksProcessedCount++;
-				customConsole.success(`Processed work ID ${workId}.\t Number of People IDs returned: ${result?.length || 0}`, true);
-				customConsole.updateProgress(`${RUN_TYPE}[${this.degree}]`, worksProcessedCount);
+				customConsole.success(`Processed work ID ${workId}.\t Number of People IDs returned: ${result?.length || 0}`);
 				return result;
 			}));
 			peopleIdsToProcessNext = this?.peopleAlreadyAdded?.[RUN_TYPE]
@@ -110,9 +105,6 @@ export class DataPopulator extends DataPopulatorCommon implements DataPopulatorI
 
 			// We're done at this degree
 			this.degree++;
-			customConsole.updateProgress('degrees', this.degree);
-			// eslint-disable-next-line max-len
-			customConsole.logProgress(`Processed ${peopleProcessedCount} people and ${worksProcessedCount} ${Case.sentence(RUN_TYPE)} at degree ${this.degree - 1}.`);
 		}
 	}
 
@@ -146,7 +138,7 @@ export class DataPopulator extends DataPopulatorCommon implements DataPopulatorI
 		// Use locally stored role ID if we have it, otherwise fetch from the db
 		const roleId: number = this.roleIds[roleName] || await db.getRoleId(Case.snake(roleName));
 		if(!roleId) {
-			customConsole.warn(`Role ID not found for ${roleName}, skipping.`, true);
+			customConsole.warn(`Role ID not found for ${roleName}, skipping.`);
 			return;
 		}
 

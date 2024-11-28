@@ -9,6 +9,7 @@ import {
 export type PopulationScriptSettings = {
 	startPersonId: number;
 	maxDegree: number;
+	useCached?: boolean;
 };
 
 export type DataWrangler = {

@@ -1,14 +1,12 @@
 import { promises as fs, WriteStream } from 'fs';
 // noinspection ES6PreferShortImport
 import { DatabaseConnection } from './database/index.ts';
-import { TmdbApi } from './datasources/tmdb-api.ts';
 // noinspection ES6PreferShortImport
-import { CustomConsole, LoggingType } from './utils/CustomConsole/index.ts';
+import { CustomConsole } from './utils/CustomConsole/index.ts';
 import * as path from 'node:path';
 
 export const db = new DatabaseConnection();
-export const api = new TmdbApi();
-export const customConsole = new CustomConsole({ speed: 100, style: LoggingType.PRETTY });
+export const customConsole = new CustomConsole();
 
 export const COMEDY_GENRE_ID = 35; // themoviedb.org genre id
 export const EXCLUDED_GENRE_IDS = [
@@ -52,7 +50,7 @@ export function wait(time:number) {
   return new Promise(resolve => setTimeout(resolve, time));
 }
 
-export async function createFileIfNotExists(filePath) {
+export async function createFileIfNotExists(filePath: string) {
 	try {
 		// Ensure the directory exists
 		const directory = path.dirname(filePath);

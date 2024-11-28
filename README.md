@@ -19,8 +19,7 @@ The inclusion criteria are basic, so this should be considered a beta proof-of-c
 cd builder
 npm install
 ```
-- Postgres settings in `src/database/DatabaseConnection.ts`
-- Custom logger speed in `src/common.ts`
+- Postgres settings in `src/database/DatabaseConnection.ts``
 - TMDB API key as `TMDB_AUTH_TOKEN` in `.env`.
 
 ### Usage
@@ -32,7 +31,7 @@ For first run, arrow down to the "danger zone" and choose the "Initialise empty 
 
 ### Result
 
-The resultant database schema is intentionally minimal, with a focus on raw data, low redundancy, and primarily storing data that is unlikely to change*. Calculations, derived data, and fetching time-sensitive data (such as watch providers) are handled at the GraphQL layer.
+The resultant database schema is intentionally minimal, with a focus on raw data, low redundancy, and primarily storing data that is unlikely to change* and project-specific custom data (e.g., degree of separation, show ratings). Calculations, derived data, and fetching time-sensitive data (such as watch providers) are handled at the GraphQL layer.
 
 ![Database schema diagram](./database.png)
 

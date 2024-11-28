@@ -46,7 +46,7 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 	 */
 	async getAndProcessCreditsForPerson(personId: number, degree: number, dataFuncs = tmdbTvData): Promise<number[]> {
 		if(this.peopleAlreadyAdded?.[this.RUN_TYPE]?.has(personId)) {
-			customConsole.warn(`Person ID ${personId} has already been processed, skipping.`, true);
+			customConsole.warn(`Person ID ${personId} has already been processed, skipping.`);
 			return [];
 		}
 
@@ -55,7 +55,7 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 		// All TV credits for the person, then filtered down to just the kind we're interested in
 		const credits = await this.api.getTvCreditsForPerson(personId);
 		if(!credits) {
-			customConsole.warn(`Failed to fetch credits for person ID ${personId}, skipping.`, true);
+			customConsole.warn(`Failed to fetch credits for person ID ${personId}, skipping.`);
 			return [];
 		}
 
@@ -209,7 +209,7 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 	async getAndProcessCreditsForWork(showId: number, dataFuncs = tmdbTvData): Promise<number[]> {
 		const peopleIdsToReturn: number[] = [];
 		if(this.worksAlreadyAdded.has(showId)) {
-			customConsole.warn(`Show ID ${showId} has already been processed, skipping.`, true);
+			customConsole.warn(`Show ID ${showId} has already been processed, skipping.`);
 			return [];
 		}
 
@@ -255,7 +255,7 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 		}
 
 		if(!showDetails || !showCredits) {
-			customConsole.error(`Failed to fetch some data for show ID ${showId}, which may have impacted cast and crew inclusion.`, true);
+			customConsole.error(`Failed to fetch some data for show ID ${showId}, which may have impacted cast and crew inclusion.`);
 			logToFile(this.logFile, `Failed to fetch some data for show ID ${showId}, which may have impacted cast and crew inclusion.`);
 		}
 
@@ -309,8 +309,6 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 
 export function populateDbTv({ startPersonId, maxDegree }: PopulationScriptSettings) {
 	new TVPopulator({ startPersonId, maxDegree }).run().then(() => {
-		customConsole.stopAllProgressBars();
-		customConsole.logProgress('TV show population complete.');
-		customConsole.success('Initial TV show population complete.', true);
+		customConsole.success('Initial TV show population complete.');
 	});
 }
