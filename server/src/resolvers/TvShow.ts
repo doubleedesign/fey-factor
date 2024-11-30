@@ -11,12 +11,12 @@ export default {
 	Query: {
 		TvShow: async (_, { id }): Promise<TvShowGql> => {
 			const coreFields = await db.works.getTvShow(id);
-			const rankingData = await db.works.getRankingDataForTvshow(id);
+			const ranking_data = await db.works.getRankingDataForTvshow(id);
 
 			return {
 				...coreFields,
 				id: convertIdToInteger(coreFields.id),
-				rankingData: rankingData
+				ranking_data: ranking_data
 			};
 		},
 		TvShows: async (_, { ids, limit }): Promise<TvShowGql[]> => {
@@ -30,7 +30,7 @@ export default {
 
 			return result.map(tvShow => ({
 				...tvShow,
-				rankingData: {
+				ranking_data: {
 					...pick(tvShow, ['total_connections', 'average_degree', 'aggregate_episode_count', 'weighted_score'])
 				},
 			}));
@@ -48,8 +48,8 @@ export default {
 
 			return db.works.getRolesForTvshow(parent.id);
 		},
-		rankingData: async (parent: TvShowGql) => {
-			if(!parent?.rankingData) {
+		ranking_data: async (parent: TvShowGql) => {
+			if(!parent?.ranking_data) {
 				return await db.works.getRankingDataForTvshow(parent.id);
 			}
 

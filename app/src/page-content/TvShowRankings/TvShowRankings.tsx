@@ -1,10 +1,11 @@
-import { FC, useEffect } from 'react';
+import { FC, useState, useEffect } from 'react';
 import { graphql, useLazyLoadQuery } from 'react-relay';
 import { TvShowRankingsQuery, TvShowRankingsQuery$data } from '../../__generated__/TvShowRankingsQuery.graphql.ts';
 import { SortableTable } from '../../components/data-presentation';
 import { Column, Row } from '../../types.ts';
 import { useRankingContext } from '../../controllers/RankingContext.tsx';
 import * as Case from 'case';
+import { TableSkeleton } from '../../components/loading';
 
 type TvShowRankingsProps = {
 	limit: number;
@@ -24,7 +25,8 @@ const COLUMN_TOOLTIP_MAP: Record<Column['value'] | string, string> = {
 };
 
 export const TvShowRankings: FC<TvShowRankingsProps> = ({ limit, loadingRows }) => {
-	const { setRawData, setColumns, setSortableColumns, setVisibleColumns, alwaysVisibleColumns } = useRankingContext();
+	const { setRawData, setColumns } = useRankingContext();
+	const [isLoading, setIsLoading] = useState<boolean>(true);
 
 	const result = useLazyLoadQuery<TvShowRankingsQuery>(
 		graphql`
@@ -67,6 +69,13 @@ export const TvShowRankings: FC<TvShowRankingsProps> = ({ limit, loadingRows }) 
 		}) ?? [];
 
 		setRawData(() => rowData ?? []);
+
+		if(rowData.length > 0) {
+			setTimeout(() => {
+				setIsLoading(false);
+			}, 100); // give it a little time to load the table rows so it doesn't briefly show an empty table with only the headers
+		}
+
 		const cols = Object.keys(rowData[0]).map(column => {
 			return {
 				value: column,
@@ -74,11 +83,9 @@ export const TvShowRankings: FC<TvShowRankingsProps> = ({ limit, loadingRows }) 
 				tooltip: COLUMN_TOOLTIP_MAP[column]
 			};
 		}) as Column[];
-		
+
 		setColumns(cols);
-		setVisibleColumns(cols.filter(column => !alwaysVisibleColumns.includes(column.value)));
-		setSortableColumns(cols.filter(column => ['episode_count', 'total_connections', 'average_degree', 'weighted_score'].includes(column.value)));
-	}, [result.TvShows, setColumns, setRawData, setSortableColumns, setVisibleColumns]);
+	}, [result.TvShows, setColumns, setRawData]);
 
 	useEffect(() => {
 		if(loadingRows > 0) {
@@ -102,7 +109,7 @@ export const TvShowRankings: FC<TvShowRankingsProps> = ({ limit, loadingRows }) 
 
 	return (
 		<div data-testid="TvShowRankings">
-			<SortableTable />
+			{isLoading ? <TableSkeleton rows={limit} /> : <SortableTable />}
 		</div>
 	);
 };

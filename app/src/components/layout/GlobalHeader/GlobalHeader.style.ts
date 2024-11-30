@@ -11,6 +11,7 @@ export const StyledGlobalHeader = styled.header`
 	background: ${props => props.theme.colors.primary};
 	padding: ${props => props.theme.spacing.md} 0;
 	color: ${props => readableColor(props.theme.colors.primary)};
+	z-index: 9990;
 	
 	${Container} {
 		display: flex;

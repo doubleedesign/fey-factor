@@ -34,7 +34,7 @@ export default {
 			//
 			// 	return ({
 			// 		...Movie,
-			// 		rankingData: {
+			// 		ranking_data: {
 			// 			...pick(Movie, ['total_connections', 'average_degree', 'aggregate_episode_count', 'weighted_score'])
 			// 		},
 			// 	});
@@ -56,7 +56,7 @@ export default {
 			return db.works.getRolesForMovie(parent.id);
 		},
 		// TODO: Implement the database stuff that will make this work
-		rankingData: async (parent: MovieGql) => {
+		ranking_data: async (parent: MovieGql) => {
 			return pick(parent, ['total_connections', 'average_degree', 'weighted_score']);
 		},
 	},

@@ -24,6 +24,7 @@ export const sortProviders = (providers: Provider[]) => {
 };
 
 const apiKey = import.meta.env.VITE_TMDB_API_KEY;
+// TODO: Move this to the server layer to avoid exposing the API key
 export const fetchWatchProviders = async () => {
 	try {
 		const response = await fetch(`https://api.themoviedb.org/3/watch/providers/tv?watch_region=AU&api_key=${apiKey}`);

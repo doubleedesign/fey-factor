@@ -36,7 +36,7 @@ export type Movie = Work & {
 	people: Maybe<Array<Maybe<Person>>>;
 	poster_path: Maybe<Scalars['String']['output']>;
 	providers: Maybe<Array<Maybe<Provider>>>;
-	rankingData: Maybe<RankingData>;
+	ranking_data: Maybe<RankingData>;
 	release_year: Maybe<Scalars['Int']['output']>;
 	roles: Maybe<Array<Maybe<Role>>>;
 	title: Scalars['String']['output'];
@@ -109,7 +109,7 @@ export type TvShow = Work & {
 	people: Maybe<Array<Maybe<Person>>>;
 	poster_path: Maybe<Scalars['String']['output']>;
 	providers: Maybe<Array<Maybe<Provider>>>;
-	rankingData: Maybe<RankingData>;
+	ranking_data: Maybe<RankingData>;
 	roles: Maybe<Array<Maybe<Role>>>;
 	season_count: Maybe<Scalars['Int']['output']>;
 	start_year: Maybe<Scalars['Int']['output']>;
@@ -127,6 +127,23 @@ export type TvShowAdditionalFields = {
 	poster_path: Maybe<Scalars['String']['output']>;
 };
 
+export type VennDiagram = {
+	circles: Array<VennDiagramCircle>;
+	intersections: Array<VennDiagramIntersection>;
+};
+
+export type VennDiagramCircle = {
+	people_count: Scalars['Int']['output'];
+	show_id: Scalars['String']['output'];
+	title: Scalars['String']['output'];
+};
+
+export type VennDiagramIntersection = {
+	people_count: Scalars['Int']['output'];
+	show_ids: Array<Scalars['String']['output']>;
+	titles: Array<Scalars['String']['output']>;
+};
+
 export type Work = {
 	backdrop_path: Maybe<Scalars['String']['output']>;
 	id: Scalars['ID']['output'];
@@ -134,7 +151,7 @@ export type Work = {
 	people: Maybe<Array<Maybe<Person>>>;
 	poster_path: Maybe<Scalars['String']['output']>;
 	providers: Maybe<Array<Maybe<Provider>>>;
-	rankingData: Maybe<RankingData>;
+	ranking_data: Maybe<RankingData>;
 	roles: Maybe<Array<Maybe<Role>>>;
 	title: Scalars['String']['output'];
 };

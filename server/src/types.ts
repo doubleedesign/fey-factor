@@ -41,3 +41,20 @@ export interface Edge {
 	title: string;
 	nodes: Node[];
 }
+
+export interface VennDiagram {
+	intersections: VennDiagramIntersection[];
+	circles: VennDiagramCircle[];
+}
+
+export type VennDiagramIntersection = {
+	titles: string[];
+	show_ids: string[];
+	people_count: number;
+};
+
+export type VennDiagramCircle = {
+	title: string;
+	show_id: string;
+	people_count: number;
+};

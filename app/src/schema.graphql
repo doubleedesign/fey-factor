@@ -9,6 +9,7 @@ type Query {
 	People(ids: [ID], limit: Int): [Person]
 	TvShow(id: ID!): TvShow
 	TvShows(ids: [ID], limit: Int): [TvShow]
+	VennDiagram(minShows: Int, minPeople: Int): VennDiagram
 	Work(id: ID!): Work
 	Works(ids: [ID], limit: Int): [Work]
 }input WorkFilter {
@@ -30,11 +31,6 @@ type Person {
 	works(filter: WorkFilter): [Work]
 	roles: [Role]
 }
-type Role {
-	id: ID!
-	name: String
-	episode_count: Int
-}
 interface Work {
 	id: ID!
 	title: String!
@@ -45,6 +41,11 @@ interface Work {
 	backdrop_path: String
 	people: [Person]
 	roles: [Role]
+}
+type Role {
+	id: ID!
+	name: String
+	episode_count: Int
 }
 type RankingData {
 	total_connections: Int
@@ -63,11 +64,25 @@ type Provider {
 	logo_path: String
 	provider_type: String
 }
+type VennDiagramIntersection {
+	shows: [String!]!
+	show_ids: [String!]!
+	people: Int!
+}
+type VennDiagramCircle {
+	show: String!
+	show_id: String!
+	people: Int!
+}
 type Node {
 	id: ID!
 	name: String!
 	degree: Int!
 	edges(limit: Int): [Edge]
+}
+type VennDiagram {
+	intersections: [VennDiagramIntersection!]!
+	circles: [VennDiagramCircle!]!
 }
 type Edge {
 	id: ID!

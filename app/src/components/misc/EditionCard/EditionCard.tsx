@@ -8,6 +8,7 @@ export const EditionCard: FC<Edition> = ({ personId, title, tag }: Edition) => {
 	const [profileData, setProfileData] = useState<{ name: string; profile_path: string }>();
 
 	useEffect(() => {
+		// TODO: Move this to the GraphQL layer
 		const fetchData = async () => {
 			try {
 				const response = await fetch(`https://api.themoviedb.org/3/person/${personId}?api_key=${apiKey}`);

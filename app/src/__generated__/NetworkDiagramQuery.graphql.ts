@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<31da09651c6ba6148447f2c08e73c309>>
+ * @generated SignedSource<<08ca59ff7b704a3630153a874da6897a>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { ConcreteRequest, Query } from 'relay-runtime';
+import { ConcreteRequest } from 'relay-runtime';
 export type NetworkDiagramQuery$variables = {
   degreeZero: string;
 };

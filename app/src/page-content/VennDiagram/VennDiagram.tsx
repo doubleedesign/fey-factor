@@ -1,42 +1,42 @@
 import { FC, useMemo } from 'react';
-import { VennDiagram as Venn } from 'reaviz';
-import { StyledVennDiagramWrapper } from './VennDiagram.style.ts';
 import { graphql, useLazyLoadQuery } from 'react-relay';
 import { VennDiagramQuery } from '../../__generated__/VennDiagramQuery.graphql.ts';
+import { Venn } from '../../components/data-presentation/Venn/Venn';
 
 export const VennDiagram: FC = () => {
 	const rawData = useLazyLoadQuery<VennDiagramQuery>(
 		graphql`
-			query VennDiagramQuery($limit: Int!) {
-				TvShows(limit: $limit) {
-					id
-					title
-                    people {
-                        personId: id
-                        name
+            query VennDiagramQuery($minShows: Int, $minPeople: Int!) {
+                VennDiagram(minShows: $minShows, minPeople: $minPeople) {
+                    intersections {
+	                    shows
+	                    people
                     }
-	            }
-	        }
+	                circles {
+		                show
+	                    people
+	                }
+                }
+            }
 		`,
-		{ limit: 20 }
+		{ minShows: 5, minPeople: 10 }
 	);
 
 	const formattedData = useMemo(() => {
-		if(rawData.TvShows) {
-			return rawData.TvShows.map((show) => {
-				return {
-					key: [show?.id as string ?? ''],
-					data: show?.people?.length ?? 0,
-				};
-			});
-		}
-	}, [rawData.TvShows]);
+		const formattedIntersections = rawData?.VennDiagram?.intersections.map(({ shows, people }) => ({
+			key: shows as string[],
+			data: people as number,
+		})) || [];
+
+		const formattedCircles = rawData?.VennDiagram?.circles.map(({ show, people }) => ({
+			key: [show] as string[],
+			data: people as number,
+		})) || [];
+
+		return [...formattedIntersections, ...formattedCircles];
+	}, [rawData]);
 
 	return (
-		<StyledVennDiagramWrapper data-testid="VennDiagram">
-			{/*{formattedData &&*/}
-			{/*	<Venn data={formattedData} />*/}
-			{/*}*/}
-		</StyledVennDiagramWrapper>
+		formattedData && <Venn data={formattedData} />
 	);
 };

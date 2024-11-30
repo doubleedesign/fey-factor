@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<898de47f41807f49c56de7e9b0977366>>
+ * @generated SignedSource<<30cc6ced43bf51619ba05ae3e07316b9>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,19 +8,22 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { ConcreteRequest, Query } from 'relay-runtime';
+import { ConcreteRequest } from 'relay-runtime';
 export type VennDiagramQuery$variables = {
-  limit: number;
+  minPeople: number;
+  minShows?: number | null | undefined;
 };
 export type VennDiagramQuery$data = {
-  readonly TvShows: ReadonlyArray<{
-    readonly id: string;
-    readonly people: ReadonlyArray<{
-      readonly name: string;
-      readonly personId: string;
-    } | null | undefined> | null | undefined;
-    readonly title: string;
-  } | null | undefined> | null | undefined;
+  readonly VennDiagram: {
+    readonly circles: ReadonlyArray<{
+      readonly people: number;
+      readonly show: string;
+    }>;
+    readonly intersections: ReadonlyArray<{
+      readonly people: number;
+      readonly shows: ReadonlyArray<string>;
+    }>;
+  } | null | undefined;
 };
 export type VennDiagramQuery = {
   response: VennDiagramQuery$data;
@@ -28,131 +31,119 @@ export type VennDiagramQuery = {
 };
 
 const node: ConcreteRequest = (function(){
-var v0 = [
-  {
-    "defaultValue": null,
-    "kind": "LocalArgument",
-    "name": "limit"
-  }
-],
-v1 = [
-  {
-    "kind": "Variable",
-    "name": "limit",
-    "variableName": "limit"
-  }
-],
+var v0 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "minPeople"
+},
+v1 = {
+  "defaultValue": null,
+  "kind": "LocalArgument",
+  "name": "minShows"
+},
 v2 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "id",
+  "name": "people",
   "storageKey": null
 },
-v3 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "title",
-  "storageKey": null
-},
-v4 = {
-  "alias": "personId",
-  "args": null,
-  "kind": "ScalarField",
-  "name": "id",
-  "storageKey": null
-},
-v5 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "name",
-  "storageKey": null
-};
-return {
-  "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
-    "kind": "Fragment",
-    "metadata": null,
-    "name": "VennDiagramQuery",
+v3 = [
+  {
+    "alias": null,
+    "args": [
+      {
+        "kind": "Variable",
+        "name": "minPeople",
+        "variableName": "minPeople"
+      },
+      {
+        "kind": "Variable",
+        "name": "minShows",
+        "variableName": "minShows"
+      }
+    ],
+    "concreteType": "VennDiagram",
+    "kind": "LinkedField",
+    "name": "VennDiagram",
+    "plural": false,
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
-        "concreteType": "TvShow",
+        "args": null,
+        "concreteType": "VennDiagramIntersection",
         "kind": "LinkedField",
-        "name": "TvShows",
+        "name": "intersections",
         "plural": true,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
           {
             "alias": null,
             "args": null,
-            "concreteType": "Person",
-            "kind": "LinkedField",
-            "name": "people",
-            "plural": true,
-            "selections": [
-              (v4/*: any*/),
-              (v5/*: any*/)
-            ],
+            "kind": "ScalarField",
+            "name": "shows",
             "storageKey": null
-          }
+          },
+          (v2/*: any*/)
+        ],
+        "storageKey": null
+      },
+      {
+        "alias": null,
+        "args": null,
+        "concreteType": "VennDiagramCircle",
+        "kind": "LinkedField",
+        "name": "circles",
+        "plural": true,
+        "selections": [
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
+            "name": "show",
+            "storageKey": null
+          },
+          (v2/*: any*/)
         ],
         "storageKey": null
       }
     ],
+    "storageKey": null
+  }
+];
+return {
+  "fragment": {
+    "argumentDefinitions": [
+      (v0/*: any*/),
+      (v1/*: any*/)
+    ],
+    "kind": "Fragment",
+    "metadata": null,
+    "name": "VennDiagramQuery",
+    "selections": (v3/*: any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": [
+      (v1/*: any*/),
+      (v0/*: any*/)
+    ],
     "kind": "Operation",
     "name": "VennDiagramQuery",
-    "selections": [
-      {
-        "alias": null,
-        "args": (v1/*: any*/),
-        "concreteType": "TvShow",
-        "kind": "LinkedField",
-        "name": "TvShows",
-        "plural": true,
-        "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
-          {
-            "alias": null,
-            "args": null,
-            "concreteType": "Person",
-            "kind": "LinkedField",
-            "name": "people",
-            "plural": true,
-            "selections": [
-              (v4/*: any*/),
-              (v5/*: any*/),
-              (v2/*: any*/)
-            ],
-            "storageKey": null
-          }
-        ],
-        "storageKey": null
-      }
-    ]
+    "selections": (v3/*: any*/)
   },
   "params": {
-    "cacheID": "a3bcb6962760767255be64fc4d462351",
+    "cacheID": "cf6a1cf410c5c8634f317f95637a989a",
     "id": null,
     "metadata": {},
     "name": "VennDiagramQuery",
     "operationKind": "query",
-    "text": "query VennDiagramQuery(\n  $limit: Int!\n) {\n  TvShows(limit: $limit) {\n    id\n    title\n    people {\n      personId: id\n      name\n      id\n    }\n  }\n}\n"
+    "text": "query VennDiagramQuery(\n  $minShows: Int\n  $minPeople: Int!\n) {\n  VennDiagram(minShows: $minShows, minPeople: $minPeople) {\n    intersections {\n      shows\n      people\n    }\n    circles {\n      show\n      people\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "aaa6dfaab641602ac450bffaa51bec33";
+(node as any).hash = "a1af2ca60d2da92dada82337c777798d";
 
 export default node;

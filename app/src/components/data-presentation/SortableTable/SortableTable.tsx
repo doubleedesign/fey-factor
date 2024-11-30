@@ -7,6 +7,7 @@ import { ProviderLogos } from '../../misc/ProviderLogos/ProviderLogos.tsx';
 import Skeleton from 'react-loading-skeleton';
 import { useRankingContext } from '../../../controllers/RankingContext.tsx';
 import { kebabCase } from 'lodash';
+import { SingleLineText } from '../../typography/SingleLineText/SingleLineText.tsx';
 
 
 export const SortableTable: FC = () => {
@@ -58,7 +59,7 @@ export const SortableTable: FC = () => {
 										tooltip={column.tooltip}
 									/>
 								) : (
-									column.label
+									<SingleLineText text={column.label} />
 								)}
 							</th>
 						);

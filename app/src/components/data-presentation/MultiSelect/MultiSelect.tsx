@@ -94,7 +94,8 @@ export const MultiSelect: FC<MultiSelectProps> = ({ label, options, selectedOpti
 									<components.ValueContainer {...props}>
 										<StyledMultiSelectSelectedPlainText>
 											{selectedOptions.map(option => option.label).join(', ')}
-											{props.children[1]}
+											{/* @ts-expect-error TS7053: Element implicitly has an any type */}
+											{props?.children?.[1]}
 										</StyledMultiSelectSelectedPlainText>
 									</components.ValueContainer>
 								);

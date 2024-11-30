@@ -44,6 +44,9 @@ export class TmdbApiConnection {
 
 				return this.makeFetchHappen(url, method, data); // Retry the request
 			}
+			else if(url.endsWith('watch/providers') && error.message === 'fetch failed') {
+				return null;
+			}
 			else {
 				console.error(`Error ${error?.response?.status}: ${error?.response?.statusText} for request to ${url}`);
 
@@ -55,7 +58,7 @@ export class TmdbApiConnection {
 	async getWatchProviders(tvShowId: number) {
 		try {
 			const data = await this.makeFetchHappen(`${this.baseUrl}/tv/${tvShowId}/watch/providers`, 'GET');
-			if (!data.results['AU']) return [];
+			if (!data?.results || !data.results['AU']) return [];
 
 			return Object.entries(data.results['AU']).reduce((acc: Provider[], [key, values]: [string, Partial<Provider>[]]) => {
 				if (key === 'link') return acc;

@@ -83,7 +83,7 @@ export const WatchProviderChart: FC = () => {
 	return (
 		<BarChart
 			title="Top 10 streaming providers for top 100 shows"
-			description="Excludes purchase/rent availability and sub-channels (e.g. Paramount+ via Amazon)"
+			description="Provider data is limited to Australia and excludes purchase/rent availability and sub-channels (e.g. Paramount+ via Amazon)"
 			data={providerCounts}
 			lists={providerDataLists}
 		/>

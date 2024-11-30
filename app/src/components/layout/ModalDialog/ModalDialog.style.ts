@@ -9,7 +9,7 @@ export const StyledModalDialogWrapper = styled.div<{ $open: boolean }>`
 	right: 0;
 	bottom: 0;
 	background: ${props => props.$open ? transparentize(0.2, props.theme.colors.dark) : 'transparent'};
-	z-index: ${props => props.$open ? 2000 : -1};
+	z-index: ${props => props.$open ? 9999 : -1};
 	transition: ${props => {
 		return props.$open ? 'background 0.2s 0.1s, z-index 0s 0s' : 'background 0.2s, z-index 0s 0.2s';
 	}};

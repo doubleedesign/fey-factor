@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<05098ac7d8f677cf74ca0ca83173da94>>
+ * @generated SignedSource<<939f769b732bc6e0e9fe9ef2d5cdd9f0>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { ConcreteRequest, Query } from 'relay-runtime';
+import { ConcreteRequest } from 'relay-runtime';
 export type TvShowRankingsQuery$variables = {
   limit: number;
 };

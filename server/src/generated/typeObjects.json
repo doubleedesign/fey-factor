@@ -69,7 +69,7 @@
                 "required": false
             },
             {
-                "fieldName": "rankingData",
+                "fieldName": "ranking_data",
                 "fieldType": "RankingData",
                 "required": false
             },
@@ -271,7 +271,7 @@
                 "required": false
             },
             {
-                "fieldName": "rankingData",
+                "fieldName": "ranking_data",
                 "fieldType": "RankingData",
                 "required": false
             },
@@ -331,6 +331,64 @@
         "isDirectlyQueryable": false,
         "isGqlEntity": true
     },
+    "VennDiagram": {
+        "fields": [
+            {
+                "fieldName": "intersections",
+                "fieldType": "VennDiagramIntersection[]",
+                "required": true
+            },
+            {
+                "fieldName": "circles",
+                "fieldType": "VennDiagramCircle[]",
+                "required": true
+            }
+        ],
+        "isDirectlyQueryable": true,
+        "isGqlEntity": true
+    },
+    "VennDiagramCircle": {
+        "fields": [
+            {
+                "fieldName": "title",
+                "fieldType": "string",
+                "required": true
+            },
+            {
+                "fieldName": "show_id",
+                "fieldType": "string",
+                "required": true
+            },
+            {
+                "fieldName": "people_count",
+                "fieldType": "number",
+                "required": true
+            }
+        ],
+        "isDirectlyQueryable": false,
+        "isGqlEntity": true
+    },
+    "VennDiagramIntersection": {
+        "fields": [
+            {
+                "fieldName": "titles",
+                "fieldType": "string[]",
+                "required": true
+            },
+            {
+                "fieldName": "show_ids",
+                "fieldType": "string[]",
+                "required": true
+            },
+            {
+                "fieldName": "people_count",
+                "fieldType": "number",
+                "required": true
+            }
+        ],
+        "isDirectlyQueryable": false,
+        "isGqlEntity": true
+    },
     "Work": {
         "fields": [
             {
@@ -344,7 +402,7 @@
                 "required": true
             },
             {
-                "fieldName": "rankingData",
+                "fieldName": "ranking_data",
                 "fieldType": "RankingData",
                 "required": false
             },

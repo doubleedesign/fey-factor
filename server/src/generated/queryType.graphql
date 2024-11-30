@@ -9,6 +9,7 @@ type Query {
 	People(ids: [ID], limit: Int): [Person]
 	TvShow(id: ID!): TvShow
 	TvShows(ids: [ID], limit: Int): [TvShow]
+	VennDiagram(minShows: Int, minPeople: Int): VennDiagram
 	Work(id: ID!): Work
 	Works(ids: [ID], limit: Int): [Work]
 }

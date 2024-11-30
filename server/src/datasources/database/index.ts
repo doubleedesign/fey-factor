@@ -4,6 +4,7 @@ import { DbWorks } from './works';
 import { DbPeople } from './people';
 import { DbRoles } from './roles';
 import { DbNetwork } from './network';
+import { DbVenn } from './venn';
 
 const baseConfig = {
 	// Can use 'localhost' if using WSL1, but this will not work on WSL2 - need to do some IP magic.
@@ -33,6 +34,7 @@ export class DatabaseConnection extends BaseConnection {
 	people: DbPeople;
 	roles: DbRoles;
 	network: DbNetwork;
+	venn: DbVenn;
 
 	constructor() {
 		super();
@@ -41,6 +43,7 @@ export class DatabaseConnection extends BaseConnection {
 		this.people = new DbPeople(this.pgClient);
 		this.roles = new DbRoles(this.pgClient);
 		this.network = new DbNetwork(this.pgClient);
+		this.venn = new DbVenn(this.pgClient);
 	}
 
 	/**

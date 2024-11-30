@@ -36,6 +36,29 @@ export const StyledSelectionInputs = styled.div`
 				background: ${props => props.theme.colors.success};
 				color: ${props => readableColor(props.theme.colors.success)};
 			}
+			
+			&:has([type="checkbox"]) {
+				img {
+					filter: saturate(0);
+					opacity: 0.5;
+				}
+				
+				&:hover, &:focus {
+					img {
+						opacity: 1;
+					}
+				}
+
+				&[aria-selected="true"] {
+					background: white;
+					color: black;
+					
+					img {
+						filter: none;
+						opacity: 1;
+					}
+				}
+			}
 		}
 	}
 `;

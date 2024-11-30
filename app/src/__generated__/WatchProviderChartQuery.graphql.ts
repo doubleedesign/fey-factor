@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<7716d8813c6c30435920726c9b5251c3>>
+ * @generated SignedSource<<9a226040c81d046b042eda0a79fc4432>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { ConcreteRequest, Query } from 'relay-runtime';
+import { ConcreteRequest } from 'relay-runtime';
 export type WatchProviderChartQuery$variables = {
   limit: number;
 };

@@ -32,15 +32,16 @@ export const BarChart: FC<BarChartProps> = ({ title, description, data, lists })
 	}, []);
 
 	return (
-		<StyledBarChart data-testid="BarChart">
-			<StyledBarChartTitle>{title}</StyledBarChartTitle>
-			{lists ? (
-				<BarList data={data} series={<BarListSeries onItemClick={handleModalOpen} valuePosition="end" />} />
-			) : (
-				<BarList data={data} />
-			)}
-			{description && <StyledBarChartDescription>{description}</StyledBarChartDescription>}
-
+		<>
+			<StyledBarChart data-testid="BarChart">
+				<StyledBarChartTitle>{title}</StyledBarChartTitle>
+				{lists ? (
+					<BarList data={data} series={<BarListSeries onItemClick={handleModalOpen} valuePosition="end" />} />
+				) : (
+					<BarList data={data} />
+				)}
+				{description && <StyledBarChartDescription>{description}</StyledBarChartDescription>}
+			</StyledBarChart>
 			<ModalDialog
 				open={modalOpen}
 				title={modalTitle}
@@ -50,6 +51,6 @@ export const BarChart: FC<BarChartProps> = ({ title, description, data, lists })
 			>
 				{modalItems}
 			</ModalDialog>
-		</StyledBarChart>
+		</>
 	);
 };

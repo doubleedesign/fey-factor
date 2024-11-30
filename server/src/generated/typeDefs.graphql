@@ -10,6 +10,11 @@ input NodeFilter {
 input EdgeFilter {
 	id: Int
 }
+type Role {
+	id: ID!
+	name: String
+	episode_count: Int
+}
 type Person {
 	id: ID!
 	name: String!
@@ -17,15 +22,10 @@ type Person {
 	works(filter: WorkFilter): [Work]
 	roles: [Role]
 }
-type Role {
-	id: ID!
-	name: String
-	episode_count: Int
-}
 interface Work {
 	id: ID!
 	title: String!
-	rankingData: RankingData
+	ranking_data: RankingData
 	providers(filter: ProviderFilter): [Provider]
 	overview: String
 	poster_path: String
@@ -50,22 +50,36 @@ type Provider {
 	logo_path: String
 	provider_type: String
 }
-type Node {
-	id: ID!
-	name: String!
-	degree: Int!
-	edges(limit: Int): [Edge]
+type VennDiagramIntersection {
+	titles: [String!]!
+	show_ids: [String!]!
+	people_count: Int!
+}
+type VennDiagramCircle {
+	title: String!
+	show_id: String!
+	people_count: Int!
 }
 type Edge {
 	id: ID!
 	title: String!
 	nodes(limit: Int): [Node]
 }
+type Node {
+	id: ID!
+	name: String!
+	degree: Int!
+	edges(limit: Int): [Edge]
+}
+type VennDiagram {
+	intersections: [VennDiagramIntersection!]!
+	circles: [VennDiagramCircle!]!
+}
 type Movie implements Work {
 	id: ID!
 	title: String!
 	release_year: Int
-	rankingData: RankingData
+	ranking_data: RankingData
 	providers(filter: ProviderFilter): [Provider]
 	overview: String
 	poster_path: String
@@ -80,7 +94,7 @@ type TvShow implements Work {
 	end_year: Int
 	season_count: Int
 	episode_count: Int
-	rankingData: RankingData
+	ranking_data: RankingData
 	providers(filter: ProviderFilter): [Provider]
 	overview: String
 	poster_path: String

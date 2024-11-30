@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<aa52a38cd80ba4bbac48a27cf11a6d2d>>
+ * @generated SignedSource<<a54ef640b0939a7df65dcbb34ab8a85f>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -8,7 +8,7 @@
 /* eslint-disable */
 // @ts-nocheck
 
-import { ConcreteRequest, Query } from 'relay-runtime';
+import { ConcreteRequest } from 'relay-runtime';
 export type ShowCardQuery$variables = {
   id: string;
 };

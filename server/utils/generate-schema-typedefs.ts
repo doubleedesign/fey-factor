@@ -162,7 +162,7 @@ async function processExportedType(node: ts.InterfaceDeclaration | ts.TypeAliasD
 		// Special handling that I should work out how to improve at some point
 		if(['Work', 'TvShow', 'Movie'].includes(node.name.text)) {
 			typeObjects[node.name.text].fields.push({
-				fieldName: 'rankingData',
+				fieldName: 'ranking_data',
 				fieldType: 'RankingData',
 				required: false
 			});
@@ -468,7 +468,9 @@ function convertAndSaveTypes() {
 	function convertTsFieldTypeToGql({ fieldType, required }: { fieldType: string, required: boolean }) {
 		// Handle arrays - convert from Type[] to [Type] (or [Type]! for required fields)
 		if(fieldType.includes('[]')) {
-			const innerType = fieldType.replace('[]', '');
+			let innerType = fieldType.replace('[]', '');
+			if(innerType === 'string') innerType = 'String';
+			if(innerType === 'number') innerType = 'Int';
 
 			return required ? `[${innerType}!]!` : `[${innerType}]`;
 		}
@@ -507,17 +509,23 @@ function createAndSaveQueryType() {
 	});
 
 	types.forEach(({ queryType, returnType }) => {
-		// Singular query
-		queryObject += `\t${queryType}(id: ID!): ${returnType}\n`;
-		// Plural type - fetch multiple items
-		if(queryType === 'Node') {
-			queryObject += '\tnodes(edgeId: [ID], limit: Int): [Node]\n';
-		}
-		else if(queryType === 'Edge') {
-			queryObject += '\tedges(nodeId: [ID], limit: Int): [Edge]\n';
+		// Special cases I haven't worked out how to auto-generate yet
+		if(queryType === 'VennDiagram') {
+			queryObject += `\t${queryType}(minShows: Int, minPeople: Int): ${returnType}\n`;
 		}
 		else {
-			queryObject += `\t${pascalCase(toPlural(queryType))}(ids: [ID], limit: Int): [${returnType}]\n`;
+			// Singular query
+			queryObject += `\t${queryType}(id: ID!): ${returnType}\n`;
+			// Plural type - fetch multiple items
+			if (queryType === 'Node') {
+				queryObject += '\tnodes(edgeId: [ID], limit: Int): [Node]\n';
+			}
+			else if (queryType === 'Edge') {
+				queryObject += '\tedges(nodeId: [ID], limit: Int): [Edge]\n';
+			}
+			else {
+				queryObject += `\t${pascalCase(toPlural(queryType))}(ids: [ID], limit: Int): [${returnType}]\n`;
+			}
 		}
 	});
 	queryObject += '}';

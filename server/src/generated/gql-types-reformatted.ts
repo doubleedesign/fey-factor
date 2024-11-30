@@ -5,6 +5,7 @@ export type Edge = {
 };
 
 export type Movie = Work & {
+	ranking_data?: RankingData;
 	release_year?: number;
 };
 
@@ -46,6 +47,7 @@ export type Role = {
 export type TvShow = Work & {
 	end_year?: number;
 	episode_count?: number;
+	ranking_data?: RankingData;
 	season_count?: number;
 	start_year?: number;
 };
@@ -56,6 +58,23 @@ export type TvShowAdditionalFields = {
 	poster_path?: string;
 };
 
+export type VennDiagram = {
+	circles: VennDiagramCircle[];
+	intersections: VennDiagramIntersection[];
+};
+
+export type VennDiagramCircle = {
+	people_count: number;
+	show_id: string;
+	title: string;
+};
+
+export type VennDiagramIntersection = {
+	people_count: number;
+	show_ids: string[];
+	titles: string[];
+};
+
 export type Work = {
 	backdrop_path?: string;
 	id: number;
@@ -63,7 +82,7 @@ export type Work = {
 	people?: Person[];
 	poster_path?: string;
 	providers?: Provider[];
-	rankingData?: RankingData;
+	ranking_data?: RankingData;
 	roles?: Role[];
 	title: string;
 };

@@ -76,7 +76,7 @@ export const Rankings: FC = () => {
 					<LeadParagraph>Raw and (experimentally) aggregated scores</LeadParagraph>
 				</div>
 				<SelectionInputs>
-					<NumberPicker label="Show top:" defaultValue={10} onChange={handleLimitChange} />
+					<NumberPicker label="Show top:" defaultValue={20} onChange={handleLimitChange} />
 					<MultiSelect
 						label="Show columns"
 						options={columns.filter(col => !alwaysVisibleColumns.includes(col.value))} // these should always be visible
