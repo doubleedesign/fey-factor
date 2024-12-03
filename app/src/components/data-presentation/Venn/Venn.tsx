@@ -1,16 +1,28 @@
-import { FC } from 'react';
+import { FC, useEffect, useRef } from 'react';
+import * as d3 from 'd3';
+// @ts-expect-error TS7016: Could not find a declaration file for module venn.js
+import * as venn from 'venn.js';
 import { StyledVenn } from './Venn.style';
-import { VennDiagram, type VennDiagramData } from 'reaviz';
 
-type VennProps = {
-	data: VennDiagramData[];
+type VennSet = {
+	sets: string[];
+	size: number;
 };
 
-export const Venn: FC<VennProps> = ({ data }) => {
+type VennProps = {
+	sets: VennSet[];
+};
 
-	return (
-		<StyledVenn data-testid="Venn">
-			<VennDiagram height={2000} width={2000} data={data} />
-		</StyledVenn>
-	);
+export const Venn: FC<VennProps> = ({ sets }) => {
+	const vennRef = useRef<HTMLElement>(null);
+
+	// Ensure the container is loaded before attempting to populate the diagram
+	useEffect(() => {
+		if (vennRef.current) {
+			const chart = venn.VennDiagram().width(2000).height(1000);
+			d3.select(vennRef.current).datum(sets).call(chart);
+		}
+	}, [sets]);
+
+	return <StyledVenn ref={vennRef} />;
 };

@@ -84,6 +84,7 @@ export const Rankings: FC = () => {
 						onChange={handleColumnVisibilityChange}
 						showAs="checkboxes"
 					/>
+					{/* TODO: Put an error boundary around this so if providers don't load it doesn't kill the whole thing */}
 					<MultiSelect
 						label={`Filter top ${limit} by streaming availability:`}
 						options={providers}

@@ -9,34 +9,34 @@ export const VennDiagram: FC = () => {
             query VennDiagramQuery($minShows: Int, $minPeople: Int!) {
                 VennDiagram(minShows: $minShows, minPeople: $minPeople) {
                     intersections {
-	                    shows
-	                    people
+                        titles
+                        people_count
                     }
-	                circles {
-		                show
-	                    people
-	                }
+                    circles {
+                        title
+                        people_count
+                    }
                 }
             }
 		`,
-		{ minShows: 5, minPeople: 10 }
+		{ minShows: 3, minPeople: 10 }
 	);
 
 	const formattedData = useMemo(() => {
-		const formattedIntersections = rawData?.VennDiagram?.intersections.map(({ shows, people }) => ({
-			key: shows as string[],
-			data: people as number,
+		const formattedIntersections = rawData?.VennDiagram?.intersections.map(({ titles, people_count }) => ({
+			sets: titles as string[],
+			size: people_count as number,
 		})) || [];
 
-		const formattedCircles = rawData?.VennDiagram?.circles.map(({ show, people }) => ({
-			key: [show] as string[],
-			data: people as number,
+		const formattedCircles = rawData?.VennDiagram?.circles.map(({ title, people_count }) => ({
+			sets: [title] as string[],
+			size: people_count as number,
 		})) || [];
 
 		return [...formattedIntersections, ...formattedCircles];
 	}, [rawData]);
 
 	return (
-		formattedData && <Venn data={formattedData} />
+		formattedData && <Venn sets={formattedData} />
 	);
 };

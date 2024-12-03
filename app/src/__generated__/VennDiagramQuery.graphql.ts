@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<30cc6ced43bf51619ba05ae3e07316b9>>
+ * @generated SignedSource<<dc55c27f99792b5f4c8400850fe10a45>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -16,12 +16,12 @@ export type VennDiagramQuery$variables = {
 export type VennDiagramQuery$data = {
   readonly VennDiagram: {
     readonly circles: ReadonlyArray<{
-      readonly people: number;
-      readonly show: string;
+      readonly people_count: number;
+      readonly title: string;
     }>;
     readonly intersections: ReadonlyArray<{
-      readonly people: number;
-      readonly shows: ReadonlyArray<string>;
+      readonly people_count: number;
+      readonly titles: ReadonlyArray<string>;
     }>;
   } | null | undefined;
 };
@@ -45,7 +45,7 @@ v2 = {
   "alias": null,
   "args": null,
   "kind": "ScalarField",
-  "name": "people",
+  "name": "people_count",
   "storageKey": null
 },
 v3 = [
@@ -80,7 +80,7 @@ v3 = [
             "alias": null,
             "args": null,
             "kind": "ScalarField",
-            "name": "shows",
+            "name": "titles",
             "storageKey": null
           },
           (v2/*: any*/)
@@ -99,7 +99,7 @@ v3 = [
             "alias": null,
             "args": null,
             "kind": "ScalarField",
-            "name": "show",
+            "name": "title",
             "storageKey": null
           },
           (v2/*: any*/)
@@ -134,16 +134,16 @@ return {
     "selections": (v3/*: any*/)
   },
   "params": {
-    "cacheID": "cf6a1cf410c5c8634f317f95637a989a",
+    "cacheID": "23320d9a706489029eed1fd029c372c4",
     "id": null,
     "metadata": {},
     "name": "VennDiagramQuery",
     "operationKind": "query",
-    "text": "query VennDiagramQuery(\n  $minShows: Int\n  $minPeople: Int!\n) {\n  VennDiagram(minShows: $minShows, minPeople: $minPeople) {\n    intersections {\n      shows\n      people\n    }\n    circles {\n      show\n      people\n    }\n  }\n}\n"
+    "text": "query VennDiagramQuery(\n  $minShows: Int\n  $minPeople: Int!\n) {\n  VennDiagram(minShows: $minShows, minPeople: $minPeople) {\n    intersections {\n      titles\n      people_count\n    }\n    circles {\n      title\n      people_count\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "a1af2ca60d2da92dada82337c777798d";
+(node as any).hash = "88f208207c5a070c7ac97aaaa7919214";
 
 export default node;

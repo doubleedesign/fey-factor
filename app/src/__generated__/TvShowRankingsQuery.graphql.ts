@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<939f769b732bc6e0e9fe9ef2d5cdd9f0>>
+ * @generated SignedSource<<fd288bd8185378f2a4264ebeec47781f>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -23,7 +23,7 @@ export type TvShowRankingsQuery$data = {
       readonly provider_name: string;
       readonly provider_type: string | null | undefined;
     } | null | undefined> | null | undefined;
-    readonly rankingData: {
+    readonly ranking_data: {
       readonly average_degree: number | null | undefined;
       readonly total_connections: number | null | undefined;
       readonly weighted_score: number | null | undefined;
@@ -90,9 +90,9 @@ v1 = [
       {
         "alias": null,
         "args": null,
-        "concreteType": "RankingData",
+        "concreteType": "WorkRankingData",
         "kind": "LinkedField",
-        "name": "rankingData",
+        "name": "ranking_data",
         "plural": false,
         "selections": [
           {
@@ -191,16 +191,16 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "58864a15a67d0aa4223ee07c0d2e4241",
+    "cacheID": "1fdfcf1f2669dbf12fb160e7c7722053",
     "id": null,
     "metadata": {},
     "name": "TvShowRankingsQuery",
     "operationKind": "query",
-    "text": "query TvShowRankingsQuery(\n  $limit: Int!\n) {\n  TvShows(limit: $limit) {\n    __typename\n    id\n    title\n    episode_count\n    rankingData {\n      total_connections\n      average_degree\n      weighted_score\n    }\n    providers(filter: {provider_type: [\"flatrate\", \"free\"]}) {\n      provider_id\n      provider_name\n      provider_type\n      logo_path\n    }\n  }\n}\n"
+    "text": "query TvShowRankingsQuery(\n  $limit: Int!\n) {\n  TvShows(limit: $limit) {\n    __typename\n    id\n    title\n    episode_count\n    ranking_data {\n      total_connections\n      average_degree\n      weighted_score\n    }\n    providers(filter: {provider_type: [\"flatrate\", \"free\"]}) {\n      provider_id\n      provider_name\n      provider_type\n      logo_path\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "8652c73b44b840850a3c0b5dbf46ef27";
+(node as any).hash = "a2751a9b5aaf238327ec381c7bd08bf6";
 
 export default node;

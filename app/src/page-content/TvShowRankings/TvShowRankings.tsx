@@ -36,7 +36,7 @@ export const TvShowRankings: FC<TvShowRankingsProps> = ({ limit, loadingRows }) 
                     id
                     title
 					episode_count
-                    rankingData {
+                    ranking_data {
                         total_connections
                         average_degree
                         weighted_score
