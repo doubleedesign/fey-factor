@@ -10,11 +10,6 @@ input NodeFilter {
 input EdgeFilter {
 	id: Int
 }
-type Role {
-	id: ID!
-	name: String
-	episode_count: Int
-}
 type Person {
 	id: ID!
 	name: String!
@@ -22,27 +17,27 @@ type Person {
 	works(filter: WorkFilter): [Work]
 	roles: [Role]
 }
+type Role {
+	id: ID!
+	name: String
+	episode_count: Int
+}
 interface Work {
 	id: ID!
 	title: String!
-	ranking_data: RankingData
-	providers(filter: ProviderFilter): [Provider]
-	overview: String
-	poster_path: String
-	backdrop_path: String
 	people: [Person]
 	roles: [Role]
+	poster_path: String
+	backdrop_path: String
+	overview: String
+	ranking_data: WorkRankingData
+	providers(filter: ProviderFilter): [Provider]
 }
-type RankingData {
+type WorkRankingData {
 	total_connections: Int
 	average_degree: Float
 	aggregate_episode_count: Int
 	weighted_score: Float
-}
-type TvShowAdditionalFields {
-	poster_path: String
-	backdrop_path: String
-	overview: String
 }
 type Provider {
 	provider_id: Int!
@@ -60,11 +55,6 @@ type VennDiagramCircle {
 	show_id: String!
 	people_count: Int!
 }
-type Edge {
-	id: ID!
-	title: String!
-	nodes(limit: Int): [Node]
-}
 type Node {
 	id: ID!
 	name: String!
@@ -75,17 +65,22 @@ type VennDiagram {
 	intersections: [VennDiagramIntersection!]!
 	circles: [VennDiagramCircle!]!
 }
+type Edge {
+	id: ID!
+	title: String!
+	nodes(limit: Int): [Node]
+}
 type Movie implements Work {
 	id: ID!
 	title: String!
 	release_year: Int
-	ranking_data: RankingData
-	providers(filter: ProviderFilter): [Provider]
-	overview: String
-	poster_path: String
-	backdrop_path: String
 	people: [Person]
 	roles: [Role]
+	poster_path: String
+	backdrop_path: String
+	overview: String
+	ranking_data: WorkRankingData
+	providers(filter: ProviderFilter): [Provider]
 }
 type TvShow implements Work {
 	id: ID!
@@ -94,11 +89,11 @@ type TvShow implements Work {
 	end_year: Int
 	season_count: Int
 	episode_count: Int
-	ranking_data: RankingData
-	providers(filter: ProviderFilter): [Provider]
-	overview: String
-	poster_path: String
-	backdrop_path: String
 	people: [Person]
 	roles: [Role]
+	poster_path: String
+	backdrop_path: String
+	overview: String
+	ranking_data: WorkRankingData
+	providers(filter: ProviderFilter): [Provider]
 }

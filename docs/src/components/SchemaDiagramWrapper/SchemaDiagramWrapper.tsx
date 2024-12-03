@@ -9,6 +9,7 @@ import { EntityTableGroup } from '../EntityTableGroup/EntityTableGroup.tsx';
 import uniq from 'lodash/uniq';
 import difference from 'lodash/difference';
 import snakeCase from 'lodash/snakeCase';
+import camelCase from 'lodash/camelCase';
 
 type SchemaDiagramWrapperProps = {
 	entities: SchemaObject;
@@ -46,7 +47,15 @@ export const SchemaDiagramWrapper: FC<SchemaDiagramWrapperProps> = ({ entities, 
 				const itemOffset = itemIndex - supertypeIndex;
 				return {
 					x: ((supertypeIndex * boxWidth) - (xOffset / 1.5)) + (itemOffset * (boxWidth + xOffset)),
-					y: (rowNumber * yOffset) - (yOffset / 2)
+					y: (rowNumber * yOffset)
+				};
+			}
+
+			// Manually adjust offsets for some types
+			if(tableName === 'venn_diagram' || tableName === 'network_diagram') {
+				return {
+					x: ((boxWidth * itemIndex) + (xOffset * itemIndex)) - (boxWidth / 2),
+					y: ((rowNumber - 1.5) * yOffset)
 				};
 			}
 
@@ -57,15 +66,26 @@ export const SchemaDiagramWrapper: FC<SchemaDiagramWrapperProps> = ({ entities, 
 		}
 	}
 
-	// Groupings based on the database schema
+	// Groupings based on the database schema and entities being GQL-only, so switching between the two formats visually aligns somewhat
 	const rows = useMemo(() => {
-		// We don't use {Type}Container type names here because they don't exist in the db
-		const relevantTypes = Object.keys(entities).filter((typeName: string) => !typeName.endsWith('Container'));
+		const relevantTypes = Object.keys(entities);
 
-		// Connection types are types that have foreign keys
-		const connectionTypes = Object.entries(entities).filter(([_, items]) => {
+		// Specify diagram-related types to put them in their own row
+		const diagramTypes = relevantTypes.filter(key => {
+			return ['venn_diagram', 'network_diagram'].includes(key);
+		});
+
+		// Other miscellaneous GQL-only types that will be put in their own row purely for layout purposes
+		// TODO: The new array and concat just moves these over to where I happen to know they should do in the diagram,
+		//  but this really should do that dynamically somehow
+		const miscRowTypes = new Array(2).concat(relevantTypes.filter((key) => {
+			return ['providers'].includes(key);
+		}));
+
+		// Connection types are types that have foreign keys and are not specified other types
+		const connectionTypes = difference(Object.entries(entities).filter(([, items]) => {
 			return items.entities.some((table: Table) => table.foreignKeys && Object.keys(table.foreignKeys).length > 0);
-		}).map(([key]) => typeFormatToDbTableNameFormat(key));
+		}).map(([key]) => typeFormatToDbTableNameFormat(key)), [...diagramTypes, ...miscRowTypes]);
 
 		// Note: I currently only expect one level of subtypes
 		const subtypes = uniq(Object.entries(typeObjects as Record<string, TypeObject>)
@@ -73,12 +93,20 @@ export const SchemaDiagramWrapper: FC<SchemaDiagramWrapperProps> = ({ entities, 
 			.map(([key]) => typeFormatToDbTableNameFormat(key))
 		);
 
-		// "Root" types = standalone and supertype tables that are not connection tables
-		const rootTypes = difference(difference(relevantTypes, connectionTypes), subtypes);
+		// "Root" types = standalone and supertype tables that are connection tables, specified diagram-related types,
+		// or specified "bottom row" types for layout purposes
+		const nonRootTypes = [...connectionTypes, ...subtypes, ...diagramTypes, ...miscRowTypes];
+		const rootTypes = difference(relevantTypes, nonRootTypes).sort((a, b) => a.localeCompare(b));
 
 		// Position the subtypes across the row by aligning the index of the subtype with the index of its supertype
 		const sortedSubtypes: string[] = subtypes.reduce((acc, subtype) => {
 			const convertedSubtype = dbTableNameFormatToTypeFormat(subtype);
+
+			// Ignore false positives of specified diagram-related types
+			if (diagramTypes.includes(convertedSubtype)) {
+				return acc;
+			}
+
 			const supertype = getSupertypeOfSubtype(convertedSubtype);
 			const supertypeIndex = rootTypes.indexOf(typeFormatToDbTableNameFormat(supertype as string));
 			if (supertypeIndex === -1) {
@@ -97,9 +125,10 @@ export const SchemaDiagramWrapper: FC<SchemaDiagramWrapperProps> = ({ entities, 
 			return acc;
 		}, new Array(subtypes.length) as string[]);
 
-		// Return standalone/supertypes as one row, and subtypes as the second row
-		return [connectionTypes, rootTypes, sortedSubtypes];
+		// Return standalone/supertypes as one row, and subtypes as the next row, followed by diagram-related types
+		return [connectionTypes, rootTypes, sortedSubtypes, miscRowTypes, diagramTypes];
 	}, [entities]);
+
 
 	const nodes: Node[] = Object.values(entities).map(({ name, entities }: EntityGroup) => {
 		return {
@@ -126,22 +155,43 @@ export const SchemaDiagramWrapper: FC<SchemaDiagramWrapperProps> = ({ entities, 
 		});
 	}).flat(1);
 
-	const inheritanceLinks: Edge[] = Object.entries(typeObjects as Record<string, TypeObject>).map(([name, typeObject]) => {
-		const parent = typeObject?.isSubtypeOf;
-		if (parent) {
-			const parentTableName = parent === 'Person' ? 'people' : parent.toLowerCase() + 's';
-			const tableName = name === 'Person' ? 'people' : snakeCase(name) + 's';
-			return {
-				id: `${parentTableName}-${tableName}`,
-				source: parentTableName,
-				target: tableName,
-				label: 'subtype, id = id',
-				type: 'smoothstep',
-			};
-		}
-	}).flat(1).filter(edge => edge !== undefined);
+	const inheritanceLinks: Edge[] = Object.entries(typeObjects as Record<string, TypeObject>)
+		.map(([name, typeObject]) => {
+			const parent = typeObject?.isSubtypeOf;
+			if (parent) {
+				const parentTableName = parent === 'Person' ? 'people' : parent.toLowerCase() + 's';
+				const tableName = name === 'Person' ? 'people' : snakeCase(name) + 's';
+				return {
+					id: `${parentTableName}-${tableName}`,
+					source: parentTableName,
+					target: tableName,
+					label: 'subtype, id = id',
+					type: 'smoothstep',
+				};
+			}
+		})
+		.flat(1)
+		.filter(edge => edge !== undefined) as Edge[];
 
-	const edges: Edge[] = [...foreignKeyLinks, ...inheritanceLinks];
+	// Additional connections that can't be linked by a specific field (used for GQL-only entities)
+	const additionalConnectionPairs = [
+		['works', 'providers'],
+		['tv_shows', 'providers'],
+		['movies', 'providers'],
+	];
+	const additionalConnections = additionalConnectionPairs.map(([source, target]) => {
+		return {
+			id: `${source}-${target}`,
+			source,
+			target,
+			label: target === 'providers'
+				? `${camelCase(target)} = ${dbTableNameFormatToTypeFormat(target)}[]`
+				: `${camelCase(target)} = ${dbTableNameFormatToTypeFormat(target)}`,
+			type: 'smoothstep',
+		};
+	});
+
+	const edges: Edge[] = [...foreignKeyLinks, ...inheritanceLinks, ...additionalConnections];
 
 	return (
 		<StyledSchemaDiagramWrapper data-testid="SchemaDiagramWrapper">

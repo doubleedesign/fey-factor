@@ -35,6 +35,9 @@ export const LinkToNode: FC<PropsWithChildren<LinkToNodeProps>> = ({ id, childre
 				() => unhighlightNode(typeFormatToDbTableNameFormat(id))
 			);
 		}
+		else {
+			console.log(`TODO: Open a popup for type ${id}`);
+		}
 	}, [id, getNodes]);
 
 	return (

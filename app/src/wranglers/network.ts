@@ -20,10 +20,10 @@ export class NetworkWrangler {
 	}
 
 	/**
-	 * Format the data in the "standard" way, i.e., corresponding to the GraphQL objects of Node and Edge
+	 * Format the data corresponding to the GraphQL objects of Node and Edge
 	 * (Nodes correspond to people, and Edges correspond to shows)
 	 */
-	formatStandard(): void {
+	format(): void {
 		this.clearData(); // Clear the data so that swapping between people and shows as nodes works as expected
 
 		const { Node } = this.rawData;
@@ -34,30 +34,6 @@ export class NetworkWrangler {
 		});
 
 		this.processFromNode(Node, 0);
-		this.consolidateNodes();
-		this.limitToTopXNodes(30);
-		this.consolidateEdges();
-		this.limitToEdgeWeight(2);
-	}
-
-	/**
-	 * Format the data in the "swapped" way, i.e., Nodes returned from the GraphQL query are treated as Edges and vice versa
-	 * (Shows treated as Nodes and people treated as Edges)
-	 */
-	formatSwapped(): void {
-		this.clearData(); // Clear the data so that swapping between people and shows as nodes works as expected
-
-		const pseudoNodes = this.rawData?.Node?.edges;
-
-		pseudoNodes?.forEach(edgeAsNode => {
-			this.nodes.push({
-				id: edgeAsNode?.id,
-				label: edgeAsNode?.name
-			});
-
-			this.processFromEdgeAsNode(edgeAsNode, 0);
-		});
-
 		this.consolidateNodes();
 		this.limitToTopXNodes(30);
 		this.consolidateEdges();
@@ -102,51 +78,6 @@ export class NetworkWrangler {
 
 				// Recursively process the target node
 				this.processFromNode(target, level + 1);
-			});
-		});
-	}
-
-	/**
-	 * Recursively process nodes and edges starting from a given edge,
-	 * where what is usually an edge is treated as a node and vice versa
-	 * @param edgeAsNode
-	 * @param level
-	 */
-	processFromEdgeAsNode(edgeAsNode, level: number) : void {
-		const nodesAsEdges = edgeAsNode?.nodes;
-
-		nodesAsEdges?.forEach(pseudoNode => {
-			if(!pseudoNode?.edges) return;
-
-			const nodesToUse = pseudoNode.edges.filter(subNode => subNode?.edges && subNode?.edges?.length > 2);
-
-			nodesToUse.forEach(target => {
-				const nodeExists = this.nodes.find(n => n.id === target?.id);
-
-				if(!nodeExists) {
-					this.nodes.push({
-						id: target?.id,
-						label: target?.name
-					});
-				}
-
-				const edgeExists = this.edges.find(e => {
-					return (
-						(e.source === pseudoNode?.id && e.target === target?.id || e.source === target?.id && e.target === pseudoNode?.id)
-						&& e.label === edgeAsNode.name
-					);
-				});
-				if(!edgeExists) {
-					this.edges.push({
-						id: uniqueId(),
-						source: pseudoNode?.id as string,
-						target: target?.id as string,
-						label: edgeAsNode.name
-					});
-				}
-
-				// Recursively process the target node
-				this.processFromEdgeAsNode(target, level + 1);
 			});
 		});
 	}

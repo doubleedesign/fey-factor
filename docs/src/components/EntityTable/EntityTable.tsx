@@ -16,62 +16,8 @@ type EntityTableProps = {
 	format: 'database' | 'graphql';
 }
 
-function getDataType(typeName: string, columnName: string, format: 'database'|'graphql') {
-	const tsType = (typeObjects as Record<string, TypeObject>)[typeName].fields.find((field) => field.fieldName === columnName)?.fieldType;
-	// These are some assumptions but hey, it's for my database
-	if(tsType.endsWith('[]') && format === 'graphql') {
-		return `[${tsType.replace('[]', '')}]`;
-	}
-	switch(tsType) {
-		case 'number':
-			return format === 'database' ? 'int' : 'Int';
-		case 'string':
-			return format === 'database' ? 'varchar' : 'String';
-		default:
-			return tsType;
-	}
-}
-
-function isSubtype(typeName: string) {
-	// @ts-expect-error TS7053: Element implicitly has an any type because expression of type string can't be used to index type
-	return (typeObjects[dbTableNameFormatToTypeFormat(typeName)] as TypeObject)?.isSubtypeOf;
-}
-
-function isConnectionTable(tableName: string) {
-	// @ts-expect-error TS7053: Element implicitly has an any type because expression of type string can't be used to index type {}
-	const tableObject = tables[(typeFormatToDbTableNameFormat(tableName))];
-	return tableObject ? tableObject.foreignKeys && Object.keys(tableObject.foreignKeys).length > 0 : false;
-}
-
-function getParentTable(tableName: string) {
-	const supertype = getSupertypeOfSubtype(dbTableNameFormatToTypeFormat(tableName)) || getSupertypeOfSubtype(tableName);
-	if(!supertype) {
-		return false;
-	}
-
-	const parent = typeFormatToDbTableNameFormat(supertype);
-
-	// @ts-expect-error TS7053: Element implicitly has an any type because expression of type string can't be used to index type
-	return tables[parent];
-}
-
-function getSourceHandlePosition(tableName: string) {
-	if(isConnectionTable(tableName)) {
-		return Position.Left;
-	}
-	return isSubtype(tableName) ? Position.Top : Position.Bottom;
-}
-
-function getTargetHandlePosition(tableName: string) {
-	if(isConnectionTable(tableName)) {
-		return Position.Left;
-	}
-	return Position.Top;
-}
-
 export const EntityTable: FC<EntityTableProps> = ({ table, format }) => {
 	const allCustomTypeNames = Object.keys(typeObjects);
-
 	const processedRows = useMemo(() => {
 		const typeName =
 			table.tableName === 'people'
@@ -162,3 +108,61 @@ export const EntityTable: FC<EntityTableProps> = ({ table, format }) => {
 		</div>
 	);
 };
+
+function getDataType(typeName: string, columnName: string, format: 'database'|'graphql') {
+	if (!(typeObjects as Record<string, TypeObject>)[typeName]) {
+		console.warn(`Type ${typeName} does not exist in typeObjects, skipping`);
+		return '';
+	}
+
+	const tsType = (typeObjects as Record<string, TypeObject>)[typeName].fields.find((field) => field.fieldName === columnName)?.fieldType;
+	// These are some assumptions but hey, it's for my database
+	if(tsType.endsWith('[]') && format === 'graphql') {
+		return `[${tsType.replace('[]', '')}]`;
+	}
+	switch(tsType) {
+		case 'number':
+			return format === 'database' ? 'int' : 'Int';
+		case 'string':
+			return format === 'database' ? 'varchar' : 'String';
+		default:
+			return tsType;
+	}
+}
+
+function isSubtype(typeName: string) {
+	// @ts-expect-error TS7053: Element implicitly has an any type because expression of type string can't be used to index type
+	return (typeObjects[dbTableNameFormatToTypeFormat(typeName)] as TypeObject)?.isSubtypeOf;
+}
+
+function isConnectionTable(tableName: string) {
+	// @ts-expect-error TS7053: Element implicitly has an any type because expression of type string can't be used to index type {}
+	const tableObject = tables[(typeFormatToDbTableNameFormat(tableName))];
+	return tableObject ? tableObject.foreignKeys && Object.keys(tableObject.foreignKeys).length > 0 : false;
+}
+
+function getParentTable(tableName: string) {
+	const supertype = getSupertypeOfSubtype(dbTableNameFormatToTypeFormat(tableName)) || getSupertypeOfSubtype(tableName);
+	if(!supertype) {
+		return false;
+	}
+
+	const parent = typeFormatToDbTableNameFormat(supertype);
+
+	// @ts-expect-error TS7053: Element implicitly has an any type because expression of type string can't be used to index type
+	return tables[parent];
+}
+
+function getSourceHandlePosition(tableName: string) {
+	if(isConnectionTable(tableName)) {
+		return Position.Left;
+	}
+	return isSubtype(tableName) ? Position.Top : Position.Bottom;
+}
+
+function getTargetHandlePosition(tableName: string) {
+	if(isConnectionTable(tableName)) {
+		return Position.Left;
+	}
+	return Position.Top;
+}

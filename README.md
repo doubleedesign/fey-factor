@@ -114,7 +114,7 @@ npm run generate:resolvers
 
 #### Miscellaneous notes
 
-- Watch provider data is automatically filtered for Australia before it's returned to the GraphQL client. 
+- Watch provider data is automatically filtered for Australia before it's returned to the GraphQL client.
 
 ---
 ## 3. Front-end app

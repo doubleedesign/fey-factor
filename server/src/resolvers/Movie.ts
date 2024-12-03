@@ -1,16 +1,13 @@
 import { DatabaseConnection } from '../datasources/database';
-import type { Movie } from '../generated/source-types';
-import type { Movie as MovieGql } from '../generated/gql-types-reformatted';
-import { RankingData } from '../types';
+import type { Movie } from '../generated/gql-types-reformatted';
 import pick from 'lodash/pick';
 import { convertIdToInteger } from '../utils';
 
 const db = new DatabaseConnection();
-type MovieWithRankingData = Movie & RankingData;
 
 export default {
 	Query: {
-		Movie: async (_, { id }): Promise<MovieGql> => {
+		Movie: async (_, { id }): Promise<Movie> => {
 			const coreFields = await db.works.getMovie(id);
 
 			return {
@@ -18,7 +15,7 @@ export default {
 				id: convertIdToInteger(coreFields.id),
 			};
 		},
-		Movies: async (_, { ids, limit }): Promise<MovieGql[] | MovieWithRankingData[]> => {
+		Movies: async (_, { ids, limit }): Promise<Movie[]> => {
 			if (ids && ids.length > 0) {
 				return await db.works.getMovies(ids);
 			}
@@ -42,13 +39,13 @@ export default {
 		},
 	},
 	Movie: {
-		people: async (parent: MovieGql) => {
+		people: async (parent: Movie) => {
 			console.error('Not implemented yet');
 
 			return [];
 		},
 		// TODO: Make Roles field more useful for Works, or remove it
-		roles: async (parent: MovieGql & { personId?: number }) => {
+		roles: async (parent: Movie & { personId?: number }) => {
 			if (parent.personId) {
 				return db.works.getPersonsRolesForWork(parent.personId, parent.id, 'F');
 			}
@@ -56,7 +53,7 @@ export default {
 			return db.works.getRolesForMovie(parent.id);
 		},
 		// TODO: Implement the database stuff that will make this work
-		ranking_data: async (parent: MovieGql) => {
+		ranking_data: async (parent: Movie) => {
 			return pick(parent, ['total_connections', 'average_degree', 'weighted_score']);
 		},
 	},

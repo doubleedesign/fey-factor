@@ -36,7 +36,7 @@ export type Movie = Work & {
 	people: Maybe<Array<Maybe<Person>>>;
 	poster_path: Maybe<Scalars['String']['output']>;
 	providers: Maybe<Array<Maybe<Provider>>>;
-	ranking_data: Maybe<RankingData>;
+	ranking_data: Maybe<WorkRankingData>;
 	release_year: Maybe<Scalars['Int']['output']>;
 	roles: Maybe<Array<Maybe<Role>>>;
 	title: Scalars['String']['output'];
@@ -87,13 +87,6 @@ export type ProviderFilter = {
 	provider_type: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
 };
 
-export type RankingData = {
-	aggregate_episode_count: Maybe<Scalars['Int']['output']>;
-	average_degree: Maybe<Scalars['Float']['output']>;
-	total_connections: Maybe<Scalars['Int']['output']>;
-	weighted_score: Maybe<Scalars['Float']['output']>;
-};
-
 export type Role = {
 	episode_count: Maybe<Scalars['Int']['output']>;
 	id: Scalars['ID']['output'];
@@ -109,7 +102,7 @@ export type TvShow = Work & {
 	people: Maybe<Array<Maybe<Person>>>;
 	poster_path: Maybe<Scalars['String']['output']>;
 	providers: Maybe<Array<Maybe<Provider>>>;
-	ranking_data: Maybe<RankingData>;
+	ranking_data: Maybe<WorkRankingData>;
 	roles: Maybe<Array<Maybe<Role>>>;
 	season_count: Maybe<Scalars['Int']['output']>;
 	start_year: Maybe<Scalars['Int']['output']>;
@@ -119,12 +112,6 @@ export type TvShow = Work & {
 
 export type TvShowProvidersArgs = {
 	filter: InputMaybe<ProviderFilter>;
-};
-
-export type TvShowAdditionalFields = {
-	backdrop_path: Maybe<Scalars['String']['output']>;
-	overview: Maybe<Scalars['String']['output']>;
-	poster_path: Maybe<Scalars['String']['output']>;
 };
 
 export type VennDiagram = {
@@ -151,7 +138,7 @@ export type Work = {
 	people: Maybe<Array<Maybe<Person>>>;
 	poster_path: Maybe<Scalars['String']['output']>;
 	providers: Maybe<Array<Maybe<Provider>>>;
-	ranking_data: Maybe<RankingData>;
+	ranking_data: Maybe<WorkRankingData>;
 	roles: Maybe<Array<Maybe<Role>>>;
 	title: Scalars['String']['output'];
 };
@@ -163,4 +150,11 @@ export type WorkProvidersArgs = {
 
 export type WorkFilter = {
 	type: InputMaybe<Scalars['String']['input']>;
+};
+
+export type WorkRankingData = {
+	aggregate_episode_count: Maybe<Scalars['Int']['output']>;
+	average_degree: Maybe<Scalars['Float']['output']>;
+	total_connections: Maybe<Scalars['Int']['output']>;
+	weighted_score: Maybe<Scalars['Float']['output']>;
 };

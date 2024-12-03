@@ -6,8 +6,8 @@ import { InterfaceTypeDefinitionNode, ObjectTypeDefinitionNode, visit } from 'gr
 import gql from 'graphql-tag';
 import ts from 'typescript';
 import difference from 'lodash/difference';
-import capitalize from 'lodash/capitalize';
 import { getSubtypesOfSupertype, getSupertypeOfSubtype, typeFormatToDbTableNameFormat } from './utils';
+import typeObjects from '../src/generated/typeObjects.json' assert { type: 'json' };
 
 const rl = readline.createInterface({
 	input: process.stdin,
@@ -37,17 +37,23 @@ async function generateResolvers() {
 		true
 	);
 
-	const intentionallySkip = ['Role', 'Provider', 'RankingData', 'TvShowAdditionalFields'];
+	const intentionallySkip = Object.entries(typeObjects).map(([typeName, typeObject]) => {
+		if(!typeObject.isDirectlyQueryable) {
+			return typeName;
+		}
+	}).flat().filter(Boolean);
 
 	// Create a file for each GraphQL type based on the template and insert likely resolver functions
 	visit(parsedSchema, {
 		ObjectTypeDefinition(node) {
+			console.log(node.name.value, intentionallySkip.includes(node.name.value), existsSync(`./src/resolvers/${node.name.value}.ts`));
 			if(!existsSync(`./src/resolvers/${node.name.value}.ts`) && !intentionallySkip.includes(node.name.value)) {
 				typeNames.push(node.name.value);
 				generateResolverForType(node, tsSourceFile, parsedSchema);
 			}
 		},
 		InterfaceTypeDefinition(node) {
+			console.log(node.name.value, intentionallySkip.includes(node.name.value), existsSync(`./src/resolvers/${node.name.value}.ts`));
 			if(!existsSync(`./src/resolvers/${node.name.value}.ts`) && !intentionallySkip.includes(node.name.value)) {
 				typeNames.push(node.name.value);
 				generateResolverForInterface(node, tsSourceFile);

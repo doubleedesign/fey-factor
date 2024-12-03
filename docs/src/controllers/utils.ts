@@ -28,6 +28,14 @@ function toSingular(str: string) {
  * @return string
  */
 export function typeFormatToDbTableNameFormat(typeName: string) {
+	const noPlural = ['VennDiagram', 'VennDiagramIntersection', 'VennDiagramCircle', 'Node', 'Edge'];
+	if(noPlural.includes(typeName)) {
+		return snakeCase(typeName);
+	}
+	if(noPlural.map(type => snakeCase(type)).includes(typeName)) {
+		return typeName;
+	}
+
 	return typeName.endsWith('Container')
 		? toPlural(snakeCase(typeName.replace('Container', '')))
 		: toPlural(snakeCase(typeName));
@@ -42,6 +50,9 @@ export function typeFormatToDbTableNameFormat(typeName: string) {
 export function dbTableNameFormatToTypeFormat(tableName: string) {
 	if(tableName.toLowerCase() === 'movies') {
 		return 'Movie';
+	}
+	if(tableName === 'providers') {
+		return 'Provider'; // Inflectors does something weird with providers for some unknown reason
 	}
 	return pascalCase(toSingular(tableName));
 }

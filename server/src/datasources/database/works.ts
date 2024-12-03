@@ -1,10 +1,7 @@
 import pg from 'pg';
 import { Person, Role } from '../../generated/source-types';
-import { Movie, TvShow } from '../../generated/gql-types-reformatted';
-import { RankingData } from '../../types';
+import { Movie, TvShow, WorkRankingData } from '../../generated/gql-types-reformatted';
 import { convertIdToInteger, convertIdToString } from '../../utils';
-
-type TvShowWithRankingData = TvShow & RankingData;
 
 export class DbWorks  {
 	constructor(private pgClient: pg.Pool) {}
@@ -207,7 +204,7 @@ export class DbWorks  {
 	 * Shows with fewer than 2 connections are excluded
 	 * @param limit
 	 */
-	async getRankedListOfTvShows(limit: number): Promise<TvShowWithRankingData[]> {
+	async getRankedListOfTvShows(limit: number): Promise<TvShow[]> {
 		try {
 			const response = await this.pgClient.query({
 				text: `
@@ -285,7 +282,7 @@ export class DbWorks  {
 	 * Get the ranking data for an individual tv show
 	 * @param id
 	 */
-	async getRankingDataForTvshow(id: number): Promise<RankingData> {
+	async getRankingDataForTvshow(id: number): Promise<WorkRankingData> {
 		try {
 			const response = await this.pgClient.query({
 				text: `

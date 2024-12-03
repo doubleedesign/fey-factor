@@ -55,10 +55,10 @@ export const DiagramContextProvider: FC<PropsWithChildren<DiagramContextProvider
 	return (
 		<DiagramContext.Provider value={{ bounds, setBounds, onInit }}>
 			<ControlBar>
-				<span>Currently showing:
+				<span>Currently showing:&nbsp;
 					<strong>{selected === 'database'
-						? 'Original Postgres database schema'
-						: 'Postgres database extended to GraphQL schema'}
+						? 'Postgres database schema'
+						: 'GraphQL schema'}
 					</strong>
 				</span>
 				<SwapButton onClick={swapSchema}/>

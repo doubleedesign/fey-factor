@@ -7,6 +7,8 @@ type Query {
 	nodes(edgeId: [ID], limit: Int): [Node]
 	Person(id: ID!): Person
 	People(ids: [ID], limit: Int): [Person]
+	Role(id: ID!): Role
+	Roles(ids: [ID], limit: Int): [Role]
 	TvShow(id: ID!): TvShow
 	TvShows(ids: [ID], limit: Int): [TvShow]
 	VennDiagram(minShows: Int, minPeople: Int): VennDiagram

@@ -7,6 +7,8 @@ type Query {
 	nodes(edgeId: [ID], limit: Int): [Node]
 	Person(id: ID!): Person
 	People(ids: [ID], limit: Int): [Person]
+	Role(id: ID!): Role
+	Roles(ids: [ID], limit: Int): [Role]
 	TvShow(id: ID!): TvShow
 	TvShows(ids: [ID], limit: Int): [TvShow]
 	VennDiagram(minShows: Int, minPeople: Int): VennDiagram
@@ -31,32 +33,27 @@ type Person {
 	works(filter: WorkFilter): [Work]
 	roles: [Role]
 }
-interface Work {
-	id: ID!
-	title: String!
-	rankingData: RankingData
-	providers(filter: ProviderFilter): [Provider]
-	overview: String
-	poster_path: String
-	backdrop_path: String
-	people: [Person]
-	roles: [Role]
-}
 type Role {
 	id: ID!
 	name: String
 	episode_count: Int
 }
-type RankingData {
+interface Work {
+	id: ID!
+	title: String!
+	people: [Person]
+	roles: [Role]
+	poster_path: String
+	backdrop_path: String
+	overview: String
+	ranking_data: WorkRankingData
+	providers(filter: ProviderFilter): [Provider]
+}
+type WorkRankingData {
 	total_connections: Int
 	average_degree: Float
 	aggregate_episode_count: Int
 	weighted_score: Float
-}
-type TvShowAdditionalFields {
-	poster_path: String
-	backdrop_path: String
-	overview: String
 }
 type Provider {
 	provider_id: Int!
@@ -65,14 +62,14 @@ type Provider {
 	provider_type: String
 }
 type VennDiagramIntersection {
-	shows: [String!]!
+	titles: [String!]!
 	show_ids: [String!]!
-	people: Int!
+	people_count: Int!
 }
 type VennDiagramCircle {
-	show: String!
+	title: String!
 	show_id: String!
-	people: Int!
+	people_count: Int!
 }
 type Node {
 	id: ID!
@@ -93,13 +90,13 @@ type Movie implements Work {
 	id: ID!
 	title: String!
 	release_year: Int
-	rankingData: RankingData
-	providers(filter: ProviderFilter): [Provider]
-	overview: String
-	poster_path: String
-	backdrop_path: String
 	people: [Person]
 	roles: [Role]
+	poster_path: String
+	backdrop_path: String
+	overview: String
+	ranking_data: WorkRankingData
+	providers(filter: ProviderFilter): [Provider]
 }
 type TvShow implements Work {
 	id: ID!
@@ -108,11 +105,11 @@ type TvShow implements Work {
 	end_year: Int
 	season_count: Int
 	episode_count: Int
-	rankingData: RankingData
-	providers(filter: ProviderFilter): [Provider]
-	overview: String
-	poster_path: String
-	backdrop_path: String
 	people: [Person]
 	roles: [Role]
+	poster_path: String
+	backdrop_path: String
+	overview: String
+	ranking_data: WorkRankingData
+	providers(filter: ProviderFilter): [Provider]
 }

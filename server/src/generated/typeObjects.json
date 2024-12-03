@@ -69,18 +69,13 @@
                 "required": false
             },
             {
-                "fieldName": "ranking_data",
-                "fieldType": "RankingData",
+                "fieldName": "people",
+                "fieldType": "Person[]",
                 "required": false
             },
             {
-                "fieldName": "providers",
-                "fieldType": "Provider[]",
-                "required": false
-            },
-            {
-                "fieldName": "overview",
-                "fieldType": "string",
+                "fieldName": "roles",
+                "fieldType": "Role[]",
                 "required": false
             },
             {
@@ -94,13 +89,18 @@
                 "required": false
             },
             {
-                "fieldName": "people",
-                "fieldType": "Person[]",
+                "fieldName": "overview",
+                "fieldType": "string",
                 "required": false
             },
             {
-                "fieldName": "roles",
-                "fieldType": "Role[]",
+                "fieldName": "ranking_data",
+                "fieldType": "WorkRankingData",
+                "required": false
+            },
+            {
+                "fieldName": "providers",
+                "fieldType": "Provider[]",
                 "required": false
             }
         ],
@@ -191,32 +191,6 @@
         "isDirectlyQueryable": false,
         "isGqlEntity": true
     },
-    "RankingData": {
-        "fields": [
-            {
-                "fieldName": "total_connections",
-                "fieldType": "number",
-                "required": false
-            },
-            {
-                "fieldName": "average_degree",
-                "fieldType": "number",
-                "required": false
-            },
-            {
-                "fieldName": "aggregate_episode_count",
-                "fieldType": "number",
-                "required": false
-            },
-            {
-                "fieldName": "weighted_score",
-                "fieldType": "number",
-                "required": false
-            }
-        ],
-        "isDirectlyQueryable": false,
-        "isGqlEntity": true
-    },
     "Role": {
         "fields": [
             {
@@ -235,7 +209,7 @@
                 "required": false
             }
         ],
-        "isDirectlyQueryable": false,
+        "isDirectlyQueryable": true,
         "isGqlEntity": true
     },
     "TvShow": {
@@ -271,31 +245,6 @@
                 "required": false
             },
             {
-                "fieldName": "ranking_data",
-                "fieldType": "RankingData",
-                "required": false
-            },
-            {
-                "fieldName": "providers",
-                "fieldType": "Provider[]",
-                "required": false
-            },
-            {
-                "fieldName": "overview",
-                "fieldType": "string",
-                "required": false
-            },
-            {
-                "fieldName": "poster_path",
-                "fieldType": "string",
-                "required": false
-            },
-            {
-                "fieldName": "backdrop_path",
-                "fieldType": "string",
-                "required": false
-            },
-            {
                 "fieldName": "people",
                 "fieldType": "Person[]",
                 "required": false
@@ -304,14 +253,7 @@
                 "fieldName": "roles",
                 "fieldType": "Role[]",
                 "required": false
-            }
-        ],
-        "isDirectlyQueryable": true,
-        "isGqlEntity": true,
-        "isSubtypeOf": "Work"
-    },
-    "TvShowAdditionalFields": {
-        "fields": [
+            },
             {
                 "fieldName": "poster_path",
                 "fieldType": "string",
@@ -326,10 +268,21 @@
                 "fieldName": "overview",
                 "fieldType": "string",
                 "required": false
+            },
+            {
+                "fieldName": "ranking_data",
+                "fieldType": "WorkRankingData",
+                "required": false
+            },
+            {
+                "fieldName": "providers",
+                "fieldType": "Provider[]",
+                "required": false
             }
         ],
-        "isDirectlyQueryable": false,
-        "isGqlEntity": true
+        "isDirectlyQueryable": true,
+        "isGqlEntity": true,
+        "isSubtypeOf": "Work"
     },
     "VennDiagram": {
         "fields": [
@@ -402,18 +355,13 @@
                 "required": true
             },
             {
-                "fieldName": "ranking_data",
-                "fieldType": "RankingData",
+                "fieldName": "people",
+                "fieldType": "Person[]",
                 "required": false
             },
             {
-                "fieldName": "providers",
-                "fieldType": "Provider[]",
-                "required": false
-            },
-            {
-                "fieldName": "overview",
-                "fieldType": "string",
+                "fieldName": "roles",
+                "fieldType": "Role[]",
                 "required": false
             },
             {
@@ -427,18 +375,49 @@
                 "required": false
             },
             {
-                "fieldName": "people",
-                "fieldType": "Person[]",
+                "fieldName": "overview",
+                "fieldType": "string",
                 "required": false
             },
             {
-                "fieldName": "roles",
-                "fieldType": "Role[]",
+                "fieldName": "ranking_data",
+                "fieldType": "WorkRankingData",
+                "required": false
+            },
+            {
+                "fieldName": "providers",
+                "fieldType": "Provider[]",
                 "required": false
             }
         ],
         "isDirectlyQueryable": true,
         "isGqlEntity": true,
         "isInterface": true
+    },
+    "WorkRankingData": {
+        "fields": [
+            {
+                "fieldName": "total_connections",
+                "fieldType": "number",
+                "required": false
+            },
+            {
+                "fieldName": "average_degree",
+                "fieldType": "number",
+                "required": false
+            },
+            {
+                "fieldName": "aggregate_episode_count",
+                "fieldType": "number",
+                "required": false
+            },
+            {
+                "fieldName": "weighted_score",
+                "fieldType": "number",
+                "required": false
+            }
+        ],
+        "isDirectlyQueryable": false,
+        "isGqlEntity": true
     }
 }

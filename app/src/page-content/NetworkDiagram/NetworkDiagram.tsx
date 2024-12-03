@@ -8,10 +8,9 @@ import { Network } from '../../components/data-presentation/Network/Network.tsx'
 import { useResizeObserver } from '../../hooks/use-resize-observer.ts';
 
 type NetworkDiagramProps = {
-	nodesAre: string;
 };
 
-export const NetworkDiagram: FC<NetworkDiagramProps> = ({ nodesAre }) => {
+export const NetworkDiagram: FC<NetworkDiagramProps> = () => {
 	const { degreeZero } = useRankingContext();
 	const containerRef = useRef<HTMLDivElement | null>(null);
 	const dimensions= useResizeObserver(containerRef, [], 300);
@@ -48,22 +47,14 @@ export const NetworkDiagram: FC<NetworkDiagramProps> = ({ nodesAre }) => {
 
 	const formattedData = useMemo(() => {
 		const wrangler = new NetworkWrangler(data);
+		wrangler.format();
 
-		if(nodesAre === 'people') {
-			wrangler.formatStandard();
-
-			return wrangler.getFormattedData();
-		}
-		if(nodesAre === 'shows') {
-			wrangler.formatSwapped();
-
-			return wrangler.getFormattedData();
-		}
-	}, [data, nodesAre]);
+		return wrangler.getFormattedData();
+	}, [data]);
 
 	return (
 		<StyledNetworkDiagram data-testid="NetworkDiagram" ref={containerRef}>
-			{formattedData && <Network key={nodesAre} formattedData={formattedData} dimensions={dimensions} />}
+			{formattedData && <Network formattedData={formattedData} dimensions={dimensions} />}
 		</StyledNetworkDiagram>
 	);
 };

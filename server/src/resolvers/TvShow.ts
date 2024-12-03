@@ -1,5 +1,5 @@
 import { DatabaseConnection } from '../datasources/database';
-import type { TvShow as TvShowGql } from '../generated/gql-types-reformatted';
+import type { TvShow } from '../generated/gql-types-reformatted';
 import pick from 'lodash/pick';
 import { TmdbApiConnection } from '../datasources/tmdb';
 import { convertIdToInteger } from '../utils';
@@ -9,7 +9,7 @@ const api = new TmdbApiConnection();
 
 export default {
 	Query: {
-		TvShow: async (_, { id }): Promise<TvShowGql> => {
+		TvShow: async (_, { id }): Promise<TvShow> => {
 			const coreFields = await db.works.getTvShow(id);
 			const ranking_data = await db.works.getRankingDataForTvshow(id);
 
@@ -19,7 +19,7 @@ export default {
 				ranking_data: ranking_data
 			};
 		},
-		TvShows: async (_, { ids, limit }): Promise<TvShowGql[]> => {
+		TvShows: async (_, { ids, limit }): Promise<TvShow[]> => {
 			let result = [];
 			if (ids && ids.length > 0) {
 				result = await db.works.getTvShows(ids);
@@ -37,25 +37,25 @@ export default {
 		},
 	},
 	TvShow: {
-		people: async (parent: TvShowGql) => {
+		people: async (parent: TvShow) => {
 			return db.works.getPeopleForTvShow(parent.id);
 		},
 		// TODO: Make Roles field more useful for Works, or remove it
-		roles: async (parent: TvShowGql & { personId?: number }) => {
+		roles: async (parent: TvShow & { personId?: number }) => {
 			if (parent.personId) {
 				return db.works.getPersonsRolesForWork(parent.personId, parent.id, 'T');
 			}
 
 			return db.works.getRolesForTvshow(parent.id);
 		},
-		ranking_data: async (parent: TvShowGql) => {
+		ranking_data: async (parent: TvShow) => {
 			if(!parent?.ranking_data) {
 				return await db.works.getRankingDataForTvshow(parent.id);
 			}
 
 			return pick(parent, ['total_connections', 'average_degree', 'aggregate_episode_count', 'weighted_score']);
 		},
-		providers: async (parent: TvShowGql, { filter }) => {
+		providers: async (parent: TvShow, { filter }) => {
 			try {
 				const allResults = await api.getWatchProviders(parent.id);
 
@@ -73,17 +73,17 @@ export default {
 		},
 		// TODO: If I query for the overview, backdrop_path, and poster_path at the same time,
 		//  presumably that will make 3 identical API requests and should be cached or something.
-		overview: async (parent: TvShowGql) => {
+		overview: async (parent: TvShow) => {
 			const details = await api.getTvShowDetails(parent.id);
 
 			return details?.overview ?? '';
 		},
-		backdrop_path: async (parent: TvShowGql) => {
+		backdrop_path: async (parent: TvShow) => {
 			const details = await api.getTvShowDetails(parent.id);
 
 			return details?.backdrop_path ?? '';
 		},
-		poster_path: async (parent: TvShowGql) => {
+		poster_path: async (parent: TvShow) => {
 			const details = await api.getTvShowDetails(parent.id);
 
 			return details?.poster_path ?? '';
