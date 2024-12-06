@@ -6,12 +6,17 @@ type NumberPickerProps = {
 	label: string;
 	defaultValue: number;
 	onChange: (value: number) => void;
+	options?: number[];
 };
 
-export const NumberPicker: FC<NumberPickerProps> = ({ label, defaultValue, onChange }) => {
+export const NumberPicker: FC<NumberPickerProps> = ({ label, defaultValue, onChange, options }) => {
 	const [selectedOption, setSelectedOption] = useState<{ value: number; label: number }>({ value: defaultValue, label: defaultValue });
 
-	const options = useMemo(() => {
+	const optionsToUse = useMemo(() => {
+		if (options) {
+			return options.map(option => ({ value: option, label: option }));
+		}
+
 		return Array.from({ length: 6 }, (_, i) => {
 			const value = Math.floor((defaultValue * i));
 
@@ -37,7 +42,7 @@ export const NumberPicker: FC<NumberPickerProps> = ({ label, defaultValue, onCha
 				<Select
 					defaultValue={selectedOption}
 					onChange={handleChange}
-					options={options}
+					options={optionsToUse}
 				/>
 			</label>
 		</StyledNumberPicker>

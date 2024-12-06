@@ -115,20 +115,12 @@ export type TvShowProvidersArgs = {
 };
 
 export type VennDiagram = {
-	circles: Array<VennDiagramCircle>;
-	intersections: Array<VennDiagramIntersection>;
+	data: Array<VennDiagramSet>;
 };
 
-export type VennDiagramCircle = {
-	people_count: Scalars['Int']['output'];
-	show_id: Scalars['String']['output'];
-	title: Scalars['String']['output'];
-};
-
-export type VennDiagramIntersection = {
-	people_count: Scalars['Int']['output'];
-	show_ids: Array<Scalars['String']['output']>;
-	titles: Array<Scalars['String']['output']>;
+export type VennDiagramSet = {
+	name: Scalars['String']['output'];
+	sets: Array<Scalars['String']['output']>;
 };
 
 export type Work = {

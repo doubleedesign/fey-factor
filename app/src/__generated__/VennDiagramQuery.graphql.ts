@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<dc55c27f99792b5f4c8400850fe10a45>>
+ * @generated SignedSource<<7078e033b154ee5b28b65b0e9478e122>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -10,18 +10,14 @@
 
 import { ConcreteRequest } from 'relay-runtime';
 export type VennDiagramQuery$variables = {
-  minPeople: number;
-  minShows?: number | null | undefined;
+  maxAverageDegree?: number | null | undefined;
+  minConnections: number;
 };
 export type VennDiagramQuery$data = {
   readonly VennDiagram: {
-    readonly circles: ReadonlyArray<{
-      readonly people_count: number;
-      readonly title: string;
-    }>;
-    readonly intersections: ReadonlyArray<{
-      readonly people_count: number;
-      readonly titles: ReadonlyArray<string>;
+    readonly data: ReadonlyArray<{
+      readonly name: string;
+      readonly sets: ReadonlyArray<string>;
     }>;
   } | null | undefined;
 };
@@ -31,36 +27,31 @@ export type VennDiagramQuery = {
 };
 
 const node: ConcreteRequest = (function(){
-var v0 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "minPeople"
-},
-v1 = {
-  "defaultValue": null,
-  "kind": "LocalArgument",
-  "name": "minShows"
-},
-v2 = {
-  "alias": null,
-  "args": null,
-  "kind": "ScalarField",
-  "name": "people_count",
-  "storageKey": null
-},
-v3 = [
+var v0 = [
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "maxAverageDegree"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "minConnections"
+  }
+],
+v1 = [
   {
     "alias": null,
     "args": [
       {
         "kind": "Variable",
-        "name": "minPeople",
-        "variableName": "minPeople"
+        "name": "maxAverageDegree",
+        "variableName": "maxAverageDegree"
       },
       {
         "kind": "Variable",
-        "name": "minShows",
-        "variableName": "minShows"
+        "name": "minConnections",
+        "variableName": "minConnections"
       }
     ],
     "concreteType": "VennDiagram",
@@ -71,38 +62,25 @@ v3 = [
       {
         "alias": null,
         "args": null,
-        "concreteType": "VennDiagramIntersection",
+        "concreteType": "VennDiagramSet",
         "kind": "LinkedField",
-        "name": "intersections",
+        "name": "data",
         "plural": true,
         "selections": [
           {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
-            "name": "titles",
+            "name": "name",
             "storageKey": null
           },
-          (v2/*: any*/)
-        ],
-        "storageKey": null
-      },
-      {
-        "alias": null,
-        "args": null,
-        "concreteType": "VennDiagramCircle",
-        "kind": "LinkedField",
-        "name": "circles",
-        "plural": true,
-        "selections": [
           {
             "alias": null,
             "args": null,
             "kind": "ScalarField",
-            "name": "title",
+            "name": "sets",
             "storageKey": null
-          },
-          (v2/*: any*/)
+          }
         ],
         "storageKey": null
       }
@@ -112,38 +90,32 @@ v3 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": [
-      (v0/*: any*/),
-      (v1/*: any*/)
-    ],
+    "argumentDefinitions": (v0/*: any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "VennDiagramQuery",
-    "selections": (v3/*: any*/),
+    "selections": (v1/*: any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": [
-      (v1/*: any*/),
-      (v0/*: any*/)
-    ],
+    "argumentDefinitions": (v0/*: any*/),
     "kind": "Operation",
     "name": "VennDiagramQuery",
-    "selections": (v3/*: any*/)
+    "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "23320d9a706489029eed1fd029c372c4",
+    "cacheID": "9c4cc8a58461832f6023f57b3203b684",
     "id": null,
     "metadata": {},
     "name": "VennDiagramQuery",
     "operationKind": "query",
-    "text": "query VennDiagramQuery(\n  $minShows: Int\n  $minPeople: Int!\n) {\n  VennDiagram(minShows: $minShows, minPeople: $minPeople) {\n    intersections {\n      titles\n      people_count\n    }\n    circles {\n      title\n      people_count\n    }\n  }\n}\n"
+    "text": "query VennDiagramQuery(\n  $maxAverageDegree: Float\n  $minConnections: Int!\n) {\n  VennDiagram(maxAverageDegree: $maxAverageDegree, minConnections: $minConnections) {\n    data {\n      name\n      sets\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "88f208207c5a070c7ac97aaaa7919214";
+(node as any).hash = "88cc0949e8be9d11d56b4f2e206057ee";
 
 export default node;

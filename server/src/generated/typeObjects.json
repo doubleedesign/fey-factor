@@ -287,55 +287,24 @@
     "VennDiagram": {
         "fields": [
             {
-                "fieldName": "intersections",
-                "fieldType": "VennDiagramIntersection[]",
-                "required": true
-            },
-            {
-                "fieldName": "circles",
-                "fieldType": "VennDiagramCircle[]",
+                "fieldName": "data",
+                "fieldType": "VennDiagramSet[]",
                 "required": true
             }
         ],
         "isDirectlyQueryable": true,
         "isGqlEntity": true
     },
-    "VennDiagramCircle": {
+    "VennDiagramSet": {
         "fields": [
             {
-                "fieldName": "title",
+                "fieldName": "name",
                 "fieldType": "string",
                 "required": true
             },
             {
-                "fieldName": "show_id",
-                "fieldType": "string",
-                "required": true
-            },
-            {
-                "fieldName": "people_count",
-                "fieldType": "number",
-                "required": true
-            }
-        ],
-        "isDirectlyQueryable": false,
-        "isGqlEntity": true
-    },
-    "VennDiagramIntersection": {
-        "fields": [
-            {
-                "fieldName": "titles",
+                "fieldName": "sets",
                 "fieldType": "string[]",
-                "required": true
-            },
-            {
-                "fieldName": "show_ids",
-                "fieldType": "string[]",
-                "required": true
-            },
-            {
-                "fieldName": "people_count",
-                "fieldType": "number",
                 "required": true
             }
         ],

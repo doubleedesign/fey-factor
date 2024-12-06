@@ -2,7 +2,8 @@ import pg from 'pg';
 import { Connection, Person, Role, Work } from '../../generated/source-types';
 
 export class DbRoles {
-	constructor(private pgClient: pg.Pool) {}
+	constructor(private pgClient: pg.Pool) {
+	}
 
 	async getRole(id: number): Promise<Role> {
 		try {
@@ -13,7 +14,7 @@ export class DbRoles {
 
 			return response.rows[0] ?? null;
 		}
-		catch(error) {
+		catch (error) {
 			console.error(error);
 
 			return null;
@@ -29,7 +30,7 @@ export class DbRoles {
 
 			return response.rows;
 		}
-		catch(error) {
+		catch (error) {
 			console.error(error);
 
 			return null;
@@ -45,7 +46,7 @@ export class DbRoles {
 
 			return response.rows;
 		}
-		catch(error) {
+		catch (error) {
 			console.error(error);
 
 			return null;
@@ -55,13 +56,13 @@ export class DbRoles {
 	async getWorksForRole(id: number): Promise<Work[]> {
 		try {
 			const response = await this.pgClient.query({
-				text: 'SELECT * FROM works WHERE id IN (SELECT work_id FROM connections WHERE role_id = $1) AND type IS NOT NULL',
+				text: 'SELECT * FROM works WHERE id IN (SELECT work_id FROM connections WHERE role_id = $1)',
 				values: [id]
 			});
 
 			return response.rows;
 		}
-		catch(error) {
+		catch (error) {
 			console.error(error);
 
 			return null;

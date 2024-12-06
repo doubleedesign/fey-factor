@@ -8,8 +8,20 @@ export const StyledSelectionInputs = styled.div`
 	position: relative;
 	z-index: 9000;
 	
+	> span {
+		display: flex;
+		align-items: center;
+		padding-inline-end: ${props => props.theme.spacing.xs};
+		transform: translateY(0.5rem);
+	}
+	
 	label {
 		width: 100%;
+		
+		> span {
+			display: block;
+			padding-block-end: ${props => props.theme.spacing.xs};
+		}
 		
 		> div {
 			width: 100%;

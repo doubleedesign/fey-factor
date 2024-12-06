@@ -45,15 +45,9 @@ type Provider {
 	logo_path: String
 	provider_type: String
 }
-type VennDiagramIntersection {
-	titles: [String!]!
-	show_ids: [String!]!
-	people_count: Int!
-}
-type VennDiagramCircle {
-	title: String!
-	show_id: String!
-	people_count: Int!
+type VennDiagramSet {
+	name: String!
+	sets: [String!]!
 }
 type Node {
 	id: ID!
@@ -61,26 +55,13 @@ type Node {
 	degree: Int!
 	edges(limit: Int): [Edge]
 }
-type VennDiagram {
-	intersections: [VennDiagramIntersection!]!
-	circles: [VennDiagramCircle!]!
-}
 type Edge {
 	id: ID!
 	title: String!
 	nodes(limit: Int): [Node]
 }
-type Movie implements Work {
-	id: ID!
-	title: String!
-	release_year: Int
-	people: [Person]
-	roles: [Role]
-	poster_path: String
-	backdrop_path: String
-	overview: String
-	ranking_data: WorkRankingData
-	providers(filter: ProviderFilter): [Provider]
+type VennDiagram {
+	data: [VennDiagramSet!]!
 }
 type TvShow implements Work {
 	id: ID!
@@ -89,6 +70,18 @@ type TvShow implements Work {
 	end_year: Int
 	season_count: Int
 	episode_count: Int
+	people: [Person]
+	roles: [Role]
+	poster_path: String
+	backdrop_path: String
+	overview: String
+	ranking_data: WorkRankingData
+	providers(filter: ProviderFilter): [Provider]
+}
+type Movie implements Work {
+	id: ID!
+	title: String!
+	release_year: Int
 	people: [Person]
 	roles: [Role]
 	poster_path: String

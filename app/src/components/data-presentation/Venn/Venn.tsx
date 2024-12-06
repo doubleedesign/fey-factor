@@ -1,28 +1,40 @@
-import { FC, useEffect, useRef } from 'react';
-import * as d3 from 'd3';
-// @ts-expect-error TS7016: Could not find a declaration file for module venn.js
-import * as venn from 'venn.js';
+import { FC, useState, useMemo, useCallback } from 'react';
+import { extractSets, generateCombinations, VennDiagram, ISetLike } from '@upsetjs/react';
 import { StyledVenn } from './Venn.style';
 
 type VennSet = {
+	name: string;
 	sets: string[];
-	size: number;
 };
 
 type VennProps = {
-	sets: VennSet[];
+	data: VennSet[];
 };
 
-export const Venn: FC<VennProps> = ({ sets }) => {
-	const vennRef = useRef<HTMLElement>(null);
+export const Venn: FC<VennProps> = ({ data }) => {
+	const [selected, setSelected] = useState(null);
+	const [hovered, setHovered] = useState<ISetLike<VennSet> | null>(null);
+	const sets= useMemo(() => extractSets(data), [data]);
+	const combinations = useMemo(() => generateCombinations(sets), [sets]);
 
-	// Ensure the container is loaded before attempting to populate the diagram
-	useEffect(() => {
-		if (vennRef.current) {
-			const chart = venn.VennDiagram().width(2000).height(1000);
-			d3.select(vennRef.current).datum(sets).call(chart);
-		}
-	}, [sets]);
+	const handleClick = useCallback((selection) => {
+		// TODO: Show the details in a panel next to the diagram
+		console.log(selection);
+	}, []);
 
-	return <StyledVenn ref={vennRef} />;
+	return (
+		<StyledVenn>
+			{/** @ts-expect-error TS2786: VennDiagram cannot be used as a JSX component. */}
+			<VennDiagram
+				sets={sets}
+				combinations={combinations}
+				width={900}
+				height={600}
+				onClick={handleClick}
+				onHover={setHovered}
+				selection={hovered}
+				exportButtons={false}
+			/>
+		</StyledVenn>
+	);
 };

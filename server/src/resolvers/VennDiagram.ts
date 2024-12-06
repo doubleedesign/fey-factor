@@ -1,19 +1,14 @@
 import { DatabaseConnection } from '../datasources/database';
-import { VennDiagram } from '../generated/gql-types-reformatted';
-import uniq from 'lodash/uniq';
+import { VennDiagram, VennDiagramSet } from '../generated/gql-types-reformatted';
 const db = new DatabaseConnection();
 
 export default {
 	Query: {
-		VennDiagram: async (_, { minShows, minPeople }): Promise<VennDiagram> => {
-			const intersections = await db.venn.getIntersections({ minPeople, minShows });
-			const showIds = uniq(intersections.map((i) => i.show_ids).flat());
-			const circles = await db.venn.getCircles({ showIds });
+		VennDiagram: async (_, { maxAverageDegree, minConnections }): Promise<VennDiagram> => {
+			// { maxAverageDegree: 1.5, minConnections: 3 }
+			const sets: VennDiagramSet[] = await db.venn.getPeopleAndTheirShows({ maxAverageDegree, minConnections });
 
-			return Promise.resolve({
-				intersections,
-				circles
-			});
+			return { data: sets };
 		}
 	},
 };

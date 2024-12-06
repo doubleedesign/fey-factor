@@ -78,7 +78,7 @@ export const Rankings: FC = () => {
 				<SelectionInputs>
 					<NumberPicker label="Show top:" defaultValue={20} onChange={handleLimitChange} />
 					<MultiSelect
-						label="Show columns"
+						label="Show columns:"
 						options={columns.filter(col => !alwaysVisibleColumns.includes(col.value))} // these should always be visible
 						selectedOptions={visibleColumns}
 						onChange={handleColumnVisibilityChange}

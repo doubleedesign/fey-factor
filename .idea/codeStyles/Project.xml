@@ -38,9 +38,10 @@
       <option name="WITH_ALIGN_AS" value="true" />
       <option name="SELECT_EL_LINE" value="0" />
       <option name="SELECT_EL_WRAP" value="2" />
+      <option name="SELECT_KEEP_N_ITEMS_IN_LINE" value="5" />
+      <option name="SELECT_USE_AS_WORD" value="1" />
       <option name="FROM_EL_LINE" value="101" />
       <option name="FROM_EL_WRAP" value="2" />
-      <option name="FROM_INDENT_JOIN" value="false" />
       <option name="FROM_ONLY_JOIN_INDENT" value="1" />
       <option name="WHERE_EL_LINE" value="101" />
       <option name="ORDER_EL_LINE" value="101" />

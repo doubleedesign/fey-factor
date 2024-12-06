@@ -1,72 +1,48 @@
 import pg from 'pg';
-import { VennDiagramIntersection, VennDiagramCircle } from '../../types';
+import { type VennDiagramSet } from '../../types';
 
 export class DbVenn {
 	constructor(private pgClient: pg.Pool) {
 	}
 
-	async getIntersections({ minShows, minPeople }): Promise<VennDiagramIntersection[]> {
+	/**
+     * Initially filter shows to include in the Venn diagram because otherwise it's too complex to render
+     * @param maxAverageDegree - maximum average degree of the people involved the show
+     * @param minConnections - minimum total number of connections a show needs to be included
+     *
+     * @return {Promise<string[]>} - IDs of the shows meeting the criteria
+     */
+	async getShowsToInclude({ maxAverageDegree, minConnections }): Promise<string[]> {
 		try {
 			const response = await this.pgClient.query({
 				text: `
-                    WITH person_shows          AS (
-                        SELECT person_id,
-                               work_id,
-                               title
-                            FROM
-                                connections
-                                    JOIN
-                                    tv_shows ON connections.work_id = tv_shows.id
-                            WHERE
-                                work_id LIKE '%_T'
-                        ),
-                         shows_with_people     AS (
-                        SELECT work_id,
-                               title,
-                               COUNT(DISTINCT person_id) AS total_people
-                            FROM
-                                person_shows
-                            GROUP BY
-                                work_id,
-                                title
-                            HAVING
-                                COUNT(DISTINCT person_id) >= $2 -- Exclude shows with fewer than $minPeople
-                        ),
-                         filtered_person_shows AS (
-                        SELECT person_id,
-                               work_id,
-                               title
-                            FROM
-                                person_shows
-                            WHERE
-                                work_id IN (
-                                    SELECT work_id
-                                        FROM shows_with_people -- Include only shows with $minPeople
-                                    ) 
-                        ),
-                         intersections         AS (
-                        SELECT ARRAY_AGG(DISTINCT work_id) AS show_ids,
-                               ARRAY_AGG(DISTINCT title)   AS shows,
-                               COUNT(*)                    AS total_people
-                            FROM
-                                filtered_person_shows
-                            GROUP BY
-                                person_id
-                        )
-                    SELECT show_ids,
-                           shows as titles,
-                           total_people AS people_count
+                    WITH initial_data AS (
+                         SELECT tv_shows.id AS show_id,
+                                ROUND(AVG(people.degree), 2)::DECIMAL(10, 2) AS average_degree,
+                                COUNT(connections.person_id) AS total_connections
+                             FROM
+                                 tv_shows
+                                     LEFT JOIN
+                                     connections ON tv_shows.id = connections.work_id
+                                     LEFT JOIN
+                                     people ON connections.person_id = people.id
+                             GROUP BY
+                                 tv_shows.id
+                         )
+                    SELECT show_id
                         FROM
-                            intersections
+                            initial_data
                         WHERE
-                            CARDINALITY(shows) > $1 -- At least $minShows shows in common
+                              average_degree <= $1
+                          AND total_connections >= $2
                         ORDER BY
-                            total_people DESC; -- Order by the number of people
-				`,
-				values: [minShows, minPeople]
+                            total_connections DESC;
+
+                `,
+				values: [maxAverageDegree, minConnections]
 			});
 
-			return response.rows;
+			return response.rows.map((row) => row.show_id);
 		}
 		catch (error) {
 			console.error(error);
@@ -75,23 +51,35 @@ export class DbVenn {
 		}
 	}
 
-	async getCircles({ showIds }): Promise<VennDiagramCircle[]> {
+
+	/**
+	 * Get the people and the set of TV shows they have worked on
+	 * limited by the given criteria
+	 */
+	async getPeopleAndTheirShows({ maxAverageDegree, minConnections }): Promise<VennDiagramSet[]> {
+		const showIds = await this.getShowsToInclude({ maxAverageDegree, minConnections });
+
 		try {
 			const response = await this.pgClient.query({
 				text: `
                     SELECT
-                        tv_shows.title AS title,
-                        COUNT(DISTINCT connections.person_id) AS people_count
-                    FROM
-                        connections
-                            JOIN
-                            tv_shows ON connections.work_id = tv_shows.id
-                    WHERE
-                        tv_shows.id = ANY ($1::text[])
-                    GROUP BY
-                        tv_shows.title
-                    ORDER BY
-                        people_count DESC;
+                        p.name AS name,
+                        ARRAY_AGG(DISTINCT ts.title ORDER BY ts.title) AS sets
+                        FROM
+                            people p
+                                JOIN
+                                connections tsp ON p.id = tsp.person_id
+                                JOIN
+                                tv_shows ts ON tsp.work_id = ts.id
+                        WHERE
+                            ts.id = ANY ($1::text[])
+                        GROUP BY
+                            p.id, p.name
+                        HAVING
+                            COUNT(DISTINCT ts.title) > 1 -- Filter out sets with only one show
+                        ORDER BY
+                            array_length(ARRAY_AGG(DISTINCT ts.title), 1) DESC, -- Order by set size descending
+                            p.name; -- then by name
 				`,
 				values: [showIds]
 			});
@@ -104,5 +92,4 @@ export class DbVenn {
 			return null;
 		}
 	}
-
 }

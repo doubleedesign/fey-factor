@@ -2,7 +2,8 @@ import pg from 'pg';
 import { Person, Role, Work } from '../../generated/source-types';
 
 export class DbConnectionEntities {
-	constructor(private pgClient: pg.Pool) {}
+	constructor(private pgClient: pg.Pool) {
+	}
 
 	async getPersonForConnection(id: number): Promise<Person> {
 		try {
@@ -13,7 +14,7 @@ export class DbConnectionEntities {
 
 			return response.rows[0] ?? null;
 		}
-		catch(error) {
+		catch (error) {
 			console.error(error);
 
 			return null;
@@ -29,7 +30,7 @@ export class DbConnectionEntities {
 
 			return response.rows[0] ?? null;
 		}
-		catch(error) {
+		catch (error) {
 			console.error(error);
 
 			return null;
@@ -45,7 +46,7 @@ export class DbConnectionEntities {
 
 			return response.rows[0] ?? null;
 		}
-		catch(error) {
+		catch (error) {
 			console.error(error);
 
 			return null;

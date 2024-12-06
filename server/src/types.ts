@@ -54,18 +54,10 @@ export interface Edge {
 }
 
 export interface VennDiagram {
-	intersections: VennDiagramIntersection[];
-	circles: VennDiagramCircle[];
+	data: VennDiagramSet[];
 }
 
-export type VennDiagramIntersection = {
-	titles: string[];
-	show_ids: string[];
-	people_count: number;
-};
-
-export type VennDiagramCircle = {
-	title: string;
-	show_id: string;
-	people_count: number;
+export type VennDiagramSet = {
+	name: string;
+	sets: string[];
 };

@@ -44,20 +44,12 @@ export type TvShow = Work & {
 };
 
 export type VennDiagram = {
-	circles: VennDiagramCircle[];
-	intersections: VennDiagramIntersection[];
+	data: VennDiagramSet[];
 };
 
-export type VennDiagramCircle = {
-	people_count: number;
-	show_id: string;
-	title: string;
-};
-
-export type VennDiagramIntersection = {
-	people_count: number;
-	show_ids: string[];
-	titles: string[];
+export type VennDiagramSet = {
+	name: string;
+	sets: string[];
 };
 
 export type Work = {
