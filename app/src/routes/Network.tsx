@@ -1,7 +1,8 @@
-import { FC, Suspense } from 'react';
+import { FC } from 'react';
 import { ControlBar, PageWrapper } from '../components/layout';
 import { Heading, LeadParagraph } from '../components/typography';
 import { NetworkDiagram } from '../page-content/NetworkDiagram/NetworkDiagram.tsx';
+import { RelayComponentWrapper } from '../components/wrappers/RelayComponentWrapper/RelayComponentWrapper.tsx';
 
 export const Network: FC = () => {
 	return (
@@ -12,9 +13,9 @@ export const Network: FC = () => {
 					<LeadParagraph>Follow the connection paths visually</LeadParagraph>
 				</div>
 			</ControlBar>
-			<Suspense fallback={<div>Loading...</div>}>
+			<RelayComponentWrapper>
 				<NetworkDiagram />
-			</Suspense>
+			</RelayComponentWrapper>
 		</PageWrapper>
 	);
 };

@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { StyledBarChart, StyledBarChartTitle } from '../../data-presentation/BarChart/BarChart.style.ts';
+import { StyledBarChart, StyledBarChartTitle } from '../../../data-presentation/BarChart/BarChart.style.ts';
 
 export const StyledBarChartSkeleton = styled(StyledBarChart)``;
 

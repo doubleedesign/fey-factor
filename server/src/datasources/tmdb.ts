@@ -30,7 +30,7 @@ export class TmdbApiConnection {
 				method,
 				headers: {
 					'Authorization': `Bearer ${this.authToken}`,
-					'Cache-Control': 'max-age=86400', // 24 hours
+					//'Cache-Control': 'max-age=86400', // 24 hours
 				},
 				cache: useCached ? 'default' : 'no-store'
 			});

@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { StyledTableSkeleton } from './TableSkeleton.style';
-import { Column } from '../../../types.ts';
+import { Column } from '../../../../types.ts';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
 

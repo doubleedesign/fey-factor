@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { StyledShowCard, StyledShowCardContent, StyledShowCardHeader, StyledShowCardPoster } from '../../data-presentation/ShowCard/ShowCard.style.ts';
+import { StyledShowCard, StyledShowCardContent, StyledShowCardHeader, StyledShowCardPoster } from '../../../data-presentation/ShowCard/ShowCard.style.ts';
 
 export const StyledShowCardSkeleton = styled(StyledShowCard)``;
 

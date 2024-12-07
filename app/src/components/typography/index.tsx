@@ -1,6 +1,7 @@
 import { Heading } from './Heading/Heading';
 import { Label } from './Label/Label';
 import { TooltippedElement } from './Tooltip/TooltippedElement';
+import { Button } from './Button/Button';
 import styled from 'styled-components';
 
 const LeadParagraph = styled.p`
@@ -25,5 +26,6 @@ export {
 	Label,
 	TooltippedElement,
 	FinePrint,
-	LeadParagraph
+	LeadParagraph,
+	Button
 };

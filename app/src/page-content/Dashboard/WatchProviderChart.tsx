@@ -1,10 +1,9 @@
 import { FC, ReactNode, Suspense, useMemo } from 'react';
 import { graphql, useLazyLoadQuery } from 'react-relay';
-import { BarChart } from '../../components/data-presentation';
 import { WatchProviderChartQuery } from '../../__generated__/WatchProviderChartQuery.graphql.ts';
 import { Provider } from '../../types';
 import { uniq } from 'lodash';
-import { ShowCard } from '../../components/data-presentation';
+import { BarChart, ShowCard } from '../../components/data-presentation';
 
 function excludeProvider(provider_name: string): boolean {
 	return provider_name.includes('Amazon Channel')

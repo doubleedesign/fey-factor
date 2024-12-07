@@ -1,4 +1,4 @@
-import { FC, Fragment, startTransition, Suspense,  useState, useCallback, useEffect } from 'react';
+import { FC, Fragment, startTransition, useState, useCallback, useEffect } from 'react';
 import { ControlBar, PageWrapper } from '../components/layout';
 import { Heading, LeadParagraph } from '../components/typography';
 import { MultiSelect, NumberPicker, SelectionInputs } from '../components/data-presentation';
@@ -7,7 +7,8 @@ import { Filters, MultiSelectOption, Provider } from '../types';
 import { MultiValue } from 'react-select';
 import { fetchWatchProviders, sortProviders } from '../controllers/watch-providers.ts';
 import { useRankingContext } from '../controllers/RankingContext.tsx';
-import { TableSkeleton } from '../components/loading';
+import { TableSkeleton } from '../components/states/loading';
+import { RelayComponentWrapper } from '../components/wrappers/RelayComponentWrapper/RelayComponentWrapper.tsx';
 
 
 export const Rankings: FC = () => {
@@ -93,9 +94,9 @@ export const Rankings: FC = () => {
 					/>
 				</SelectionInputs>
 			</ControlBar>
-			<Suspense fallback={<TableSkeleton rows={limit} />}>
+			<RelayComponentWrapper loadingFallback={<TableSkeleton rows={limit} />}>
 				<TvShowRankings limit={limit} loadingRows={loadingRows} />
-			</Suspense>
+			</RelayComponentWrapper>
 		</PageWrapper>
 	);
 };

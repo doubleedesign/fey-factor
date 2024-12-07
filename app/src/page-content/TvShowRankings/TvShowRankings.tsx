@@ -5,7 +5,7 @@ import { SortableTable } from '../../components/data-presentation';
 import { Column, Row } from '../../types.ts';
 import { useRankingContext } from '../../controllers/RankingContext.tsx';
 import * as Case from 'case';
-import { TableSkeleton } from '../../components/loading';
+import { TableSkeleton } from '../../components/states/loading';
 
 type TvShowRankingsProps = {
 	limit: number;
@@ -61,9 +61,9 @@ export const TvShowRankings: FC<TvShowRankingsProps> = ({ limit, loadingRows }) 
 				id: show?.id ?? 0,
 				title: show?.title ?? '',
 				episode_count: show?.episode_count ?? 0,
-				total_connections: show?.rankingData?.total_connections ?? 0,
-				average_degree: show?.rankingData?.average_degree?.toFixed(2) ?? 0,
-				weighted_score: show?.rankingData?.weighted_score?.toFixed(2) ?? 0,
+				total_connections: show?.ranking_data?.total_connections ?? 0,
+				average_degree: show?.ranking_data?.average_degree?.toFixed(2) ?? 0,
+				weighted_score: show?.ranking_data?.weighted_score?.toFixed(2) ?? 0,
 				available_on: show?.providers
 			} as Row;
 		}) ?? [];

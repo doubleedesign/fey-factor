@@ -6,7 +6,9 @@ import { Label, TooltippedElement } from '../../typography';
 import { Expandable } from '../../layout';
 import React from 'react';
 import { ShowCardInner } from './ShowCardInner.tsx';
-import { ShowCardSkeleton } from '../../loading/ShowCardSkeleton/ShowCardSkeleton.tsx';
+import { ShowCardSkeleton } from '../../states/loading';
+import { RelayComponentWrapper } from '../../wrappers/RelayComponentWrapper/RelayComponentWrapper.tsx';
+
 
 type ShowCardProps = {
 	id: number;
@@ -103,14 +105,14 @@ export const ShowCard = ({ id, expandable }: ShowCardProps) => {
 
 	return expandable && data?.TvShow?.title ? (
 		<Expandable title={data.TvShow?.title ?? ''} titleTag={tag}>
-			<Suspense fallback={<ShowCardSkeleton />}>
+			<RelayComponentWrapper loadingFallback={<ShowCardSkeleton />}>
 				<ShowCardInner id={data.TvShow.id} tag={tag} renderTitle={false}>
 					{degree0.length > 0 && <p>{degree0[0]?.name} is {degree0[0]?.roles?.map((role) => {
 						return role?.name?.replace('_', ' ');
 					}).join(', ')}.</p>}
 					{renderConnectionSummary([...degreeOne, ...degreeTwo])}
 				</ShowCardInner>
-			</Suspense>
+			</RelayComponentWrapper>
 		</Expandable>
 	) : (
 		<StyledShowCardContainer>

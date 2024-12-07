@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { StyledShowCardSkeleton, StyledShowCardSkeletonContent, StyledShowCardSkeletonHeader, StyledShowCardSkeletonPoster } from './ShowCardSkeleton.style.ts';
 import Skeleton from 'react-loading-skeleton';
-import { StyledButtonGroup } from '../../common.ts';
+import { StyledButtonGroup } from '../../../common.ts';
 
 type ShowCardSkeletonProps = {};
 
