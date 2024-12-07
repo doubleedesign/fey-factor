@@ -10,6 +10,7 @@ import { RankingContextProvider } from './controllers/RankingContext.tsx';
 import { ThemeProvider } from 'styled-components';
 import theme from './theme.ts';
 import './global.css';
+import { VennContextProvider } from './controllers/VennContext.tsx';
 
 // Suppress warning about defaultProps coming from Reaviz because it's annoying and I don't care
 const originalConsoleError = console.error;
@@ -28,22 +29,24 @@ console.error = (...args) => {
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
 		<RankingContextProvider>
-			<RelayEnvironmentProvider environment={environment}>
-				<ThemeProvider theme={theme}>
-					<BrowserRouter>
-						<GlobalHeader />
-						<Routes>
-							<Route path="/" element={<Dashboard />} />
-							<Route path="/rankings" element={<Rankings />} />
-							<Route path="/network" element={<Network />} />
-							<Route path="/venn-diagram" element={<Venn />} />
-							<Route path="/about" element={<About />} />
-							<Route path="*" element={<ErrorPage/>} />
-						</Routes>
-						<GlobalFooter />
-					</BrowserRouter>
-				</ThemeProvider>
-			</RelayEnvironmentProvider>
+			<VennContextProvider>
+				<RelayEnvironmentProvider environment={environment}>
+					<ThemeProvider theme={theme}>
+						<BrowserRouter>
+							<GlobalHeader />
+							<Routes>
+								<Route path="/" element={<Dashboard />} />
+								<Route path="/rankings" element={<Rankings />} />
+								<Route path="/network" element={<Network />} />
+								<Route path="/venn-diagram" element={<Venn />} />
+								<Route path="/about" element={<About />} />
+								<Route path="*" element={<ErrorPage/>} />
+							</Routes>
+							<GlobalFooter />
+						</BrowserRouter>
+					</ThemeProvider>
+				</RelayEnvironmentProvider>
+			</VennContextProvider>
 		</RankingContextProvider>
 	</StrictMode>,
 );

@@ -1,9 +1,10 @@
-import { FC, useState, useCallback, useMemo } from 'react';
+import { FC, useState, useCallback, useMemo, ReactNode } from 'react';
 import Select, { SingleValue } from 'react-select';
 import { StyledNumberPicker } from './NumberPicker.style';
+import { StyledSelectLabel } from '../common.ts';
 
 type NumberPickerProps = {
-	label: string;
+	label: string | ReactNode;
 	defaultValue: number;
 	onChange: (value: number) => void;
 	options?: number[];
@@ -38,7 +39,7 @@ export const NumberPicker: FC<NumberPickerProps> = ({ label, defaultValue, onCha
 	return (
 		<StyledNumberPicker data-testid="NumberPicker">
 			<label>
-				<span>{label}</span>
+				<StyledSelectLabel>{label}</StyledSelectLabel>
 				<Select
 					defaultValue={selectedOption}
 					onChange={handleChange}

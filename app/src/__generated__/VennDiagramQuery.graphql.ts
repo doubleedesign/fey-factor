@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<7078e033b154ee5b28b65b0e9478e122>>
+ * @generated SignedSource<<2f67e70a7ff4490db4c9b3ded9fd28bf>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -12,6 +12,7 @@ import { ConcreteRequest } from 'relay-runtime';
 export type VennDiagramQuery$variables = {
   maxAverageDegree?: number | null | undefined;
   minConnections: number;
+  roleIds?: ReadonlyArray<number | null | undefined> | null | undefined;
 };
 export type VennDiagramQuery$data = {
   readonly VennDiagram: {
@@ -37,6 +38,11 @@ var v0 = [
     "defaultValue": null,
     "kind": "LocalArgument",
     "name": "minConnections"
+  },
+  {
+    "defaultValue": null,
+    "kind": "LocalArgument",
+    "name": "roleIds"
   }
 ],
 v1 = [
@@ -52,6 +58,11 @@ v1 = [
         "kind": "Variable",
         "name": "minConnections",
         "variableName": "minConnections"
+      },
+      {
+        "kind": "Variable",
+        "name": "roleIds",
+        "variableName": "roleIds"
       }
     ],
     "concreteType": "VennDiagram",
@@ -106,16 +117,16 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "9c4cc8a58461832f6023f57b3203b684",
+    "cacheID": "e8d9bd037570ed1ffa1c7f8bccc8d278",
     "id": null,
     "metadata": {},
     "name": "VennDiagramQuery",
     "operationKind": "query",
-    "text": "query VennDiagramQuery(\n  $maxAverageDegree: Float\n  $minConnections: Int!\n) {\n  VennDiagram(maxAverageDegree: $maxAverageDegree, minConnections: $minConnections) {\n    data {\n      name\n      sets\n    }\n  }\n}\n"
+    "text": "query VennDiagramQuery(\n  $maxAverageDegree: Float\n  $minConnections: Int!\n  $roleIds: [Int]\n) {\n  VennDiagram(maxAverageDegree: $maxAverageDegree, minConnections: $minConnections, roleIds: $roleIds) {\n    data {\n      name\n      sets\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "88cc0949e8be9d11d56b4f2e206057ee";
+(node as any).hash = "c867c0fb5d3577218f1b06c5ec3bbf1e";
 
 export default node;

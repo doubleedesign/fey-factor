@@ -1,28 +1,30 @@
-import { FC } from 'react';
+import { FC, ReactNode } from 'react';
 import {
 	StyledMultiSelect,
 	StyledMultiSelectCheckbox,
 	StyledMultiSelectInvisibleCheckbox,
-	StyledMultiSelectLabel,
+	StyledMultiSelectItemLabel,
 	StyledMultiSelectLabelIconOnly,
 	StyledMultiSelectOptionWrapper, StyledMultiSelectSelectedPlainText
 } from './MultiSelect.style';
 import Select, { components, MultiValue } from 'react-select';
 import { MultiSelectOption } from '../../../types.ts';
+import { StyledSelectLabel } from '../common.ts';
 
 type MultiSelectProps = {
-	label: string;
+	label: string | ReactNode;
 	options: MultiSelectOption[];
 	selectedOptions: MultiValue<MultiSelectOption>;
 	onChange: (selected: MultiValue<MultiSelectOption>) => void;
 	showAs?: 'default' | 'checkboxes';
+	size?: 'small' | 'medium' | 'large';
 };
 
-export const MultiSelect: FC<MultiSelectProps> = ({ label, options, selectedOptions, onChange, showAs = 'default' }) => {
+export const MultiSelect: FC<MultiSelectProps> = ({ label, options, selectedOptions, onChange, showAs = 'default', size = 'medium' }) => {
 	return (
-		<StyledMultiSelect data-testid="MultiSelect">
+		<StyledMultiSelect data-testid="MultiSelect" $size={size}>
 			<label>
-				<span>{label}</span>
+				<StyledSelectLabel>{label}</StyledSelectLabel>
 				<Select
 					isMulti
 					options={options}
@@ -43,7 +45,7 @@ export const MultiSelect: FC<MultiSelectProps> = ({ label, options, selectedOpti
 												checked={props.isSelected}
 												onChange={() => null}
 											/>
-											<StyledMultiSelectLabel htmlFor={props.data.value}>{props.label}</StyledMultiSelectLabel>
+											<StyledMultiSelectItemLabel htmlFor={props.data.value}>{props.label}</StyledMultiSelectItemLabel>
 										</components.Option>
 									</StyledMultiSelectOptionWrapper>
 								);
@@ -58,7 +60,7 @@ export const MultiSelect: FC<MultiSelectProps> = ({ label, options, selectedOpti
 											checked={props.isSelected}
 											onChange={() => null}
 										/>
-										<StyledMultiSelectLabel htmlFor={props.data.value}>{props.label}</StyledMultiSelectLabel>
+										<StyledMultiSelectItemLabel htmlFor={props.data.value}>{props.label}</StyledMultiSelectItemLabel>
 									</components.Option>
 								</StyledMultiSelectOptionWrapper>
 							);
@@ -69,7 +71,7 @@ export const MultiSelect: FC<MultiSelectProps> = ({ label, options, selectedOpti
 							if(showAs === 'checkboxes') {
 								return (
 									<components.MultiValue {...props}>
-										<StyledMultiSelectLabel>{props.data.label}</StyledMultiSelectLabel>
+										<StyledMultiSelectItemLabel>{props.data.label}</StyledMultiSelectItemLabel>
 									</components.MultiValue>
 								);
 							}
@@ -83,7 +85,7 @@ export const MultiSelect: FC<MultiSelectProps> = ({ label, options, selectedOpti
 								</StyledMultiSelectLabelIconOnly>
 							) : (
 								<components.MultiValue {...props}>
-									<StyledMultiSelectLabel>{props.data.label}</StyledMultiSelectLabel>
+									<StyledMultiSelectItemLabel>{props.data.label}</StyledMultiSelectItemLabel>
 								</components.MultiValue>
 							);
 						},

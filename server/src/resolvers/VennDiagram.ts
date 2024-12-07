@@ -4,9 +4,8 @@ const db = new DatabaseConnection();
 
 export default {
 	Query: {
-		VennDiagram: async (_, { maxAverageDegree, minConnections }): Promise<VennDiagram> => {
-			// { maxAverageDegree: 1.5, minConnections: 3 }
-			const sets: VennDiagramSet[] = await db.venn.getPeopleAndTheirShows({ maxAverageDegree, minConnections });
+		VennDiagram: async (_, { maxAverageDegree, minConnections, roleIds }): Promise<VennDiagram> => {
+			const sets: VennDiagramSet[] = await db.venn.getPeopleAndTheirShows({ maxAverageDegree, minConnections, roleIds });
 
 			return { data: sets };
 		}

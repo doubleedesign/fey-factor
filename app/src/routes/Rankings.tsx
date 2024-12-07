@@ -1,7 +1,7 @@
 import { FC, Fragment, startTransition, useState, useCallback, useEffect } from 'react';
 import { ControlBar, PageWrapper } from '../components/layout';
 import { Heading, LeadParagraph } from '../components/typography';
-import { MultiSelect, NumberPicker, SelectionInputs } from '../components/data-presentation';
+import { MultiSelect, NumberPicker, SelectionInputs } from '../components/inputs';
 import { TvShowRankings } from '../page-content';
 import { Filters, MultiSelectOption, Provider } from '../types';
 import { MultiValue } from 'react-select';
@@ -84,6 +84,7 @@ export const Rankings: FC = () => {
 						selectedOptions={visibleColumns}
 						onChange={handleColumnVisibilityChange}
 						showAs="checkboxes"
+						size="large"
 					/>
 					{/* TODO: Put an error boundary around this so if providers don't load it doesn't kill the whole thing */}
 					<MultiSelect
@@ -91,6 +92,7 @@ export const Rankings: FC = () => {
 						options={providers}
 						selectedOptions={providers.filter(provider => selectedProviders.includes(provider))}
 						onChange={handleProviderFilterChange}
+						size="large"
 					/>
 				</SelectionInputs>
 			</ControlBar>

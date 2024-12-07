@@ -19,14 +19,6 @@ export const StyledProviderItem = styled.li`
 		height: 100%;
 		object-fit: contain;
 	}
-	
-	.react-tooltip {
-		z-index: 700;
-		
-		&__show {
-			opacity: 1;
-		}
-	}
 `;
 
 export const StyledMoreProvidersIndicator = styled.span`

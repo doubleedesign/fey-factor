@@ -11,7 +11,7 @@ type Query {
 	Roles(ids: [ID], limit: Int): [Role]
 	TvShow(id: ID!): TvShow
 	TvShows(ids: [ID], limit: Int): [TvShow]
-	VennDiagram(maxAverageDegree: Float, minConnections: Int): VennDiagram
+	VennDiagram(maxAverageDegree: Float, minConnections: Int, roleIds: [Int]): VennDiagram
 	Work(id: ID!): Work
 	Works(ids: [ID], limit: Int): [Work]
 }input WorkFilter {

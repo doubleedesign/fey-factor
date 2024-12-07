@@ -12,6 +12,17 @@ export default {
 				// The rest of the fields for the Role type become available here as if by magic
 				// because the Query type in the schema expects the Role type and so will use the Role resolver below
 			};
+		},
+		Roles: async (_, { ids, limit = undefined }): Promise<Role[]> => {
+			let result = [];
+			if (ids) {
+				result = await db.roles.getRoles(ids, limit);
+			}
+			else {
+				result = await db.roles.getRoles([], limit);
+			}
+
+			return result;
 		}
 	},
 	Role: {

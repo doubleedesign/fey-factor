@@ -1,7 +1,16 @@
 import styled from 'styled-components';
 
-export const StyledMultiSelect = styled.div`
-	min-width: 12rem;
+export const StyledMultiSelect = styled.div<{ $size: 'small' | 'medium' | 'large' }>`
+	width: ${props => {
+		switch (props.$size) {
+			case 'small':
+				return '8rem';
+			case 'medium':
+				return '12rem';
+			case 'large':
+				return '16rem';
+		}
+	}};
 	position: relative;
 	z-index: 700;
 `;
@@ -15,7 +24,7 @@ export const StyledMultiSelectOptionWrapper = styled.div`
 	}
 `;
 
-export const StyledMultiSelectLabel = styled.label`
+export const StyledMultiSelectItemLabel = styled.label`
 	display: flex;
 	align-items: center;
 	justify-content: flex-start;

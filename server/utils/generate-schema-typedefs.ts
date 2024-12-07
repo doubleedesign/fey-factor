@@ -586,7 +586,7 @@ function createAndSaveQueryType() {
 	types.forEach(({ queryType, returnType }) => {
 		// Special cases I haven't worked out how to auto-generate yet
 		if(queryType === 'VennDiagram') {
-			queryObject += `\t${queryType}(maxAverageDegree: Float, minConnections: Int): ${returnType}\n`;
+			queryObject += `\t${queryType}(maxAverageDegree: Float, minConnections: Int, roleIds: [Int]): ${returnType}\n`;
 		}
 		else {
 			// Singular query

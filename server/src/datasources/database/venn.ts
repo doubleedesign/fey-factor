@@ -26,6 +26,8 @@ export class DbVenn {
                                      connections ON tv_shows.id = connections.work_id
                                      LEFT JOIN
                                      people ON connections.person_id = people.id
+                             WHERE
+                                 tv_shows.id NOT LIKE '1667_T' -- exclude SNL TODO: Make this a front-end option
                              GROUP BY
                                  tv_shows.id
                          )
@@ -56,7 +58,7 @@ export class DbVenn {
 	 * Get the people and the set of TV shows they have worked on
 	 * limited by the given criteria
 	 */
-	async getPeopleAndTheirShows({ maxAverageDegree, minConnections }): Promise<VennDiagramSet[]> {
+	async getPeopleAndTheirShows({ maxAverageDegree, minConnections, roleIds }): Promise<VennDiagramSet[]> {
 		const showIds = await this.getShowsToInclude({ maxAverageDegree, minConnections });
 
 		try {
@@ -68,11 +70,12 @@ export class DbVenn {
                         FROM
                             people p
                                 JOIN
-                                connections tsp ON p.id = tsp.person_id
+                                connections c ON p.id = c.person_id
                                 JOIN
-                                tv_shows ts ON tsp.work_id = ts.id
+                                tv_shows ts ON c.work_id = ts.id
                         WHERE
                             ts.id = ANY ($1::text[])
+                            AND c.role_id = ANY ($2) -- Check roleIds in the connections table
                         GROUP BY
                             p.id, p.name
                         HAVING
@@ -81,7 +84,7 @@ export class DbVenn {
                             array_length(ARRAY_AGG(DISTINCT ts.title), 1) DESC, -- Order by set size descending
                             p.name; -- then by name
 				`,
-				values: [showIds]
+				values: [showIds, roleIds]
 			});
 
 			return response.rows;

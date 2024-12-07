@@ -21,6 +21,41 @@ export class DbRoles {
 		}
 	}
 
+	async getRoles(ids: number[], limit: number): Promise<Role[]> {
+		try {
+			if (!ids || ids.length === 0) {
+				const response = await this.pgClient.query({
+					text: `
+                        SELECT *
+                            FROM roles
+                            LIMIT $1
+					`,
+					values: [limit]
+				});
+
+				return response.rows;
+			}
+
+			const response = await this.pgClient.query({
+				text: `
+                    SELECT *
+                        FROM roles
+                        WHERE
+                            id = ANY ($1)
+                        LIMIT $2
+				`,
+				values: [ids, limit]
+			});
+
+			return response.rows;
+		}
+		catch (error) {
+			console.error(error);
+
+			return null;
+		}
+	}
+
 	async getConnectionsForRole(id: number): Promise<Connection[]> {
 		try {
 			const response = await this.pgClient.query({

@@ -1,6 +1,6 @@
 import { FC, PropsWithChildren } from 'react';
-import { StyledTooltippedElement } from './TooltippedElement.style';
 import { Tooltip, type PlacesType } from 'react-tooltip';
+import { StyledTooltippedElement } from './TooltippedElement.style';
 
 type TooltippedElementProps = {
 	id: string;
