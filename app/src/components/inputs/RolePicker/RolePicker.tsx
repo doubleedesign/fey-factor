@@ -1,7 +1,6 @@
 import { FC, useCallback, useMemo, useEffect, ReactNode } from 'react';
 import { graphql, useLazyLoadQuery } from 'react-relay';
 import { RolePickerQuery } from '../../../__generated__/RolePickerQuery.graphql.ts';
-import { RelayComponentWrapper } from '../../wrappers/RelayComponentWrapper/RelayComponentWrapper.tsx';
 import { MultiSelect } from '../MultiSelect/MultiSelect.tsx';
 import { useVennContext } from '../../../controllers/VennContext.tsx';
 import { MultiValue } from 'react-select';
@@ -49,16 +48,14 @@ export const RolePicker: FC<RolePickerProps> = ({ label }) => {
 
 	return (
 		<StyledRolePicker data-testid="RolePicker">
-			<RelayComponentWrapper>
-				<MultiSelect
-					label={label}
-					options={roles ?? []}
-					selectedOptions={selectedRoles}
-					onChange={handleRoleSelectionChange}
-					showAs="checkboxes"
-					size="large"
-				/>
-			</RelayComponentWrapper>
+			<MultiSelect
+				label={label}
+				options={roles ?? []}
+				selectedOptions={selectedRoles}
+				onChange={handleRoleSelectionChange}
+				showAs="checkboxes"
+				size="large"
+			/>
 		</StyledRolePicker>
 	);
 };

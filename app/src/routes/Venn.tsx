@@ -67,16 +67,18 @@ export const Venn: FC = () => {
 						defaultValue={3} options={[2, 3, 5, 10]}
 						onChange={handleCardinalityChange}
 					/>
-					<RolePicker
-						label={
-							<TooltippedElement id="rolePicker"
-								tooltip="Which roles of the connections to include in the diagram"
-								position="bottom"
-							>
-								Include roles:
-								<i className="fa-duotone fa-solid fa-circle-question"></i>
-							</TooltippedElement>}
-					/>
+					<RelayComponentWrapper>
+						<RolePicker
+							label={
+								<TooltippedElement id="rolePicker"
+									tooltip="Which roles of the connections to include in the diagram"
+									position="bottom"
+								>
+									Include roles:
+									<i className="fa-duotone fa-solid fa-circle-question"></i>
+								</TooltippedElement>}
+						/>
+					</RelayComponentWrapper>
 				</SelectionInputs>
 			</ControlBar>
 			<RelayComponentWrapper>
