@@ -12,6 +12,17 @@ export default {
 				// The rest of the fields for the Person type become available here as if by magic
 				// because the Query type in the schema expects the Person type and so will use the Person resolver below
 			};
+		},
+		People: async (_, { ids, limit = undefined }): Promise<Person[]> => {
+			let result = [];
+			if (ids && ids.length > 0) {
+				result = await db.people.getPeople(ids, limit);
+			}
+			else {
+				result = await db.people.getPeople([], limit);
+			}
+
+			return result;
 		}
 	},
 	Person: {

@@ -22,6 +22,42 @@ export class DbPeople {
 		}
 	}
 
+	// TODO: Some sort of ordering for limited queries, e.g., connections and degree
+	async getPeople(ids, limit): Promise<Person[]> {
+		try {
+			if (!ids || ids.length === 0) {
+				const response = await this.pgClient.query({
+					text: `
+                        SELECT *
+                            FROM people
+                            LIMIT $1
+					`,
+					values: [limit]
+				});
+
+				return response.rows;
+			}
+
+			const response = await this.pgClient.query({
+				text: `
+                    SELECT *
+                        FROM people
+                        WHERE
+                            id = ANY ($1)
+                        LIMIT $2
+				`,
+				values: [ids, limit]
+			});
+
+			return response.rows;
+		}
+		catch (error) {
+			console.error(error);
+
+			return null;
+		}
+	}
+
 	async getDegreeZero() {
 		try {
 			const response = await this.pgClient.query({
@@ -62,7 +98,7 @@ export class DbPeople {
                            WHERE
                                  person_id = $1
                              AND work_id LIKE '%' || $2
-                `,
+				`,
 				values: [id, type]
 			});
 
@@ -103,10 +139,14 @@ export class DbPeople {
                            FROM
                                public.tv_shows t
                                    JOIN public.works w
-                                   ON t.id = w.id
+                                        ON t.id = w.id
                            WHERE
-                               w.id IN (SELECT work_id FROM public.connections WHERE person_id = $1)
-                `,
+                               w.id IN (
+                                   SELECT work_id
+                                       FROM public.connections
+                                       WHERE person_id = $1
+                                   )
+				`,
 				values: [id]
 			});
 
@@ -126,11 +166,15 @@ export class DbPeople {
                            FROM
                                public.works w
                                    JOIN public.movies t
-                                   ON t.id = w.id
+                                        ON t.id = w.id
                            WHERE
-                                 w.id IN (SELECT work_id FROM public.connections WHERE person_id = $1)
+                                 w.id IN (
+                                     SELECT work_id
+                                         FROM public.connections
+                                         WHERE person_id = $1
+                                     )
                              AND w.title IS NOT NULL
-                `,
+				`,
 				values: [id]
 			});
 
