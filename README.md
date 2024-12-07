@@ -1,6 +1,6 @@
 # The Fey Factor
 
-A funsies project inspired by [Six Degrees of Kevin Bacon](https://en.wikipedia.org/wiki/Six_Degrees_of_Kevin_Bacon) but for finding and assessing live-action, scripted American<sup>1</sup> comedies based on their proximity and strength of connections to Tina Fey<sup>2</sup>.
+A funsies project inspired by [Six Degrees of Kevin Bacon](https://en.wikipedia.org/wiki/Six_Degrees_of_Kevin_Bacon) but for finding and assessing live-action, scripted American[^1] comedies based on their proximity and strength of connections to Tina Fey[^2].
 
 The project is made up of three parts:
 
@@ -12,9 +12,8 @@ The project is made up of three parts:
 
 Please see the README for each individual layer for more information about the tools and libraries used.
 
-<sup>1</sup>Currently only TV shows are filtered by origin country, not movies.
-
-<sup>2</sup>It can actually be run with anyone as your start person, you just need their TMDB ID. You may also need to adjust the code, e.g., I am planning an Australian drama version for which I will need to adjust the country filter.
+[^1]: Currently only TV shows are filtered by origin country, not movies.
+[^2]: It can actually be run with anyone as your start person, you just need their TMDB ID. You may also need to adjust the code, e.g., I am planning an Australian drama version for which I will need to adjust the country filter.
 
 ---
 
@@ -23,3 +22,5 @@ Please see the README for each individual layer for more information about the t
 This product uses the TMDB API but is not endorsed or certified by TMDB.
 
 Watch provider data is provided by [JustWatch](https://www.justwatch.com/) via TMDB.
+
+
