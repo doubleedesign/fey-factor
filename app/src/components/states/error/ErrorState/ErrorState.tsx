@@ -8,6 +8,7 @@ type ErrorStateProps = {
 };
 
 export const ErrorState: FC<ErrorStateProps> = ({ error, resetErrorBoundary }) => {
+
 	return (
 		<StyledErrorState data-testid="ErrorState">
 			<h2 aria-label="Error">

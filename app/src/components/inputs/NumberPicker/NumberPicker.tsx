@@ -8,9 +8,10 @@ type NumberPickerProps = {
 	defaultValue: number;
 	onChange: (value: number) => void;
 	options?: number[];
+	disabled?: boolean;
 };
 
-export const NumberPicker: FC<NumberPickerProps> = ({ label, defaultValue, onChange, options }) => {
+export const NumberPicker: FC<NumberPickerProps> = ({ label, defaultValue, onChange, options, disabled = false }) => {
 	const [selectedOption, setSelectedOption] = useState<{ value: number; label: number }>({ value: defaultValue, label: defaultValue });
 
 	const optionsToUse = useMemo(() => {
@@ -44,6 +45,7 @@ export const NumberPicker: FC<NumberPickerProps> = ({ label, defaultValue, onCha
 					defaultValue={selectedOption}
 					onChange={handleChange}
 					options={optionsToUse}
+					isDisabled={disabled}
 				/>
 			</label>
 		</StyledNumberPicker>

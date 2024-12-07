@@ -9,8 +9,6 @@ type VennContextState = {
 	setMaxAverageDegree: (degree: number) => void;
 	minConnections: number;
 	setMinConnections: (connections: number) => void;
-	minCardinality: number;
-	setMinCardinality: (cardinality: number) => void;
 };
 
 export const VennContext = createContext({} as VennContextState);
@@ -19,7 +17,6 @@ export const VennContextProvider: FC<PropsWithChildren> = ({ children }) => {
 	const [maxAverageDegree, setMaxAverageDegree] = useState<number>(1.5);
 	const [minConnections, setMinConnections] = useState<number>(5);
 	const [selectedRoles, setSelectedRoles] = useState<MultiValue<MultiSelectOption>>([]);
-	const [minCardinality, setMinCardinality] = useState<number>(3);
 
 	return (
 		<VennContext.Provider
@@ -30,8 +27,6 @@ export const VennContextProvider: FC<PropsWithChildren> = ({ children }) => {
 				setMaxAverageDegree,
 				minConnections,
 				setMinConnections,
-				minCardinality,
-				setMinCardinality
 			}}
 		>
 			{children}

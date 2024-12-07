@@ -8,7 +8,7 @@ import { useVennContext } from '../controllers/VennContext.tsx';
 import { RolePicker } from '../components/inputs/RolePicker/RolePicker.tsx';
 
 export const Venn: FC = () => {
-	const { setMaxAverageDegree, setMinConnections, setMinCardinality } = useVennContext();
+	const { setMaxAverageDegree, setMinConnections } = useVennContext();
 
 	const handleDegreeChange = useCallback((newDegree: number) => {
 		setMaxAverageDegree(newDegree);
@@ -17,10 +17,6 @@ export const Venn: FC = () => {
 	const handleConnectionCountChange = useCallback((newConnectionCount: number) => {
 		setMinConnections(newConnectionCount);
 	}, [setMinConnections]);
-
-	const handleCardinalityChange = useCallback((newCardinality: number) => {
-		setMinCardinality(newCardinality);
-	}, [setMinCardinality]);
 
 	return (
 		<PageWrapper>
@@ -51,21 +47,8 @@ export const Venn: FC = () => {
 								<i className="fa-duotone fa-solid fa-circle-question"></i>
 							</TooltippedElement>
 						}
-						defaultValue={5} options={[5, 10, 20, 30, 40, 50]}
+						defaultValue={5} options={[2, 3, 5, 10, 20]}
 						onChange={handleConnectionCountChange}
-					/>
-					<NumberPicker
-						label={
-							<TooltippedElement id="minCardinality"
-								tooltip="Minimum number of people in a set for it to be shown in the diagram"
-								position="bottom"
-							>
-								Min. cardinality:
-								<i className="fa-duotone fa-solid fa-circle-question"></i>
-							</TooltippedElement>
-						}
-						defaultValue={3} options={[2, 3, 5, 10]}
-						onChange={handleCardinalityChange}
 					/>
 					<RelayComponentWrapper>
 						<RolePicker

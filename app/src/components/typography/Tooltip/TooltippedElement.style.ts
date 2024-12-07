@@ -6,9 +6,14 @@ export const StyledTooltippedElement = styled.span`
 
 	.react-tooltip {
 		z-index: 900;
+		white-space: unset;
 
 		&__show {
 			opacity: 1;
+		}
+
+		span {
+			
 		}
 	}
 `;
