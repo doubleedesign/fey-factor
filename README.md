@@ -106,13 +106,31 @@ npm run generate:resolvers
 
 ### Troubleshooting
 
-- `Exception thrown about Punycode when running scripts on Node 21.`
+#### `Exception thrown about Punycode when running scripts on Node 21.`
   - Change Node version to 20 LTS (`nvm use lts/iron`).
 
-- After deleting resolver files to re-create them, the script says it's created them and `existsSync` returns `true`, but the files aren't actually there. `unlinkSync` throws an error.
+#### After deleting resolver files to re-create them, the script says it's created them and `existsSync` returns `true`, but the files aren't actually there. `unlinkSync` throws an error.
   - Try killing all Node processes, restarting WSL, and/or restarting computer.
 
-#### Miscellaneous notes
+#### GraphQL errors on the front-end, but auth tokens/keys are correct
+e.g., Requests to TMDB work in Postman with the same key.
+- Go to http://localhost:4000/graphql. If Apollo appears instead of Yoga, proceed to the below step.
+
+#### Apollo is running on port 4000 instead of Yoga and you don't know WTF is running Apollo
+
+This one is very specific to me: It's probably Local by Flywheel running it. Close Local and try again.
+
+You can check this in CMD. To get what's using the port:
+```cmd
+netstat -ano | findstr :4000
+```
+The numbers at the end of each result line are PIDs which you can trace them like so:
+```cmd
+tasklist | findstr <PID>
+```
+If a result is just `node`, try the next one. At the time of writing, the one listed for `0.0.0.0:4000` returns `node` but the one for `127.0.0.1:4000` returns `Local.exe`.
+
+### Miscellaneous notes
 
 - Watch provider data is automatically filtered for Australia before it's returned to the GraphQL client.
 
