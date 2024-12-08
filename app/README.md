@@ -2,11 +2,11 @@
 
 This is a [React](https://react.dev/) app with [Relay](https://relay.dev/) for GraphQL queries, because that's what I use at my day job and thus want to  practice with. Built using [Vite](https://vitejs.dev/), with thanks to Oscar Beaumont for [vite-plugin-relay](https://github.com/oscartbeaumont/vite-plugin-relay).
 
-UI components are home-made using [Styled Components](https://styled-components.com/) and [Polished](https://polished.js.org/), with thanks to Armin Broubakarian for [generate-react-cli](https://www.npmjs.com/package/generate-react-cli) which I use to bootstrap my components.
+The custom select elements are made possible by [React Select](https://react-select.com/home). Other UI components are largely home-made, using [Styled Components](https://styled-components.com/) and [Polished](https://polished.js.org/), with thanks to Armin Broubakarian for [generate-react-cli](https://www.npmjs.com/package/generate-react-cli) which I use to bootstrap my components.
 
 The Venn diagram is made possible by [UpSet.js](https://upset.js.org/docs/getting-started/venndiagram/).
 
-
+---
 - [Running locally](#running-locally)
 - [Component hierarchy for Relay-driven content](#component-hierarchy-for-relay-driven-content)
 

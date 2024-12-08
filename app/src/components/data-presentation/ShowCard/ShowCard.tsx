@@ -104,7 +104,7 @@ export const ShowCard = ({ id, expandable }: ShowCardProps) => {
 	};
 
 	return expandable && data?.TvShow?.title ? (
-		<Expandable title={data.TvShow?.title ?? ''} titleTag={tag}>
+		<Expandable title={data.TvShow?.title ?? ''} titleTag={tag} fetchesData={true}>
 			<RelayComponentWrapper loadingFallback={<ShowCardSkeleton />}>
 				<ShowCardInner id={data.TvShow.id} tag={tag} renderTitle={false}>
 					{degree0.length > 0 && <p>{degree0[0]?.name} is {degree0[0]?.roles?.map((role) => {

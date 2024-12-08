@@ -1,6 +1,11 @@
-import { FC, lazy, useState, useMemo, useCallback, useEffect, useRef } from 'react';
-import { extractSets, generateCombinations, VennDiagram, ISetLike, createVennJSAdapter } from '@upsetjs/react';
-import { layout } from '@upsetjs/venn.js';
+import { FC, lazy, useState, useMemo, useCallback, useEffect, useRef, ChangeEvent } from 'react';
+import {
+	extractSets,
+	generateCombinations,
+	VennDiagram,
+	ISetLike,
+	ISets,
+} from '@upsetjs/react';
 import { Toggle } from '../../inputs/Toggle/Toggle.tsx';
 import { NumberPicker, SelectionInputs } from '../../inputs';
 import { TooltippedElement } from '../../typography';
@@ -11,13 +16,16 @@ import { ThemeColor, VennSet } from '../../../types.ts';
 import { StyledVenn, StyledVennControls, StyledVennFigure, StyledVennWrapper } from './Venn.style';
 import { StyledSelectLabel } from '../../inputs/common.ts';
 import { VennDetailPanel } from './VennDetailPanel/VennDetailPanel.tsx';
-import { useResizeObserver } from '../../../hooks/use-resize-observer.ts';
+import { useResizeObserver } from '../../../hooks';
 import { VennPositionHandler } from './VennPositionHandler/VennPositionHandler.tsx';
+import { CheckboxGroup } from '../../inputs/CheckboxGroup/CheckboxGroup.tsx';
+import snakeCase from 'lodash/snakeCase';
+import { VennResultList } from './VennResultList/VennResultList.tsx';
 
 type VennProps = {
 	data: VennSet[];
-	defaultEuler?: boolean;
 };
+
 
 // Wrapper to lazy load the VennEuler layout so that an error can be thrown if it doesn't load in a few seconds
 const LazyEulerVenn = lazy(() => {
@@ -41,21 +49,14 @@ const LazyEulerVenn = lazy(() => {
 });
 
 
-export const Venn: FC<VennProps> = ({ data, defaultEuler = true }) => {
-	const [selected, setSelected] = useState(null);
-	const [hovered, setHovered] = useState<ISetLike<VennSet> | null>(null);
-	const [limit, setLimit] = useState(7);
-	const [eulerLayout, setEulerLayout] = useState(defaultEuler);
+export const Venn: FC<VennProps> = ({ data }) => {
+	const [eulerLayout, setEulerLayout] = useState(true);
 	const figureRef = useRef<HTMLElement>(null);
 	const { width } = useResizeObserver(figureRef, [data, eulerLayout], 300);
+	const [limit, setLimit] = useState(7);
 
-	const handleClick = useCallback((selection: any) => {
-		// TODO: Show the details in a panel next to the diagram
-		console.log(selection);
-		setSelected(selection);
-	}, []);
-
-	const sets= useMemo(() => {
+	// Data handling
+	const rawSets = useMemo(() => {
 		return extractSets(data)
 			.map((set, index) => ({
 				...set,
@@ -64,20 +65,67 @@ export const Venn: FC<VennProps> = ({ data, defaultEuler = true }) => {
 			// @ts-ignore
 			.sort((a, b) => {
 				return a.cardinality < b.cardinality;
-			})
-			.slice(0, limit);
-	}, [data, limit]);
-
+			});
+	}, [data]);
+	// Initially set the selectedShape sets according to the chosen limit
+	const [selectedSets, setSelectedSets] = useState<ISets<VennSet>>(rawSets.slice(0, limit));
+	// Generate the combinations of the selected sets
 	const combinations = useMemo(() => {
-		return generateCombinations(sets, { mergeColors });
-	}, [sets]);
+		return generateCombinations(selectedSets, { mergeColors });
+	}, [selectedSets]);
 
+	// Handle the checkbox group
+	const checkboxOptions = useMemo(() => {
+		return rawSets.map(set => ({
+			value: snakeCase(set.name),
+			label: set.name,
+		}));
+	}, [rawSets]);
+
+	const selectedCheckboxOptions = useMemo(() => {
+		return selectedSets.map(set => ({
+			value: snakeCase(set.name),
+			label: set.name,
+		}));
+	}, [selectedSets]);
+
+	// Handle change of limit from the number picker
 	const handleLimitChange = useCallback((value: number) => {
 		setLimit(value);
+		setSelectedSets(rawSets.slice(0, value));
+	}, [rawSets]);
+
+	// Handle change of sets from the checkbox group
+	const handleSetSelection = useCallback((event: ChangeEvent <HTMLInputElement>) => {
+		const matchingSet = rawSets.find(set => snakeCase(set.name) === event.target.value);
+		if (!matchingSet) return;
+
+		if (event.target.checked) {
+			setSelectedSets([...selectedSets, matchingSet]);
+		}
+		else {
+			setSelectedSets(selectedSets.filter(set => set.name !== matchingSet.name));
+		}
+	}, [rawSets, selectedSets]);
+
+
+	// Diagram circle/intersection handling after render
+	const [selectedShape, setSelectedShape] = useState(null);
+	const [hoveredShape, setHoveredShape] = useState<ISetLike<VennSet> | null>(null);
+
+	const handleShapeClick = useCallback((selection) => {
+		// TODO: Show the details in a panel next to the diagram
+		console.log(selection);
+		setSelectedShape(selection);
+	}, []);
+
+	const handleResultClick = useCallback((selection) => {
+		console.log(selection);
+		setSelectedShape(selection);
 	}, []);
 
 	const handleLayoutToggle = useCallback((value: boolean) => {
-		// Somehow, this makes sure the CSS transition works both ways
+		// Somehow, the timeout makes sure the CSS transition works both ways
 		setTimeout(() => {
 			setEulerLayout(value);
 			if(value) setLimit(7);
@@ -86,7 +134,7 @@ export const Venn: FC<VennProps> = ({ data, defaultEuler = true }) => {
 
 	useEffect(() => {
 		if(!eulerLayout) {
-			setLimit(5);
+			setLimit(5); // the default layout automatically limits itself to 5 so make the number picker reflect this
 		}
 	}, [eulerLayout]);
 
@@ -114,7 +162,7 @@ export const Venn: FC<VennProps> = ({ data, defaultEuler = true }) => {
 						label={
 							<TooltippedElement
 								id="limitPicker"
-								tooltip="Standard layout auto-limits itself. If the Euler layout is crashing, try selecting a smaller limit. 7 seems to be the sweet spot."
+								tooltip="If the Euler layout is crashing, try selecting a smaller limit."
 								position="bottom"
 							>
 								<StyledSelectLabel>
@@ -136,14 +184,13 @@ export const Venn: FC<VennProps> = ({ data, defaultEuler = true }) => {
 					<VennPositionHandler>
 						{eulerLayout ? (
 							<LazyEulerVenn
-								layout={createVennJSAdapter(layout)}
-								sets={sets}
+								sets={selectedSets}
 								combinations={combinations}
 								width={width}
 								height={width}
-								onClick={handleClick}
-								onHover={setHovered}
-								selection={hovered || selected}
+								onClick={handleShapeClick}
+								onHover={setHoveredShape}
+								selection={hoveredShape || selectedShape}
 								exportButtons={false}
 								tooltips={true}
 								selectionColor={theme.colors.accent}
@@ -152,13 +199,13 @@ export const Venn: FC<VennProps> = ({ data, defaultEuler = true }) => {
 						) : (
 						// @ts-expect-error TS2786: VennDiagram cannot be used as a JSX component
 							<VennDiagram
-								sets={sets}
+								sets={selectedSets}
 								combinations={combinations}
 								width={width}
 								height={width}
-								onClick={handleClick}
-								onHover={setHovered}
-								selection={hovered || selected}
+								onClick={handleShapeClick}
+								onHover={setHoveredShape}
+								selection={hoveredShape || selectedShape}
 								exportButtons={false}
 								tooltips={true}
 								selectionColor={theme.colors.accent}
@@ -166,12 +213,28 @@ export const Venn: FC<VennProps> = ({ data, defaultEuler = true }) => {
 							/>
 						)}
 					</VennPositionHandler>
-					{eulerLayout &&
-						<small>Warning: Euler layout may not show all intersections, especially for large datasets. All query results are shown in the
-							panel.</small>
-					}
 				</StyledVennFigure>
-				<VennDetailPanel data={selected}/>
+				<VennDetailPanel defaultOpen="Diagram results">
+					<CheckboxGroup
+						label="Query results"
+						options={checkboxOptions}
+						selectedOptions={selectedCheckboxOptions}
+						onChange={handleSetSelection}
+						maxSelections={limit}
+					/>
+					<VennResultList
+						label="Diagram results"
+						data={[...selectedSets, ...combinations]}
+						onItemClick={handleResultClick}
+					/>
+					{eulerLayout &&
+						<small>
+							<i className="fa-solid fa-triangle-exclamation"></i>
+							Euler layout may not show all intersections, especially for large datasets.
+							Default layout limits itself automatically.
+						</small>
+					}
+				</VennDetailPanel>
 			</StyledVennWrapper>
 		</StyledVenn>
 	);

@@ -50,7 +50,6 @@ export const StyledExpandableTitle = styled.summary`
 	}	
 `;
 
-
 export const StyledExpandable = styled.details`
 	line-height: 1.25;
 	display: grid;
@@ -83,4 +82,10 @@ export const StyledExpandable = styled.details`
 			z-index: 1200;
 		}
 	}
+`;
+
+export const StyledExpandableContent = styled.div<{ $height?: number }>`
+	transition: height 0.3s ease-in-out;
+	height: ${props => `${props.$height}px`};
+	max-height: ${props => `${props.$height}px`};
 `;
