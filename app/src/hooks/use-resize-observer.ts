@@ -17,10 +17,10 @@ export function useResizeObserver(ref: MutableRefObject<HTMLElement | null>, dep
 				setHeight(entries[0].target.scrollHeight);
 				// Checking the contentRect width solves the issue of the scrollWidth only changing when it gets wider for cytoscape elements
 				if(entries[0].contentRect.width  < entries[0].target.scrollWidth) {
-					setWidth(entries[0].contentRect.width);
+					setWidth(Math.floor(entries[0].contentRect.width));
 				}
 				else {
-					setWidth(entries[0].target.scrollWidth);
+					setWidth(Math.floor(entries[0].target.scrollWidth));
 				}
 			}), debounce || 0);
 		});

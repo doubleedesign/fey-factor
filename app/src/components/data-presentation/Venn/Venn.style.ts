@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import { tint } from 'polished';
 
 export const StyledVenn = styled.div`
 	background: ${props => props.theme.colors.background};
@@ -46,19 +45,15 @@ export const StyledVennControls = styled.div`
 	}
 `;
 
-export const StyledVennWrapper = styled.figure`
+export const StyledVennWrapper = styled.section`
 	display: flex;
-	justify-content: center;
-	align-items: center;
+	justify-content: space-between;
+	align-items: flex-start;
 `;
 
-export const StyledEulerVennWrapper = styled.div`
-	transform: translateY(-${props => props.theme.spacing.xl});
-	overflow: visible;
-	
-	small {
-		display: block;
-		margin-block-start: ${props => props.theme.spacing.lg};
-		text-align: center;
-	}
+export const StyledVennFigure = styled.figure`
+	margin: 0;
+	flex-grow: 1;
+	padding: ${props => props.theme.spacing.sm};
+	box-sizing: border-box;
 `;

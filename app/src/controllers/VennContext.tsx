@@ -1,6 +1,7 @@
-import { createContext, FC, PropsWithChildren, useContext, useState } from 'react';
+import { createContext, FC, PropsWithChildren, useContext, useState, useEffect } from 'react';
 import { MultiValue } from 'react-select';
 import { MultiSelectOption } from '../types.ts';
+import { useLogs } from '../hooks/use-logs.ts';
 
 type VennContextState = {
 	selectedRoles: MultiValue<MultiSelectOption>;
@@ -17,6 +18,12 @@ export const VennContextProvider: FC<PropsWithChildren> = ({ children }) => {
 	const [maxAverageDegree, setMaxAverageDegree] = useState<number>(1.5);
 	const [minConnections, setMinConnections] = useState<number>(5);
 	const [selectedRoles, setSelectedRoles] = useState<MultiValue<MultiSelectOption>>([]);
+	// TODO: Euler switch and limit need to be moved up here so they can be deps for the logger
+	const { capturedLogs } = useLogs('/venn-diagram', ['not represented on screen'], [maxAverageDegree, minConnections, selectedRoles], 200);
+
+	useEffect(() => {
+		console.debug('Captured logs in context: ', capturedLogs);
+	}, [capturedLogs]);
 
 	return (
 		<VennContext.Provider

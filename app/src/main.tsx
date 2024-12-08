@@ -12,27 +12,31 @@ import theme from './theme.ts';
 import './global.css';
 import { VennContextProvider } from './controllers/VennContext.tsx';
 
-// Suppress warning about defaultProps coming from Reaviz because it's annoying and I don't care
+// Suppress or capture some console logs/warnings/errors
+// Note: There's more of these in the VennContextProvider
 const originalConsoleError = console.error;
 console.error = (...args) => {
+	// Suppress warning about defaultProps coming from Reaviz because it's annoying and I don't care
 	if (typeof args[0] === 'string' && args[0].includes('Support for defaultProps will be removed')) {
 		return;
 	}
+
 	// TODO: I guess I should probably fix this by giving everything unique IDs at the GraphQL server level
 	//  but I don't really want to add that complexity unless it actually becomes a problem
 	if(typeof args[0] === 'string' && args[0].includes('Warning: RelayModernRecord: Invalid record update, expected both versions of record')) {
 		return;
 	}
+	
 	originalConsoleError(...args);
 };
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
 		<RankingContextProvider>
-			<VennContextProvider>
-				<RelayEnvironmentProvider environment={environment}>
-					<ThemeProvider theme={theme}>
-						<BrowserRouter>
+			<RelayEnvironmentProvider environment={environment}>
+				<ThemeProvider theme={theme}>
+					<BrowserRouter>
+						<VennContextProvider>
 							<GlobalHeader />
 							<Routes>
 								<Route path="/" element={<Dashboard />} />
@@ -43,10 +47,10 @@ createRoot(document.getElementById('root')!).render(
 								<Route path="*" element={<ErrorPage/>} />
 							</Routes>
 							<GlobalFooter />
-						</BrowserRouter>
-					</ThemeProvider>
-				</RelayEnvironmentProvider>
-			</VennContextProvider>
+						</VennContextProvider>
+					</BrowserRouter>
+				</ThemeProvider>
+			</RelayEnvironmentProvider>
 		</RankingContextProvider>
 	</StrictMode>,
 );

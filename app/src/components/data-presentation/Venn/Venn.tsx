@@ -1,37 +1,33 @@
-import { FC, useState, useMemo, useCallback, lazy, Suspense, useEffect } from 'react';
+import { FC, lazy, useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { extractSets, generateCombinations, VennDiagram, ISetLike, createVennJSAdapter } from '@upsetjs/react';
 import { layout } from '@upsetjs/venn.js';
-import { ErrorBoundary } from '../../wrappers/ErrorBoundary/ErrorBoundary.tsx';
 import { Toggle } from '../../inputs/Toggle/Toggle.tsx';
 import { NumberPicker, SelectionInputs } from '../../inputs';
 import { TooltippedElement } from '../../typography';
 import theme from '../../../theme';
 import { lab, hsl } from 'd3-color';
 import { saturate, tint } from 'polished';
-import { ThemeColor } from '../../../types.ts';
-import { StyledVenn, StyledVennControls, StyledVennWrapper } from './Venn.style';
+import { ThemeColor, VennSet } from '../../../types.ts';
+import { StyledVenn, StyledVennControls, StyledVennFigure, StyledVennWrapper } from './Venn.style';
 import { StyledSelectLabel } from '../../inputs/common.ts';
-import { GenericLoadingState } from '../../states/loading';
-
-export type VennSet = {
-	name: string;
-	sets: string[];
-};
+import { VennDetailPanel } from './VennDetailPanel/VennDetailPanel.tsx';
+import { useResizeObserver } from '../../../hooks/use-resize-observer.ts';
+import { VennPositionHandler } from './VennPositionHandler/VennPositionHandler.tsx';
 
 type VennProps = {
 	data: VennSet[];
 	defaultEuler?: boolean;
 };
 
-// Wrapper to lazy load the Euler layout so that an error can be thrown if it doesn't load in a few seconds
+// Wrapper to lazy load the VennEuler layout so that an error can be thrown if it doesn't load in a few seconds
 const LazyEulerVenn = lazy(() => {
 	return new Promise((resolve, reject) => {
 		// Throw an error if the component doesn't load in time
 		const timeout = setTimeout(() => {
-			reject(new Error('Cannot render Euler layout. Try adjusting the options to reduce complexity, or revert to the default layout.'));
+			reject(new Error('Cannot render VennEuler layout. Try adjusting the options to reduce complexity, or revert to the default layout.'));
 		}, 3000);
 
-		import('./Euler.tsx')
+		import('./VennEuler/VennEuler.tsx')
 			.then((module) => {
 				clearTimeout(timeout);
 				// @ts-ignore
@@ -50,6 +46,8 @@ export const Venn: FC<VennProps> = ({ data, defaultEuler = true }) => {
 	const [hovered, setHovered] = useState<ISetLike<VennSet> | null>(null);
 	const [limit, setLimit] = useState(7);
 	const [eulerLayout, setEulerLayout] = useState(defaultEuler);
+	const figureRef = useRef<HTMLElement>(null);
+	const { width } = useResizeObserver(figureRef, [data, eulerLayout], 300);
 
 	const handleClick = useCallback((selection: any) => {
 		// TODO: Show the details in a panel next to the diagram
@@ -82,6 +80,7 @@ export const Venn: FC<VennProps> = ({ data, defaultEuler = true }) => {
 		// Somehow, this makes sure the CSS transition works both ways
 		setTimeout(() => {
 			setEulerLayout(value);
+			if(value) setLimit(7);
 		}, 0);
 	}, []);
 
@@ -133,15 +132,15 @@ export const Venn: FC<VennProps> = ({ data, defaultEuler = true }) => {
 				</SelectionInputs>
 			</StyledVennControls>
 			<StyledVennWrapper>
-				{eulerLayout ? (
-					<ErrorBoundary>
-						<Suspense fallback={<GenericLoadingState/>}>
+				<StyledVennFigure ref={figureRef} data-test-id="VennFigure">
+					<VennPositionHandler>
+						{eulerLayout ? (
 							<LazyEulerVenn
 								layout={createVennJSAdapter(layout)}
 								sets={sets}
 								combinations={combinations}
-								width={900}
-								height={720}
+								width={width}
+								height={width}
 								onClick={handleClick}
 								onHover={setHovered}
 								selection={hovered || selected}
@@ -150,24 +149,29 @@ export const Venn: FC<VennProps> = ({ data, defaultEuler = true }) => {
 								selectionColor={theme.colors.accent}
 								fontFamily={theme.fontFamily.body}
 							/>
-						</Suspense>
-					</ErrorBoundary>
-				) : (
-					// @ts-expect-error TS2786: VennDiagram cannot be used as a JSX component
-					<VennDiagram
-						sets={sets}
-						combinations={combinations}
-						width={900}
-						height={600}
-						onClick={handleClick}
-						onHover={setHovered}
-						selection={hovered || selected}
-						exportButtons={false}
-						tooltips={true}
-						selectionColor={theme.colors.accent}
-						fontFamily={theme.fontFamily.body}
-					/>
-				)}
+						) : (
+						// @ts-expect-error TS2786: VennDiagram cannot be used as a JSX component
+							<VennDiagram
+								sets={sets}
+								combinations={combinations}
+								width={width}
+								height={width}
+								onClick={handleClick}
+								onHover={setHovered}
+								selection={hovered || selected}
+								exportButtons={false}
+								tooltips={true}
+								selectionColor={theme.colors.accent}
+								fontFamily={theme.fontFamily.body}
+							/>
+						)}
+					</VennPositionHandler>
+					{eulerLayout &&
+						<small>Warning: Euler layout may not show all intersections, especially for large datasets. All query results are shown in the
+							panel.</small>
+					}
+				</StyledVennFigure>
+				<VennDetailPanel data={selected}/>
 			</StyledVennWrapper>
 		</StyledVenn>
 	);
