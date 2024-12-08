@@ -1,4 +1,4 @@
-import { FC, useState, useCallback, useMemo, ReactNode } from 'react';
+import { FC, ReactNode, useState, useCallback, useMemo, useEffect } from 'react';
 import Select, { SingleValue } from 'react-select';
 import { StyledNumberPicker } from './NumberPicker.style';
 import { StyledSelectLabel } from '../common.ts';
@@ -8,11 +8,18 @@ type NumberPickerProps = {
 	defaultValue: number;
 	onChange: (value: number) => void;
 	options?: number[];
+	value?: number; // allows the value to be controlled from outside this component
 	disabled?: boolean;
 };
 
-export const NumberPicker: FC<NumberPickerProps> = ({ label, defaultValue, onChange, options, disabled = false }) => {
+export const NumberPicker: FC<NumberPickerProps> = ({ label, defaultValue, onChange, options, value, disabled = false }) => {
 	const [selectedOption, setSelectedOption] = useState<{ value: number; label: number }>({ value: defaultValue, label: defaultValue });
+
+	useEffect(() => {
+		if (value) {
+			setSelectedOption({ value, label: value });
+		}
+	}, [value]);
 
 	const optionsToUse = useMemo(() => {
 		if (options) {
@@ -25,7 +32,7 @@ export const NumberPicker: FC<NumberPickerProps> = ({ label, defaultValue, onCha
 			return { value, label: value };
 		})
 			.filter(option => option.value > 0);
-	}, [defaultValue]);
+	}, [defaultValue, options]);
 
 	const handleChange = useCallback(
 		(selected: SingleValue<{ value: number; label: number }>) => {
@@ -42,7 +49,8 @@ export const NumberPicker: FC<NumberPickerProps> = ({ label, defaultValue, onCha
 			<label>
 				<StyledSelectLabel>{label}</StyledSelectLabel>
 				<Select
-					defaultValue={selectedOption}
+					defaultValue={{ value: defaultValue, label: defaultValue }}
+					value={selectedOption}
 					onChange={handleChange}
 					options={optionsToUse}
 					isDisabled={disabled}

@@ -1,4 +1,4 @@
-import { FC, useState, useMemo, useCallback, lazy, Suspense } from 'react';
+import { FC, useState, useMemo, useCallback, lazy, Suspense, useEffect } from 'react';
 import { extractSets, generateCombinations, VennDiagram, ISetLike, createVennJSAdapter } from '@upsetjs/react';
 import { layout } from '@upsetjs/venn.js';
 import { ErrorBoundary } from '../../wrappers/ErrorBoundary/ErrorBoundary.tsx';
@@ -11,6 +11,7 @@ import { saturate, tint } from 'polished';
 import { ThemeColor } from '../../../types.ts';
 import { StyledVenn, StyledVennControls, StyledVennWrapper } from './Venn.style';
 import { StyledSelectLabel } from '../../inputs/common.ts';
+import { GenericLoadingState } from '../../states/loading';
 
 export type VennSet = {
 	name: string;
@@ -78,34 +79,54 @@ export const Venn: FC<VennProps> = ({ data, defaultEuler = true }) => {
 	}, []);
 
 	const handleLayoutToggle = useCallback((value: boolean) => {
-		// Make sure the transition works both ways
+		// Somehow, this makes sure the CSS transition works both ways
 		setTimeout(() => {
 			setEulerLayout(value);
 		}, 0);
+	}, []);
 
-		if(!value) {
+	useEffect(() => {
+		if(!eulerLayout) {
 			setLimit(5);
 		}
-	}, []);
+	}, [eulerLayout]);
 
 	return (
 		<StyledVenn>
 			<StyledVennControls data-test-id="VennControls">
 				<SelectionInputs>
-					<Toggle label="Euler layout" value={eulerLayout} onChange={handleLayoutToggle} />
+					<Toggle
+						label={
+							<TooltippedElement
+								id="eulerToggle"
+								tooltip="Euler layout shows proportions better, but can be slow to render with many sets"
+								position="bottom"
+							>
+								<StyledSelectLabel>
+									Euler layout
+									<i className="fa-duotone fa-solid fa-circle-question"></i>
+								</StyledSelectLabel>
+							</TooltippedElement>
+						}
+						value={eulerLayout}
+						onChange={handleLayoutToggle}
+					/>
 					<NumberPicker
-						label={<TooltippedElement
-							id="limitPicker"
-							tooltip="Standard layout auto-limits itself. If the Euler layout is crashing, try selecting a smaller limit."
-							position="bottom"
-						>
-							<StyledSelectLabel>
-								Limit to top:
-								<i className="fa-duotone fa-solid fa-circle-question"></i>
-							</StyledSelectLabel>
-						</TooltippedElement>}
-						defaultValue={limit}
-						options={[3, 5, 7]}
+						label={
+							<TooltippedElement
+								id="limitPicker"
+								tooltip="Standard layout auto-limits itself. If the Euler layout is crashing, try selecting a smaller limit. 7 seems to be the sweet spot."
+								position="bottom"
+							>
+								<StyledSelectLabel>
+									Limit to top:
+									<i className="fa-duotone fa-solid fa-circle-question"></i>
+								</StyledSelectLabel>
+							</TooltippedElement>
+						}
+						value={limit}
+						defaultValue={7}
+						options={[3, 5, 7, 10]}
 						onChange={handleLimitChange}
 						disabled={!eulerLayout}
 					/>
@@ -114,7 +135,7 @@ export const Venn: FC<VennProps> = ({ data, defaultEuler = true }) => {
 			<StyledVennWrapper>
 				{eulerLayout ? (
 					<ErrorBoundary>
-						<Suspense fallback={<div>Loading...</div>}>
+						<Suspense fallback={<GenericLoadingState/>}>
 							<LazyEulerVenn
 								layout={createVennJSAdapter(layout)}
 								sets={sets}

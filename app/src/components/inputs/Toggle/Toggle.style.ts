@@ -10,6 +10,10 @@ export const StyledToggleField = styled.div`
 		display: flex;
 		align-items: center;
 	}
+	
+	.react-tooltip {
+		width: 10rem;
+	}
 `;
 
 export const StyledToggle = styled.div<{ $checked: boolean }>`

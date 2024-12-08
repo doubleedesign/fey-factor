@@ -28,7 +28,7 @@ export const Venn: FC = () => {
 					<NumberPicker
 						label={
 							<TooltippedElement id="maxAvgDegree"
-								tooltip="Maximum average degree of a show's connections for it to be included (role selection does not affect this)"
+								tooltip="Maximum average degree of a show's connections for it to be included"
 								position="bottom"
 							>
 								Max. avg. degree:
@@ -40,7 +40,7 @@ export const Venn: FC = () => {
 					<NumberPicker
 						label={
 							<TooltippedElement id="minConnections"
-								tooltip="Minimum number of connections a show must have to be included (role selection does not affect this)"
+								tooltip="Minimum number of connections a show must have to be included"
 								position="bottom"
 							>
 								Min. connections:
@@ -54,7 +54,7 @@ export const Venn: FC = () => {
 						<RolePicker
 							label={
 								<TooltippedElement id="rolePicker"
-									tooltip="Which roles of the connections to include in the diagram"
+									tooltip="Which roles of the connections to include in the query"
 									position="bottom"
 								>
 									Include roles:

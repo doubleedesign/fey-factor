@@ -1,4 +1,4 @@
-import { FC, useState, useEffect, useCallback } from 'react';
+import { FC, useState, useCallback } from 'react';
 import { createVennJSAdapter, ISetLike, VennDiagram, VennDiagramProps } from '@upsetjs/react';
 import { layout } from '@upsetjs/venn.js';
 import { VennSet } from './Venn.tsx';
@@ -34,7 +34,7 @@ export const Euler: FC<EulerProps> = ({ sets, combinations }) => {
 				selectionColor={theme.colors.accent}
 				fontFamily={theme.fontFamily.body}
 			/>
-			<small>Warning: Euler layout may not show all intersections, especially for large datasets.</small>
+			<small>Warning: Euler layout may not show all intersections, especially for large datasets. All query results are shown in the panel.</small>
 		</StyledEulerVennWrapper>
 	);
 };

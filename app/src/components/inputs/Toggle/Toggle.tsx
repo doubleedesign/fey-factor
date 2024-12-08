@@ -1,8 +1,8 @@
-import { FC, useCallback, ChangeEvent } from 'react';
+import { FC, useCallback, ChangeEvent, ReactNode } from 'react';
 import { StyledToggleField, StyledToggle } from './Toggle.style';
 
 type ToggleProps = {
-	label: string;
+	label: string | ReactNode;
 	value: boolean;
 	onChange: (value: boolean) => void;
 };

@@ -12,7 +12,7 @@ export class DbVenn {
      *
      * @return {Promise<string[]>} - IDs of the shows meeting the criteria
      */
-	async getShowsToInclude({ maxAverageDegree, minConnections }): Promise<string[]> {
+	async getShowsToInclude({ maxAverageDegree, minConnections, roleIds }): Promise<string[]> {
 		try {
 			const response = await this.pgClient.query({
 				text: `
@@ -28,6 +28,7 @@ export class DbVenn {
                                      people ON connections.person_id = people.id
                              WHERE
                                  tv_shows.id NOT LIKE '1667_T' -- exclude SNL TODO: Make this a front-end option
+                             	AND connections.role_id = ANY ($3)
                              GROUP BY
                                  tv_shows.id
                          )
@@ -41,7 +42,7 @@ export class DbVenn {
                             total_connections DESC;
 
                 `,
-				values: [maxAverageDegree, minConnections]
+				values: [maxAverageDegree, minConnections, roleIds]
 			});
 
 			return response.rows.map((row) => row.show_id);
@@ -59,7 +60,7 @@ export class DbVenn {
 	 * limited by the given criteria
 	 */
 	async getPeopleAndTheirShows({ maxAverageDegree, minConnections, roleIds }): Promise<VennDiagramSet[]> {
-		const showIds = await this.getShowsToInclude({ maxAverageDegree, minConnections });
+		const showIds = await this.getShowsToInclude({ maxAverageDegree, minConnections, roleIds });
 
 		try {
 			const response = await this.pgClient.query({
@@ -75,7 +76,7 @@ export class DbVenn {
                                 tv_shows ts ON c.work_id = ts.id
                         WHERE
                             ts.id = ANY ($1::text[])
-                            AND c.role_id = ANY ($2) -- Check roleIds in the connections table
+                
                         GROUP BY
                             p.id, p.name
                         HAVING
@@ -84,7 +85,7 @@ export class DbVenn {
                             array_length(ARRAY_AGG(DISTINCT ts.title), 1) DESC, -- Order by set size descending
                             p.name; -- then by name
 				`,
-				values: [showIds, roleIds]
+				values: [showIds]
 			});
 
 			return response.rows;
