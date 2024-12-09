@@ -7,18 +7,12 @@ export const StyledVennDetailPanel = styled.aside`
 	box-sizing: border-box;
 	
 	details {
-		margin-block-end: ${props => props.theme.spacing.sm};
-		border-radius: ${props => props.theme.spacing.xs};
-		box-shadow: 0 0 0.25rem 0 ${props => props.theme.colors.subtle};
-		padding: ${props => props.theme.spacing.sm};
-		overflow: hidden;
-		
+
 		&:last-of-type {
 			margin-block-end: ${props => props.theme.spacing.lg};
 		}
-		
+
 		summary {
-			cursor: pointer;
 			font-weight: ${props => props.theme.fontWeights.bold};
 		}
 		
@@ -27,6 +21,10 @@ export const StyledVennDetailPanel = styled.aside`
 				color: ${props => props.theme.colors.secondary};
 				text-decoration-color: ${props => props.theme.colors.secondary} !important;
 			}
+		}
+
+		> div:has(fieldset) {
+			padding-bottom: 1rem;
 		}
 	}
 	

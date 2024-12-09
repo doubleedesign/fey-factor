@@ -22,7 +22,7 @@ export const VennDetailPanel: FC<VennDetailPanelProps> = ({ children, defaultOpe
 				const label = child?.props?.label;
 
 				return (
-					<Expandable key={label} title={label} fetchesData={false} defaultOpen={label === defaultOpen}>
+					<Expandable key={label} title={label} fetchesData={false} defaultOpen={label === defaultOpen} appearance="shadow">
 						{child}
 					</Expandable>
 				);

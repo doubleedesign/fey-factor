@@ -6,10 +6,9 @@ export const StyledExpandableTitle = styled.summary`
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
-	padding-inline-end: ${props => props.theme.spacing.xs};
 	cursor: pointer;
-	// For the tooltip when there is one
-	overflow: visible;
+	overflow: visible; // For the tooltip when there is one
+	margin: 0;
 	
 	> span {
 		height: 100%;
@@ -50,20 +49,21 @@ export const StyledExpandableTitle = styled.summary`
 	}	
 `;
 
-export const StyledExpandable = styled.details`
+export const StyledExpandable = styled.details<{ $height?: number, $appearance: 'default' | 'shadow' }>`
 	line-height: 1.25;
-	display: grid;
-	grid-template-rows: 0fr;
-	min-height: 0;
-	transition: grid-template-rows 0.2s ease-out, min-height 0.2s ease-in-out;
+	transition: all 0.3s ease-in-out;
+	will-change: height;
+	height: ${props => `${props.$height}px`};
+	max-height: ${props => `${props.$height}px`};
+	overflow: hidden;
+	padding: ${props => props.$appearance === 'shadow' ? props.theme.spacing.sm : 0};
+	box-sizing: border-box;
+	border-radius: ${props => props.$appearance === 'shadow' ? props.theme.spacing.xs : 0};
+	box-shadow: ${props => props.$appearance === 'shadow' ? `0 0 0.25rem 0 ${props.theme.colors.subtle}` : 'none'};
+	margin-block-end: ${props => props.$appearance === 'shadow' ? props.theme.spacing.sm : 0};
 	
 	&[open] {
-		grid-template-rows: 1fr;
-		min-height: 200px;
-		
 		${StyledExpandableTitle} {
-			margin-block-end: ${props => props.theme.spacing.sm};
-			
 			> span {
 				font-weight: ${props => props.theme.fontWeights.bold};
 				color: ${props => props.theme.colors.info};
@@ -84,8 +84,6 @@ export const StyledExpandable = styled.details`
 	}
 `;
 
-export const StyledExpandableContent = styled.div<{ $height?: number }>`
-	transition: height 0.3s ease-in-out;
-	height: ${props => `${props.$height}px`};
-	max-height: ${props => `${props.$height}px`};
+export const StyledExpandableContent = styled.div<{ $height: number | 'auto' }>`
+	height: ${props => props.$height === 'auto' ? 'auto' : `${props.$height}px`};
 `;

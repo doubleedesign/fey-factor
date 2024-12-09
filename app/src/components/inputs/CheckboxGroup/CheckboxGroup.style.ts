@@ -1,12 +1,13 @@
 import styled from 'styled-components';
 
 export const StyledCheckboxGroup = styled.fieldset`
-	margin-block-end: ${props => props.theme.spacing.sm};
+	margin: 0;
 	background: ${props => props.theme.colors.background};
 	position: relative;
 	z-index: 100;
 	border-radius: ${props => props.theme.spacing.sm};
 	border: 1px solid ${props => props.theme.colors.subtle};
+	box-sizing: border-box;
 	
 	legend {
 		font-weight: ${props => props.theme.fontWeights.bold};

@@ -113,12 +113,14 @@ export const Venn: FC<VennProps> = ({ data }) => {
 	const [selectedShape, setSelectedShape] = useState(null);
 	const [hoveredShape, setHoveredShape] = useState<ISetLike<VennSet> | null>(null);
 
+	// @ts-expect-error TS7006: Parameter selection implicitly has an any type
 	const handleShapeClick = useCallback((selection) => {
 		// TODO: Show the details in a panel next to the diagram
 		console.log(selection);
 		setSelectedShape(selection);
 	}, []);
 
+	// @ts-expect-error TS7006: Parameter selection implicitly has an any type
 	const handleResultClick = useCallback((selection) => {
 		console.log(selection);
 		setSelectedShape(selection);
