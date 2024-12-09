@@ -2,9 +2,12 @@ import styled from 'styled-components';
 
 export const StyledVenn = styled.div`
 	background: ${props => props.theme.colors.background};
+	border-top-left-radius: ${props => props.theme.spacing.xs};
+	border-top-right-radius: ${props => props.theme.spacing.xs};
 	width: 100%;
 	margin: 0;
 	flex-grow: 1;
+	position: relative;
 `;
 
 export const StyledVennControls = styled.div`
@@ -56,4 +59,5 @@ export const StyledVennFigure = styled.figure`
 	flex-grow: 1;
 	padding: ${props => props.theme.spacing.sm};
 	box-sizing: border-box;
+	transform: translateY(-2rem);
 `;

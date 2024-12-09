@@ -92,11 +92,12 @@ export const StyledGlobalHeaderToggleButton = styled.button`
 `;
 
 export const StyledGlobalHeaderContent = styled.div<{ $height: number }>`
-	overflow: hidden;
+	overflow: ${props => props.$height === 0 ? 'hidden' : 'visible'};
 	transition: height 0.2s ease-in-out;
 	will-change: height;
 	height: ${props => props.$height}px;
 	padding-inline-start: 5rem;
+	box-sizing: border-box;
 `;
 
 export const StyledMainMenu = styled.nav`

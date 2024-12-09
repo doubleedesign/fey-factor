@@ -2,6 +2,7 @@ import { FC, PropsWithChildren, Children } from 'react';
 import differenceBy from 'lodash/differenceBy';
 import { StyledVennDetailPanel } from './VennDetailPanel.style';
 import { Expandable } from '../../../layout';
+import { Heading } from '../../../typography';
 
 type VennDetailPanelProps = PropsWithChildren & {
 	defaultOpen?: string;
@@ -17,6 +18,7 @@ export const VennDetailPanel: FC<VennDetailPanelProps> = ({ children, defaultOpe
 
 	return (
 		<StyledVennDetailPanel data-testid="VennDetailPanel">
+			<Heading level="h3">Results and options</Heading>
 			{childrenWithLabels.map((child) => {
 				// @ts-ignore
 				const label = child?.props?.label;

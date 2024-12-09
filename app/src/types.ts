@@ -67,11 +67,3 @@ export type VennSet = {
 	name: string;
 	sets: string[];
 };
-
-export type VennDiagramElement = {
-	type: 'set' | 'intersection';
-	name: string;
-	cardinality: number;
-	color: string;
-	elems: VennSet[];
-};

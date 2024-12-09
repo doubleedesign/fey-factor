@@ -1,3 +1,3 @@
 import styled from 'styled-components';
 
-export const StyledVennResultList = styled.div``;
+export const StyledVennResultList = styled.ul``;

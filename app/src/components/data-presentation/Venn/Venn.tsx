@@ -20,7 +20,8 @@ import { useResizeObserver } from '../../../hooks';
 import { VennPositionHandler } from './VennPositionHandler/VennPositionHandler.tsx';
 import { CheckboxGroup } from '../../inputs/CheckboxGroup/CheckboxGroup.tsx';
 import snakeCase from 'lodash/snakeCase';
-import { VennResultList } from './VennResultList/VennResultList.tsx';
+// import { VennResultList } from './VennResultList/VennResultList.tsx';
+import { VennResultDetail } from './VennResultDetail/VennResultDetail.tsx';
 
 type VennProps = {
 	data: VennSet[];
@@ -67,12 +68,21 @@ export const Venn: FC<VennProps> = ({ data }) => {
 				return a.cardinality < b.cardinality;
 			});
 	}, [data]);
-	// Initially set the selectedShape sets according to the chosen limit
-	const [selectedSets, setSelectedSets] = useState<ISets<VennSet>>(rawSets.slice(0, limit));
+
+	// Initially set the visible sets according to the chosen limit
+	const [selectedSets, setSelectedSets] = useState<ISets<VennSet>>(rawSets);
+	useEffect(() => {
+		setSelectedSets(rawSets.slice(0, limit));
+	}, [rawSets, limit]);
 	// Generate the combinations of the selected sets
 	const combinations = useMemo(() => {
 		return generateCombinations(selectedSets, { mergeColors });
 	}, [selectedSets]);
+
+	// Close any open detail panel when the data changes
+	useEffect(() => {
+		setSelectedShape(null);
+	}, [data]);
 
 	// Handle the checkbox group
 	const checkboxOptions = useMemo(() => {
@@ -108,22 +118,23 @@ export const Venn: FC<VennProps> = ({ data }) => {
 		}
 	}, [rawSets, selectedSets]);
 
-
 	// Diagram circle/intersection handling after render
 	const [selectedShape, setSelectedShape] = useState(null);
 	const [hoveredShape, setHoveredShape] = useState<ISetLike<VennSet> | null>(null);
 
 	// @ts-expect-error TS7006: Parameter selection implicitly has an any type
 	const handleShapeClick = useCallback((selection) => {
-		// TODO: Show the details in a panel next to the diagram
-		console.log(selection);
 		setSelectedShape(selection);
 	}, []);
 
+	// TODO: Finish implementing result list
 	// @ts-expect-error TS7006: Parameter selection implicitly has an any type
 	const handleResultClick = useCallback((selection) => {
-		console.log(selection);
 		setSelectedShape(selection);
+	}, []);
+
+	const handleDetailClose = useCallback(() => {
+		setSelectedShape(null);
 	}, []);
 
 	const handleLayoutToggle = useCallback((value: boolean) => {
@@ -189,7 +200,7 @@ export const Venn: FC<VennProps> = ({ data }) => {
 								sets={selectedSets}
 								combinations={combinations}
 								width={width}
-								height={width}
+								height={width / 1.25}
 								onClick={handleShapeClick}
 								onHover={setHoveredShape}
 								selection={hoveredShape || selectedShape}
@@ -204,7 +215,7 @@ export const Venn: FC<VennProps> = ({ data }) => {
 								sets={selectedSets}
 								combinations={combinations}
 								width={width}
-								height={width}
+								height={width / 1.25}
 								onClick={handleShapeClick}
 								onHover={setHoveredShape}
 								selection={hoveredShape || selectedShape}
@@ -216,7 +227,7 @@ export const Venn: FC<VennProps> = ({ data }) => {
 						)}
 					</VennPositionHandler>
 				</StyledVennFigure>
-				<VennDetailPanel defaultOpen="Diagram results">
+				<VennDetailPanel defaultOpen="Query results">
 					<CheckboxGroup
 						label="Query results"
 						options={checkboxOptions}
@@ -224,11 +235,11 @@ export const Venn: FC<VennProps> = ({ data }) => {
 						onChange={handleSetSelection}
 						maxSelections={limit}
 					/>
-					<VennResultList
-						label="Diagram results"
-						data={[...selectedSets, ...combinations]}
-						onItemClick={handleResultClick}
-					/>
+					{/*<VennResultList*/}
+					{/*	label="Diagram results"*/}
+					{/*	data={[...selectedSets, ...combinations]}*/}
+					{/*	onItemClick={handleResultClick}*/}
+					{/*/>*/}
 					{eulerLayout &&
 						<small>
 							<i className="fa-solid fa-triangle-exclamation"></i>
@@ -238,6 +249,7 @@ export const Venn: FC<VennProps> = ({ data }) => {
 					}
 				</VennDetailPanel>
 			</StyledVennWrapper>
+			{selectedShape && <VennResultDetail selection={selectedShape} onClose={handleDetailClose} />}
 		</StyledVenn>
 	);
 };
