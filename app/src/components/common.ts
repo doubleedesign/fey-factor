@@ -1,5 +1,6 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { readableColor, shade, tint } from 'polished';
+import { breakpointUp } from '@doubleedesign/styled-media-queries';
 
 export const Container = styled.section<{ $stretch?: boolean }>`
 	width: 100%;
@@ -8,12 +9,21 @@ export const Container = styled.section<{ $stretch?: boolean }>`
 	padding-inline: ${props => props.theme.spacing.sm};
 	display: flex;
 	flex-direction: ${props => props.$stretch ? 'column' : 'row'};
+	container-name: layout-container;
+	container-type: inline-size;
+
+	${props => breakpointUp(props.theme.breakpoints.xxl, css`
+		max-width: 1440px;
+	`)};
 `;
 
 export const Grid = styled.div<{ $maxCols: number }>`
-	display: grid;
-	grid-template-columns: repeat(${props => props.$maxCols}, 1fr);
-	gap: ${props => props.theme.spacing.md};
+
+	@container layout-container (min-width: 768px) {
+		display: grid;
+		grid-template-columns: repeat(${props => props.$maxCols}, 1fr);
+		gap: ${props => props.theme.spacing.md};
+	}
 `;
 
 export const GridColumn = styled.div`

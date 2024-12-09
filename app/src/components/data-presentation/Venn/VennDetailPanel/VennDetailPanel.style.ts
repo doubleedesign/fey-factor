@@ -3,13 +3,23 @@ import { StyledHeading } from '../../../typography/Heading/Heading.style.ts';
 import { tint } from 'polished';
 
 export const StyledVennDetailPanel = styled.aside`
-	min-width: 20rem;
-	flex-basis: 20rem;
+	width: 100%;
+	flex-basis: 100%;
 	padding: ${props => props.theme.spacing.sm};
 	box-sizing: border-box;
 	background: ${props => tint(0.8, props.theme.colors.subtle)};
 	border-radius: ${props => props.theme.spacing.xs};
 	transform: translateX(-${props => props.theme.spacing.sm});
+
+	@container venn-display (min-width: 992px) {
+		min-width: 16rem;
+		flex-basis: 16rem;
+	}
+
+	@container venn-display (min-width: 1140px) {
+		min-width: 20rem;
+		flex-basis: 20rem;
+	}
 
 	${StyledHeading} {
 		margin-block-end: ${props => props.theme.spacing.sm};

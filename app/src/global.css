@@ -5,6 +5,7 @@ body {
 	font-weight: 300;
 	font-style: normal;
 	overflow-x: hidden;
+	overflow-y: scroll; /* prevent layout shift from scrollbar appearing and disappearing */
 }
 
 body:has([aria-modal="true"][data-open="true"]) {

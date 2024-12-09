@@ -17,9 +17,15 @@ export const StyledVennResultDetail = styled.div`
 		margin: 0;
 	}
 
-	${props => breakpointUp(props.theme.breakpoints.xl, css`
+	${props => breakpointUp(props.theme.breakpoints.xxl, css`
 		left: 10rem;
     `)};
+
+	@container venn-container (min-height: 700px) {
+		// container has transform: translateX(0) so this will be like absolute positioning
+		left: 0; 
+		bottom: 0;
+	}
 `;
 
 export const StyledVennResultDetailHeader = styled.div`

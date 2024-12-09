@@ -1,8 +1,15 @@
-import { FC, PropsWithChildren, useRef, useMemo } from 'react';
+import { FC, useRef, useMemo, ReactElement } from 'react';
 import { StyledVennPositionHandler } from './VennPositionHandler.style';
 import { useResizeObserver, useOverflowObserver } from '../../../../hooks';
 
-type VennPositionHandlerProps = PropsWithChildren;
+type Dimensions = {
+	width: number;
+	height: number;
+};
+
+type VennPositionHandlerProps = {
+	children: ((dimensions: Dimensions) => ReactElement) | ReactElement;
+};
 
 export const VennPositionHandler: FC<VennPositionHandlerProps> = ({ children }) => {
 	const ref = useRef<HTMLDivElement>(null);
@@ -25,7 +32,8 @@ export const VennPositionHandler: FC<VennPositionHandlerProps> = ({ children }) 
 			ref={ref}
 			$transform={cssTransform}
 		>
-			{children}
+			{/** @ts-expect-error TS2349: This expression is not callable. Not all constituents of type 'ReactElement' are callable. */}
+			{children({ width, height: ref?.current?.clientHeight < 800 ? ref.current.clientHeight : 800 })}
 		</StyledVennPositionHandler>
 	);
 };

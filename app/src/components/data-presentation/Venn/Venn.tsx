@@ -1,4 +1,4 @@
-import { FC, lazy, useState, useMemo, useCallback, useEffect, useRef, ChangeEvent } from 'react';
+import { FC, lazy, useState, useMemo, useCallback, useEffect, ChangeEvent } from 'react';
 import {
 	extractSets,
 	generateCombinations,
@@ -13,10 +13,9 @@ import theme from '../../../theme';
 import { lab, hsl } from 'd3-color';
 import { saturate, tint } from 'polished';
 import { ThemeColor, VennSet } from '../../../types.ts';
-import { StyledVenn, StyledVennControls, StyledVennFigure, StyledVennWrapper } from './Venn.style';
+import { StyledVenn, StyledVennControls, StyledVennFigure, StyledVennContent } from './Venn.style';
 import { StyledSelectLabel } from '../../inputs/common.ts';
 import { VennDetailPanel } from './VennDetailPanel/VennDetailPanel.tsx';
-import { useResizeObserver } from '../../../hooks';
 import { VennPositionHandler } from './VennPositionHandler/VennPositionHandler.tsx';
 import { CheckboxGroup } from '../../inputs/CheckboxGroup/CheckboxGroup.tsx';
 import snakeCase from 'lodash/snakeCase';
@@ -52,8 +51,6 @@ const LazyEulerVenn = lazy(() => {
 
 export const Venn: FC<VennProps> = ({ data }) => {
 	const [eulerLayout, setEulerLayout] = useState(true);
-	const figureRef = useRef<HTMLElement>(null);
-	const { width } = useResizeObserver(figureRef, [data, eulerLayout], 300);
 	const [limit, setLimit] = useState(7);
 
 	// Data handling
@@ -70,19 +67,24 @@ export const Venn: FC<VennProps> = ({ data }) => {
 	}, [data]);
 
 	// Initially set the visible sets according to the chosen limit
-	const [selectedSets, setSelectedSets] = useState<ISets<VennSet>>(rawSets);
+	const [selectedSets, setSelectedSets] = useState<ISets<VennSet>>([]);
+
+	// Handle change of limit from the number picker
+	const handleLimitChange = useCallback((value: number) => {
+		setLimit(value);
+		setSelectedSets(rawSets.slice(0, value));
+		setSelectedShape(null); // close open detail panel when the data changes
+	}, [rawSets]);
+
 	useEffect(() => {
-		setSelectedSets(rawSets.slice(0, limit));
-	}, [rawSets, limit]);
+		handleLimitChange(limit);
+	}, [handleLimitChange, limit, rawSets]);
+
 	// Generate the combinations of the selected sets
 	const combinations = useMemo(() => {
 		return generateCombinations(selectedSets, { mergeColors });
 	}, [selectedSets]);
 
-	// Close any open detail panel when the data changes
-	useEffect(() => {
-		setSelectedShape(null);
-	}, [data]);
 
 	// Handle the checkbox group
 	const checkboxOptions = useMemo(() => {
@@ -98,12 +100,6 @@ export const Venn: FC<VennProps> = ({ data }) => {
 			label: set.name,
 		}));
 	}, [selectedSets]);
-
-	// Handle change of limit from the number picker
-	const handleLimitChange = useCallback((value: number) => {
-		setLimit(value);
-		setSelectedSets(rawSets.slice(0, value));
-	}, [rawSets]);
 
 	// Handle change of sets from the checkbox group
 	const handleSetSelection = useCallback((event: ChangeEvent <HTMLInputElement>) => {
@@ -151,9 +147,9 @@ export const Venn: FC<VennProps> = ({ data }) => {
 		}
 	}, [eulerLayout]);
 
-	return (
-		<StyledVenn>
-			<StyledVennControls data-test-id="VennControls">
+	return selectedSets.length > 0 ? (
+		<StyledVenn data-testid="VennDiagram">
+			<StyledVennControls data-testid="VennControls">
 				<SelectionInputs>
 					<Toggle
 						label={
@@ -186,48 +182,53 @@ export const Venn: FC<VennProps> = ({ data }) => {
 						}
 						value={limit}
 						defaultValue={7}
-						options={[3, 5, 7, 10]}
+						options={[3, 5, 7]}
 						onChange={handleLimitChange}
 						disabled={!eulerLayout}
 					/>
 				</SelectionInputs>
 			</StyledVennControls>
-			<StyledVennWrapper>
-				<StyledVennFigure ref={figureRef} data-test-id="VennFigure">
+			<StyledVennContent data-testid="VennDisplay">
+				<StyledVennFigure data-testid="VennFigure">
 					<VennPositionHandler>
-						{eulerLayout ? (
-							<LazyEulerVenn
-								sets={selectedSets}
-								combinations={combinations}
-								width={width}
-								height={width / 1.25}
-								onClick={handleShapeClick}
-								onHover={setHoveredShape}
-								selection={hoveredShape || selectedShape}
-								exportButtons={false}
-								tooltips={true}
-								selectionColor={theme.colors.accent}
-								fontFamily={theme.fontFamily.body}
-							/>
-						) : (
-						// @ts-expect-error TS2786: VennDiagram cannot be used as a JSX component
-							<VennDiagram
-								sets={selectedSets}
-								combinations={combinations}
-								width={width}
-								height={width / 1.25}
-								onClick={handleShapeClick}
-								onHover={setHoveredShape}
-								selection={hoveredShape || selectedShape}
-								exportButtons={false}
-								tooltips={true}
-								selectionColor={theme.colors.accent}
-								fontFamily={theme.fontFamily.body}
-							/>
+						{({ width, height }) => (
+							<>
+								{eulerLayout ? (
+									<LazyEulerVenn
+										sets={selectedSets}
+										combinations={combinations}
+										width={width}
+										height={height}
+										onClick={handleShapeClick}
+										onHover={setHoveredShape}
+										selection={hoveredShape || selectedShape}
+										exportButtons={false}
+										tooltips={true}
+										selectionColor={theme.colors.accent}
+										fontFamily={theme.fontFamily.body}
+									/>
+								) : (
+								// @ts-expect-error TS2786: VennDiagram cannot be used as a JSX component
+									<VennDiagram
+										sets={selectedSets}
+										combinations={combinations}
+										width={width}
+										height={height}
+										onClick={handleShapeClick}
+										onHover={setHoveredShape}
+										selection={hoveredShape || selectedShape}
+										exportButtons={false}
+										tooltips={true}
+										selectionColor={theme.colors.accent}
+										fontFamily={theme.fontFamily.body}
+									/>
+								)}
+							</>
 						)}
 					</VennPositionHandler>
 				</StyledVennFigure>
-				<VennDetailPanel defaultOpen="Query results">
+				{selectedShape && <VennResultDetail data-testid="VennSelectionDetail" selection={selectedShape} onClose={handleDetailClose} />}
+				<VennDetailPanel data-testid="VennResults" defaultOpen="Query results">
 					<CheckboxGroup
 						label="Query results"
 						options={checkboxOptions}
@@ -248,10 +249,9 @@ export const Venn: FC<VennProps> = ({ data }) => {
 						</small>
 					}
 				</VennDetailPanel>
-			</StyledVennWrapper>
-			{selectedShape && <VennResultDetail selection={selectedShape} onClose={handleDetailClose} />}
+			</StyledVennContent>
 		</StyledVenn>
-	);
+	) : null;
 };
 
 

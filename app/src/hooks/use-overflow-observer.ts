@@ -4,6 +4,12 @@ type OverflowObserverResult = {
 	overflow: number;
 };
 
+/**
+ * Hook to observe horizontal overflow of an element
+ * @param ref
+ * @param deps
+ * @param debounce
+ */
 export function useOverflowObserver(
 	ref: MutableRefObject<HTMLElement | null>,
 	deps: unknown[] = [],

@@ -14,16 +14,22 @@ export const StyledGlobalHeader = styled.header`
 	position: relative;
 	
 	${Container} {
-		padding: ${props => props.theme.spacing.md} 0;
+		box-sizing: border-box;
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		flex-wrap: wrap;
+		height: auto;
 		
 		${props => breakpointUp(props.theme.breakpoints.md, css`
 			justify-content: space-between;
 	        flex-wrap: nowrap;
+			height: 100%;
 	    `)};
+
+		${props => breakpointUp(props.theme.breakpoints.lg, css`
+			padding-inline-end: 2.25rem; // hacky fix for the button-related layout shift
+		`)};
 	}
 	
 	${StyledHeading} {
@@ -65,7 +71,7 @@ export const StyledGlobalHeader = styled.header`
 
 export const StyledGlobalHeaderToggleWrapper = styled(Container)`
 	padding: 0 !important;
-	transform: translate(-0.25rem, -0.5rem);
+	transform: translate(-0.5rem, -0.5rem);
 `;
 
 export const StyledGlobalHeaderToggleButton = styled.button`
@@ -80,6 +86,9 @@ export const StyledGlobalHeaderToggleButton = styled.button`
 	transition: color 0.2s ease-in-out;
 	margin-block-end: -4rem;
 	margin-block-start: -0.5rem;
+	position: absolute;
+	top: 0;
+	left: ${props => props.theme.spacing.sm};
 	
 	svg {
 		width: 1.5rem;
@@ -89,15 +98,22 @@ export const StyledGlobalHeaderToggleButton = styled.button`
 	&:hover, &:focus, &:active {
 		color: ${props => props.theme.colors.accent};
 	}
+
+	${props => breakpointUp(props.theme.breakpoints.lg, css`
+		position: relative;
+	`)};
 `;
 
 export const StyledGlobalHeaderContent = styled.div<{ $height: number }>`
 	overflow: ${props => props.$height === 0 ? 'hidden' : 'visible'};
-	transition: height 0.2s ease-in-out;
+	transition: all 0.2s ease-in-out;
 	will-change: height;
 	height: ${props => props.$height}px;
-	padding-inline-start: 5rem;
-	box-sizing: border-box;
+	min-height: ${props => props.$height > 0 ? '3rem' : 0};
+	
+	${props => breakpointUp(props.theme.breakpoints.lg, css`
+		padding-inline-start: 5rem;
+	`)};
 `;
 
 export const StyledMainMenu = styled.nav`

@@ -1,4 +1,4 @@
-import { FC, useRef, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import {
 	StyledGlobalHeader,
 	StyledMainMenu,
@@ -12,18 +12,22 @@ import {
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { Container } from '../../common.ts';
 import { Heading, Label, TooltippedElement } from '../../typography';
-import { EditionMenu } from '../../misc/EditionMenu/EditionMenu';
-import { useRankingContext } from '../../../controllers/RankingContext.tsx';
 import { useResizeObserver } from '../../../hooks';
+//import { EditionMenu } from '../../misc/EditionMenu/EditionMenu';
+//import { useRankingContext } from '../../../controllers/RankingContext.tsx';
 
 type GlobalHeaderProps = {};
 
 export const GlobalHeader: FC<GlobalHeaderProps> = () => {
-	const { degreeZero } = useRankingContext();
-	const { pathname } = useLocation();
-	const [isOpen, setIsOpen] = useState<boolean>(pathname === '/');
+	//const { degreeZero } = useRankingContext();
+	const location = useLocation();
+	const [isOpen, setIsOpen] = useState<boolean>(true);
 	const ref = useRef<HTMLDivElement>(null);
-	const { height: contentHeight } = useResizeObserver(ref, [isOpen]);
+	const { height: contentHeight } = useResizeObserver(ref, [isOpen], 1000);
+
+	useEffect(() => {
+		setIsOpen(location.pathname !== '/');
+	}, [location]);
 
 	return (
 		<StyledGlobalHeader data-testid="GlobalHeader">
@@ -34,8 +38,8 @@ export const GlobalHeader: FC<GlobalHeaderProps> = () => {
 					</TooltippedElement>
 				</StyledGlobalHeaderToggleButton>
 			</StyledGlobalHeaderToggleWrapper>
-			<StyledGlobalHeaderContent $height={isOpen ? contentHeight : 0}>
-				<Container as="div" ref={ref}>
+			<StyledGlobalHeaderContent ref={ref} $height={isOpen ? contentHeight : 0}>
+				<Container as="div">
 					<Heading level="h1">
 						<Link to={'/'}>
 							<span className="above-heading">The</span>
@@ -62,9 +66,9 @@ export const GlobalHeader: FC<GlobalHeaderProps> = () => {
 									</a>
 								</TooltippedElement>
 							</StyledMainMenuListIconItem>
-							<li>
-								<EditionMenu selected={degreeZero}/>
-							</li>
+							{/*<li>*/}
+							{/*	<EditionMenu selected={degreeZero}/>*/}
+							{/*</li>*/}
 						</StyledMainMenuList>
 					</StyledMainMenu>
 				</Container>

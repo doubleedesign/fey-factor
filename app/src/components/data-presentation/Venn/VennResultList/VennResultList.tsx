@@ -15,8 +15,8 @@ export const VennResultList: FC<VennResultListProps> = ({ data, onItemClick }) =
 
 	return (
 		<StyledVennResultList data-testid="VennResultList">
-			{data.map((item, index) => (
-				<VennResultListItem key={index} item={item} onItemClick={onItemClick} />
+			{data.map((item) => (
+				<VennResultListItem key={snakeCase(item.name)} item={item} onItemClick={onItemClick} />
 			))}
 		</StyledVennResultList>
 	);
