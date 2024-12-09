@@ -45,10 +45,10 @@ export const StyledVennControls = styled.div`
 	}
 `;
 
-export const StyledVennWrapper = styled.section`
+export const StyledVennWrapper = styled.div`
 	display: flex;
 	justify-content: space-between;
-	align-items: flex-start;
+	margin-block-end: ${props => props.theme.spacing.sm};
 `;
 
 export const StyledVennFigure = styled.figure`

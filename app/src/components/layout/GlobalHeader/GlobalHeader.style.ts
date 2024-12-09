@@ -1,5 +1,5 @@
 import styled, { css } from 'styled-components';
-import { readableColor, tint } from 'polished';
+import { readableColor, shade, tint } from 'polished';
 import { shutterOutVertical } from '../../mixins.ts';
 import { Container } from '../../common.ts';
 import { typeScale } from '../../../theme.ts';
@@ -8,17 +8,18 @@ import { StyledLabel } from '../../typography/Label/Label.style';
 import { breakpointUp } from '@doubleedesign/styled-media-queries';
 
 export const StyledGlobalHeader = styled.header`
-	background: ${props => props.theme.colors.primary};
-	padding: ${props => props.theme.spacing.md} 0;
+	background: ${props => shade(0.2, props.theme.colors.primary)};
 	color: ${props => readableColor(props.theme.colors.primary)};
 	z-index: 9990;
+	position: relative;
 	
 	${Container} {
+		padding: ${props => props.theme.spacing.md} 0;
 		display: flex;
 		justify-content: center;
 		align-items: center;
 		flex-wrap: wrap;
-
+		
 		${props => breakpointUp(props.theme.breakpoints.md, css`
 			justify-content: space-between;
 	        flex-wrap: nowrap;
@@ -60,6 +61,42 @@ export const StyledGlobalHeader = styled.header`
 			transform: translateY(-${props => props.theme.spacing.sm});
 		}
 	}
+`;
+
+export const StyledGlobalHeaderToggleWrapper = styled(Container)`
+	padding: 0 !important;
+	transform: translate(-0.25rem, -0.5rem);
+`;
+
+export const StyledGlobalHeaderToggleButton = styled.button`
+	cursor: pointer;
+	background: ${props => shade(0.6, props.theme.colors.primary)};
+	color: ${props => readableColor(props.theme.colors.primary)};
+	border: 0;
+	appearance: none;
+	padding: ${props => props.theme.spacing.sm};
+	padding-top: ${props => props.theme.spacing.lg};
+	border-radius: ${props => props.theme.spacing.sm};
+	transition: color 0.2s ease-in-out;
+	margin-block-end: -4rem;
+	margin-block-start: -0.5rem;
+	
+	svg {
+		width: 1.5rem;
+		height: 1.5rem;
+	}
+	
+	&:hover, &:focus, &:active {
+		color: ${props => props.theme.colors.accent};
+	}
+`;
+
+export const StyledGlobalHeaderContent = styled.div<{ $height: number }>`
+	overflow: hidden;
+	transition: height 0.2s ease-in-out;
+	will-change: height;
+	height: ${props => props.$height}px;
+	padding-inline-start: 5rem;
 `;
 
 export const StyledMainMenu = styled.nav`
@@ -115,7 +152,7 @@ export const StyledMainMenuListItem = styled.li`
 		}
 
 		&[aria-current="page"] {
-			background: ${props => tint(0.2, props.theme.colors.primary)};
+			color: ${props => props.theme.colors.accent};
 		}
 	}
 `;

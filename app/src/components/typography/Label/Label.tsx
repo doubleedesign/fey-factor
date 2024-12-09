@@ -8,7 +8,7 @@ type LabelProps = {
 
 export const Label: FC<LabelProps> = ({ text, type = 'info' }: LabelProps) => {
 	return (
-		<StyledLabel data-testid="Label" type={type}>
+		<StyledLabel data-testid="Label" type={type} aria-label={`{${text})`}>
 			{text}
 		</StyledLabel>
 	);

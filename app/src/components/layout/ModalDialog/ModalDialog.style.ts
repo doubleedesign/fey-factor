@@ -21,7 +21,7 @@ export const StyledModalDialogWrapper = styled.div<{ $open: boolean }>`
 	overflow: hidden;
 `;
 
-export const StyledModalDialog = styled.section`
+export const StyledModalDialog = styled.dialog`
 	background: ${props => props.theme.colors.background};
 	padding: ${props => props.theme.spacing.md};
 	box-sizing: border-box;

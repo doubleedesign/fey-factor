@@ -8,7 +8,7 @@ const LeadParagraph = styled.p`
 	font-size: ${props => props.theme.fontSizes.md};
 	
 	&:first-of-type {
-		margin-block-start: ${props => props.theme.spacing.sm};
+		margin-block-start: 0;
 	}
 	
 	&:last-child {

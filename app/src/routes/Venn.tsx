@@ -24,7 +24,7 @@ export const Venn: FC = () => {
 				<div>
 					<Heading level="h1">Venn Diagram</Heading>
 				</div>
-				<SelectionInputs>
+				<SelectionInputs data-testid="SelectionInputs" aria-label="Query parameters">
 					<NumberPicker
 						label={
 							<TooltippedElement id="maxAvgDegree"
