@@ -67,6 +67,7 @@ export class DbVenn {
 				text: `
                     SELECT
                         p.name AS name,
+                        p.id AS id,
                         ARRAY_AGG(DISTINCT ts.title ORDER BY ts.title) AS sets
                         FROM
                             people p

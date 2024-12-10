@@ -23,6 +23,7 @@ export const VennDiagram: FC<VennDiagramProps> = () => {
 	                roleIds: $roleIds
                 ) {
                     data {
+	                    id
                         name
                         sets
                     }
@@ -34,6 +35,7 @@ export const VennDiagram: FC<VennDiagramProps> = () => {
 
 	const formattedData = useMemo(() => {
 		return rawData?.VennDiagram?.data?.map((set) => ({
+			id: set.id as string,
 			name: set.name as string,
 			sets: set.sets as string[]
 		}));

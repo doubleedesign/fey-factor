@@ -62,6 +62,7 @@ type Provider {
 	provider_type: String
 }
 type VennDiagramSet {
+	id: ID!
 	name: String!
 	sets: [String!]!
 }
@@ -79,13 +80,10 @@ type Edge {
 type VennDiagram {
 	data: [VennDiagramSet!]!
 }
-type TvShow implements Work {
+type Movie implements Work {
 	id: ID!
 	title: String!
-	start_year: Int
-	end_year: Int
-	season_count: Int
-	episode_count: Int
+	release_year: Int
 	people: [Person]
 	roles: [Role]
 	poster_path: String
@@ -94,10 +92,13 @@ type TvShow implements Work {
 	ranking_data: WorkRankingData
 	providers(filter: ProviderFilter): [Provider]
 }
-type Movie implements Work {
+type TvShow implements Work {
 	id: ID!
 	title: String!
-	release_year: Int
+	start_year: Int
+	end_year: Int
+	season_count: Int
+	episode_count: Int
 	people: [Person]
 	roles: [Role]
 	poster_path: String

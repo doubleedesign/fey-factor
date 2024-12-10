@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<2f67e70a7ff4490db4c9b3ded9fd28bf>>
+ * @generated SignedSource<<f440fb5f35ba681c0fbfe0a00bd4c543>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -17,6 +17,7 @@ export type VennDiagramQuery$variables = {
 export type VennDiagramQuery$data = {
   readonly VennDiagram: {
     readonly data: ReadonlyArray<{
+      readonly id: string;
       readonly name: string;
       readonly sets: ReadonlyArray<string>;
     }>;
@@ -82,6 +83,13 @@ v1 = [
             "alias": null,
             "args": null,
             "kind": "ScalarField",
+            "name": "id",
+            "storageKey": null
+          },
+          {
+            "alias": null,
+            "args": null,
+            "kind": "ScalarField",
             "name": "name",
             "storageKey": null
           },
@@ -117,16 +125,16 @@ return {
     "selections": (v1/*: any*/)
   },
   "params": {
-    "cacheID": "e8d9bd037570ed1ffa1c7f8bccc8d278",
+    "cacheID": "25b5f29e7b092103777dbf65f3d6eb4e",
     "id": null,
     "metadata": {},
     "name": "VennDiagramQuery",
     "operationKind": "query",
-    "text": "query VennDiagramQuery(\n  $maxAverageDegree: Float\n  $minConnections: Int!\n  $roleIds: [Int]\n) {\n  VennDiagram(maxAverageDegree: $maxAverageDegree, minConnections: $minConnections, roleIds: $roleIds) {\n    data {\n      name\n      sets\n    }\n  }\n}\n"
+    "text": "query VennDiagramQuery(\n  $maxAverageDegree: Float\n  $minConnections: Int!\n  $roleIds: [Int]\n) {\n  VennDiagram(maxAverageDegree: $maxAverageDegree, minConnections: $minConnections, roleIds: $roleIds) {\n    data {\n      id\n      name\n      sets\n    }\n  }\n}\n"
   }
 };
 })();
 
-(node as any).hash = "c867c0fb5d3577218f1b06c5ec3bbf1e";
+(node as any).hash = "3e65829f80738d7bca8a47275ae2805c";
 
 export default node;

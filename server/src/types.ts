@@ -58,6 +58,7 @@ export interface VennDiagram {
 }
 
 export type VennDiagramSet = {
+	id: number;
 	name: string;
 	sets: string[];
 };

@@ -119,6 +119,7 @@ export type VennDiagram = {
 };
 
 export type VennDiagramSet = {
+	id: Scalars['ID']['output'];
 	name: Scalars['String']['output'];
 	sets: Array<Scalars['String']['output']>;
 };
