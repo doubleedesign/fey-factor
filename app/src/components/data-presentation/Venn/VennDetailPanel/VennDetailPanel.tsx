@@ -1,35 +1,13 @@
-import { FC, PropsWithChildren, Children } from 'react';
-import differenceBy from 'lodash/differenceBy';
+import { FC, PropsWithChildren } from 'react';
 import { StyledVennDetailPanel } from './VennDetailPanel.style';
-import { Expandable } from '../../../layout';
-import { Heading } from '../../../typography';
 
-type VennDetailPanelProps = PropsWithChildren & {
-	defaultOpen?: string;
-};
+type VennDetailPanelProps = PropsWithChildren ;
 
-export const VennDetailPanel: FC<VennDetailPanelProps> = ({ children, defaultOpen }) => {
-	const childrenWithLabels = Children.toArray(children).filter((child) => {
-		// @ts-ignore
-		return child?.props?.label;
-	});
-
-	const childrenWithoutLabels = differenceBy(Children.toArray(children), childrenWithLabels, 'props.label');
+export const VennDetailPanel: FC<VennDetailPanelProps> = ({ children }) => {
 
 	return (
 		<StyledVennDetailPanel data-testid="VennDetailPanel">
-			<Heading level="h3">Results and options</Heading>
-			{childrenWithLabels.map((child) => {
-				// @ts-ignore
-				const label = child?.props?.label;
-
-				return (
-					<Expandable key={label} title={label} fetchesData={false} defaultOpen={label === defaultOpen} appearance="shadow">
-						{child}
-					</Expandable>
-				);
-			})}
-			{childrenWithoutLabels}
+			{children}
 		</StyledVennDetailPanel>
 	);
 };

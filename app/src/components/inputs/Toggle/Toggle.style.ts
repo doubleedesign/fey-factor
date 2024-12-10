@@ -1,9 +1,11 @@
 import styled from 'styled-components';
 
 export const StyledToggleField = styled.div`
-	padding: ${props => props.theme.spacing.sm};
 	width: max-content !important;
 	min-width: max-content;
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
 	
 	label {
 		width: auto;

@@ -19,6 +19,11 @@ const LeadParagraph = styled.p`
 const FinePrint = styled.small`
 	display: block;
 	font-size: ${props => props.theme.fontSizes.xs};
+	
+	i, svg {
+		display: inline-block;
+		margin-inline-end: ${props => props.theme.spacing.xs};
+	}
 `;
 
 export {

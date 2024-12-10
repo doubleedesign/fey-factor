@@ -22,7 +22,7 @@ export const VennResultDetail: FC<VennResultDetailProps> = ({ selection, onClose
 		<StyledVennResultDetail data-testid="VennResultDetail">
 			<StyledVennResultDetailHeader>
 				<div>
-					<Label text={Case.title(selection.type)} type="subtler" />
+					<Label text={`Selected ${Case.title(selection.type)}`} type="subtler" />
 					<Heading level="h3">{selection.name.replace('(', '').replace(')', '')}</Heading>
 				</div>
 				<CloseButton onClick={onClose} aria-label="Close detail panel">
@@ -33,11 +33,11 @@ export const VennResultDetail: FC<VennResultDetailProps> = ({ selection, onClose
 				<p>
 					<strong>People: </strong>
 					{selection.elems
-						// @ts-expect-error TS7006: Parameter elem implicitly has an any type.
+					// @ts-expect-error TS7006: Parameter elem implicitly has an any type.
 						.map((elem) => {
 							return <a onClick={handleLinkClick} href={`#${elem.id}`}>{elem.name}</a>;
 						})
-						// @ts-expect-error TS7006: Parameter prev implicitly has an any type.
+					// @ts-expect-error TS7006: Parameter prev implicitly has an any type.
 						.reduce((prev, curr) => [prev, ', ', curr])}
 				</p>
 			</StyledVennResultDetailBody>

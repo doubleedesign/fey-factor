@@ -32,10 +32,10 @@ console.error = (...args) => {
 
 createRoot(document.getElementById('root')!).render(
 	<StrictMode>
-		<RankingContextProvider>
-			<RelayEnvironmentProvider environment={environment}>
-				<ThemeProvider theme={theme}>
-					<BrowserRouter>
+		<RelayEnvironmentProvider environment={environment}>
+			<ThemeProvider theme={theme}>
+				<BrowserRouter>
+					<RankingContextProvider>
 						<VennContextProvider>
 							<GlobalHeader />
 							<Routes>
@@ -48,9 +48,9 @@ createRoot(document.getElementById('root')!).render(
 							</Routes>
 							<GlobalFooter />
 						</VennContextProvider>
-					</BrowserRouter>
-				</ThemeProvider>
-			</RelayEnvironmentProvider>
-		</RankingContextProvider>
+					</RankingContextProvider>
+				</BrowserRouter>
+			</ThemeProvider>
+		</RelayEnvironmentProvider>
 	</StrictMode>,
 );

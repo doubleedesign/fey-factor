@@ -1,30 +1,30 @@
 import styled from 'styled-components';
 
 export const StyledVenn = styled.div`
-	container-name: venn-container;
-	container-type: size;
 	background: ${props => props.theme.colors.background};
 	border-top-left-radius: ${props => props.theme.spacing.xs};
 	border-top-right-radius: ${props => props.theme.spacing.xs};
 	width: 100%;
-	margin: 0;
-	flex-grow: 1;
-	position: relative;
-	display: flex;
-	flex-direction: column;
 	height: 100%;
+	display: flex;
+	gap: ${props => props.theme.spacing.sm};
+
+	aside {
+		width: 300px;
+		flex-basis: 300px;
+	}
+
+	figure {
+		flex-grow: 1;
+	}
 `;
 
 export const StyledVennControls = styled.div`
 	width: 100%;
 	display: flex;
-	justify-content: flex-end;
-	padding: ${props => props.theme.spacing.sm};
-	box-sizing: border-box;
-	
-	> div {
-		z-index: 7000;
-	}
+	gap: ${props => props.theme.spacing.sm};
+	justify-content: space-between;
+	margin-block-end: ${props => props.theme.spacing.sm};
 	
 	div:has(label):has([role="combobox"]) {
 		width: max-content;
@@ -50,23 +50,6 @@ export const StyledVennControls = styled.div`
 		div:has([role="combobox"]) {
 			cursor: pointer;
 		}
-	}
-`;
-
-export const StyledVennContent = styled.div`
-	container-name: venn-display;
-	container-type: size;
-	flex-grow: 1;
-	margin-block-end: ${props => props.theme.spacing.sm};
-	width: 100%;
-	transform: translateX(0); // makes fixed-position children behave like they're absolutely positioned
-	max-height: 800px;
-	display: flex;
-	justify-content: space-between;
-	flex-wrap: wrap;
-
-	@container venn-container (min-width: 992px) {
-		flex-wrap: nowrap;
 	}
 `;
 

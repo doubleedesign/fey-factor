@@ -1,30 +1,15 @@
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import { StyledLabel } from '../../../typography/Label/Label.style.ts';
 import { StyledHeading } from '../../../typography/Heading/Heading.style.ts';
-import { breakpointUp } from '@doubleedesign/styled-media-queries';
 
 export const StyledVennResultDetail = styled.div`
 	background: ${props => props.theme.colors.background};
-	position: fixed;
-	bottom: ${props => props.theme.spacing.sm};
-	left: ${props => props.theme.spacing.sm};	
 	padding: ${props => props.theme.spacing.sm};
 	box-shadow: ${props => `0 0 0.25rem 0 ${props.theme.colors.subtle}`};
 	border-radius: ${props => props.theme.spacing.xs};
-	width: 24rem;
 	
 	${StyledLabel} {
 		margin: 0;
-	}
-
-	${props => breakpointUp(props.theme.breakpoints.xxl, css`
-		left: 10rem;
-    `)};
-
-	@container venn-container (min-height: 700px) {
-		// container has transform: translateX(0) so this will be like absolute positioning
-		left: 0; 
-		bottom: 0;
 	}
 `;
 

@@ -7,19 +7,18 @@ import {
 	ISets,
 } from '@upsetjs/react';
 import { Toggle } from '../../inputs/Toggle/Toggle.tsx';
-import { NumberPicker, SelectionInputs } from '../../inputs';
-import { TooltippedElement } from '../../typography';
+import { NumberPicker } from '../../inputs';
+import { FinePrint, TooltippedElement } from '../../typography';
 import theme from '../../../theme';
 import { lab, hsl } from 'd3-color';
 import { saturate, tint } from 'polished';
 import { ThemeColor, VennSet } from '../../../types.ts';
-import { StyledVenn, StyledVennControls, StyledVennFigure, StyledVennContent } from './Venn.style';
+import { StyledVenn, StyledVennControls, StyledVennFigure } from './Venn.style';
 import { StyledSelectLabel } from '../../inputs/common.ts';
 import { VennDetailPanel } from './VennDetailPanel/VennDetailPanel.tsx';
 import { VennPositionHandler } from './VennPositionHandler/VennPositionHandler.tsx';
 import { CheckboxGroup } from '../../inputs/CheckboxGroup/CheckboxGroup.tsx';
 import snakeCase from 'lodash/snakeCase';
-// import { VennResultList } from './VennResultList/VennResultList.tsx';
 import { VennResultDetail } from './VennResultDetail/VennResultDetail.tsx';
 
 type VennProps = {
@@ -149,17 +148,17 @@ export const Venn: FC<VennProps> = ({ data }) => {
 
 	return selectedSets.length > 0 ? (
 		<StyledVenn data-testid="VennDiagram">
-			<StyledVennControls data-testid="VennControls">
-				<SelectionInputs>
+			<VennDetailPanel data-testid="VennDetailPanel">
+				<StyledVennControls data-testid="VennControls">
 					<Toggle
 						label={
 							<TooltippedElement
 								id="eulerToggle"
-								tooltip="Euler layout shows proportions better, but can be slow to render with many sets"
+								tooltip="Euler layout shows proportions better, but can be slower to render for complex data"
 								position="bottom"
 							>
 								<StyledSelectLabel>
-									Euler layout
+									Euler
 									<i className="fa-duotone fa-solid fa-circle-question"></i>
 								</StyledSelectLabel>
 							</TooltippedElement>
@@ -175,7 +174,7 @@ export const Venn: FC<VennProps> = ({ data }) => {
 								position="bottom"
 							>
 								<StyledSelectLabel>
-									Limit to top:
+									Max. sets:
 									<i className="fa-duotone fa-solid fa-circle-question"></i>
 								</StyledSelectLabel>
 							</TooltippedElement>
@@ -186,70 +185,65 @@ export const Venn: FC<VennProps> = ({ data }) => {
 						onChange={handleLimitChange}
 						disabled={!eulerLayout}
 					/>
-				</SelectionInputs>
-			</StyledVennControls>
-			<StyledVennContent data-testid="VennDisplay">
-				<StyledVennFigure data-testid="VennFigure">
-					<VennPositionHandler>
-						{({ width, height }) => (
-							<>
-								{eulerLayout ? (
-									<LazyEulerVenn
-										sets={selectedSets}
-										combinations={combinations}
-										width={width}
-										height={height}
-										onClick={handleShapeClick}
-										onHover={setHoveredShape}
-										selection={hoveredShape || selectedShape}
-										exportButtons={false}
-										tooltips={true}
-										selectionColor={theme.colors.accent}
-										fontFamily={theme.fontFamily.body}
-									/>
-								) : (
+				</StyledVennControls>
+				<CheckboxGroup
+					label="Query results"
+					options={checkboxOptions}
+					selectedOptions={selectedCheckboxOptions}
+					onChange={handleSetSelection}
+					maxSelections={limit}
+				/>
+				{eulerLayout &&
+					<FinePrint>
+						<i className="fa-solid fa-triangle-exclamation"></i>
+						Euler layout may not show all intersections, especially for large datasets.
+						Default layout limits itself automatically.
+					</FinePrint>
+				}
+			</VennDetailPanel>
+			<StyledVennFigure data-testid="VennFigure">
+				<VennPositionHandler>
+					{({ width, height }) => (
+						<>
+							{eulerLayout ? (
+								<LazyEulerVenn
+									sets={selectedSets}
+									combinations={combinations}
+									width={width}
+									height={height}
+									onClick={handleShapeClick}
+									onHover={setHoveredShape}
+									selection={hoveredShape || selectedShape}
+									exportButtons={false}
+									tooltips={true}
+									selectionColor={theme.colors.accent}
+									fontFamily={theme.fontFamily.body}
+								/>
+							) : (
 								// @ts-expect-error TS2786: VennDiagram cannot be used as a JSX component
-									<VennDiagram
-										sets={selectedSets}
-										combinations={combinations}
-										width={width}
-										height={height}
-										onClick={handleShapeClick}
-										onHover={setHoveredShape}
-										selection={hoveredShape || selectedShape}
-										exportButtons={false}
-										tooltips={true}
-										selectionColor={theme.colors.accent}
-										fontFamily={theme.fontFamily.body}
-									/>
-								)}
-							</>
-						)}
-					</VennPositionHandler>
-				</StyledVennFigure>
-				{selectedShape && <VennResultDetail data-testid="VennSelectionDetail" selection={selectedShape} onClose={handleDetailClose} />}
-				<VennDetailPanel data-testid="VennResults" defaultOpen="Query results">
-					<CheckboxGroup
-						label="Query results"
-						options={checkboxOptions}
-						selectedOptions={selectedCheckboxOptions}
-						onChange={handleSetSelection}
-						maxSelections={limit}
-					/>
-					{/*<VennResultList*/}
-					{/*	label="Diagram results"*/}
-					{/*	data={[...selectedSets, ...combinations]}*/}
-					{/*	onItemClick={handleResultClick}*/}
-					{/*/>*/}
-					{eulerLayout &&
-						<small>
-							<i className="fa-solid fa-triangle-exclamation"></i>
-							Euler layout may not show all intersections, especially for large datasets.
-							Default layout limits itself automatically.
-						</small>
-					}
-				</VennDetailPanel>
-			</StyledVennContent>
+								<VennDiagram
+									sets={selectedSets}
+									combinations={combinations}
+									width={width}
+									height={height}
+									onClick={handleShapeClick}
+									onHover={setHoveredShape}
+									selection={hoveredShape || selectedShape}
+									exportButtons={false}
+									tooltips={true}
+									selectionColor={theme.colors.accent}
+									fontFamily={theme.fontFamily.body}
+								/>
+							)}
+						</>
+					)}
+				</VennPositionHandler>
+			</StyledVennFigure>
+			<VennDetailPanel data-testid="VennDetailPanel">
+				{selectedShape && (
+					<VennResultDetail data-testid="VennSelectionDetail" selection={selectedShape} onClose={handleDetailClose} />
+				)}
+			</VennDetailPanel>
 		</StyledVenn>
 	) : null;
 };

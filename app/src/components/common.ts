@@ -2,11 +2,19 @@ import styled, { css } from 'styled-components';
 import { readableColor, shade, tint } from 'polished';
 import { breakpointUp } from '@doubleedesign/styled-media-queries';
 
+export const StyledProviderRoot = styled.div`
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+	min-width: 100vw;
+`;
+
 export const Container = styled.section<{ $stretch?: boolean }>`
 	width: 100%;
 	max-width: 1140px;
 	margin: 0 auto;
 	padding-inline: ${props => props.theme.spacing.sm};
+	box-sizing: border-box;
 	display: flex;
 	flex-direction: ${props => props.$stretch ? 'column' : 'row'};
 	container-name: layout-container;

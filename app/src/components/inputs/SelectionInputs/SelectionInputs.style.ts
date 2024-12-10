@@ -4,7 +4,7 @@ import { readableColor, tint } from 'polished';
 export const StyledSelectionInputs = styled.div`
 	display: flex;
 	flex-wrap: nowrap;
-	gap: ${props => props.theme.spacing.xs};
+	gap: ${props => props.theme.spacing.sm};
 	position: relative;
 	z-index: 9000;
 	
