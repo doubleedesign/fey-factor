@@ -26,7 +26,7 @@ export const GlobalHeader: FC<GlobalHeaderProps> = () => {
 	const { height: contentHeight } = useResizeObserver(ref, [isOpen], 1000);
 
 	useEffect(() => {
-		setIsOpen(location.pathname !== '/');
+		setIsOpen(location.pathname === '/');
 	}, [location]);
 
 	return (
