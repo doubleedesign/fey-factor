@@ -64,6 +64,7 @@ export type NetworkObject = {
 };
 
 export type VennSet = {
+	id: string;
 	name: string;
 	sets: string[];
 };

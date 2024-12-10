@@ -1,8 +1,10 @@
-import { FC, MouseEvent, useCallback } from 'react';
+import { FC, useState, useMemo, useCallback } from 'react';
 import { StyledVennResultDetail, StyledVennResultDetailHeader, StyledVennResultDetailBody } from './VennResultDetail.style';
 import { Heading, Label } from '../../../typography';
 import { CloseButton } from '../../../common.ts';
+import { ModalDialog } from '../../../layout/ModalDialog/ModalDialog.tsx';
 import Case from 'case';
+import { VennSet } from '../../../../types.ts';
 
 type VennResultDetailProps = {
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -11,36 +13,66 @@ type VennResultDetailProps = {
 };
 
 export const VennResultDetail: FC<VennResultDetailProps> = ({ selection, onClose }) => {
+	const [modalOpen, setModalOpen] = useState<boolean>(false);
+	const [modalPersonId, setModalPersonId] = useState<string>('');
 
-	const handleLinkClick = useCallback((event: MouseEvent<HTMLAnchorElement>) => {
-		event.preventDefault();
-		// TODO: Launch a modal
-		console.log(event.currentTarget.hash.replace('#', ''));
+	const title = useMemo(() => {
+		return selection.name.replace('(', '').replace(')', '');
+	}, [selection.name]);
+
+	const handleItemClick = useCallback((id: string) => {
+		setModalPersonId(id);
+		setModalOpen(true);
+	}, []);
+
+	const selectedPerson = useMemo(() => {
+		return selection.elems.find((elem: VennSet) => elem.id === modalPersonId);
+	}, [modalPersonId, selection.elems]);
+
+	const handleModalClose = useCallback(() => {
+		setModalOpen(false);
+		setModalPersonId('');
 	}, []);
 
 	return (
-		<StyledVennResultDetail data-testid="VennResultDetail">
-			<StyledVennResultDetailHeader>
-				<div>
-					<Label text={`Selected ${Case.title(selection.type)}`} type="subtler" />
-					<Heading level="h3">{selection.name.replace('(', '').replace(')', '')}</Heading>
-				</div>
-				<CloseButton onClick={onClose} aria-label="Close detail panel">
-					<i className="fa-light fa-xmark"></i>
-				</CloseButton>
-			</StyledVennResultDetailHeader>
-			<StyledVennResultDetailBody>
+		<>
+			<StyledVennResultDetail data-testid="VennResultDetail">
+				<StyledVennResultDetailHeader>
+					<div>
+						<Label text={`Selected ${Case.title(selection.type)}`} type="accent" />
+						<Heading level="h3">{title}</Heading>
+					</div>
+					<CloseButton onClick={onClose} aria-label="Close detail panel">
+						<i className="fa-light fa-xmark"></i>
+					</CloseButton>
+				</StyledVennResultDetailHeader>
+				<StyledVennResultDetailBody>
+					<ul>
+						{selection.elems.map((elem: VennSet) =>	(
+							<li key={elem.id}>
+								<button onClick={() => handleItemClick(elem.id)}>
+									{elem.name}
+								</button>
+							</li>
+						))}
+					</ul>
+				</StyledVennResultDetailBody>
+			</StyledVennResultDetail>
+			<ModalDialog
+				open={modalOpen}
+				title={<>
+					<Label type="subtle" text={title} /><br/>
+					<span>{selectedPerson?.name || ''}</span>
+				</>}
+				onClose={handleModalClose}
+				isList={false}
+			>
+				<p>Coming soon: This person's roles in these shows</p>
 				<p>
-					<strong>People: </strong>
-					{selection.elems
-					// @ts-expect-error TS7006: Parameter elem implicitly has an any type.
-						.map((elem) => {
-							return <a onClick={handleLinkClick} href={`#${elem.id}`}>{elem.name}</a>;
-						})
-					// @ts-expect-error TS7006: Parameter prev implicitly has an any type.
-						.reduce((prev, curr) => [prev, ', ', curr])}
+					<strong>Appearances in these results:</strong>&nbsp;
+					{selectedPerson?.sets.join(', ')}.
 				</p>
-			</StyledVennResultDetailBody>
-		</StyledVennResultDetail>
+			</ModalDialog>
+		</>
 	);
 };

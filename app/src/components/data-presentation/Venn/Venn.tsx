@@ -243,6 +243,10 @@ export const Venn: FC<VennProps> = ({ data }) => {
 				{selectedShape && (
 					<VennResultDetail data-testid="VennSelectionDetail" selection={selectedShape} onClose={handleDetailClose} />
 				)}
+				<FinePrint>
+					<i className="fa-solid fa-circle-info"></i>
+					An individual person's degree can account for <em>Saturday Night Live</em>, but SNL itself is excluded from these results.
+				</FinePrint>
 			</VennDetailPanel>
 		</StyledVenn>
 	) : null;

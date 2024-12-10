@@ -4,7 +4,7 @@ import { CloseButton, StyledButton, StyledButtonGroup } from '../../common.ts';
 
 type ModalDialogProps = {
 	open: boolean;
-	title: string;
+	title: string | ReactNode;
 	isList?: boolean;
 	batchSize?: number;
 	onClose?: () => void;

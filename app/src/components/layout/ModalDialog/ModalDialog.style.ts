@@ -1,6 +1,7 @@
 import styled, { css } from 'styled-components';
 import { transparentize } from 'polished';
 import { breakpointUp } from '@doubleedesign/styled-media-queries';
+import { StyledLabel } from '../../typography/Label/Label.style.ts';
 
 export const StyledModalDialogWrapper = styled.div<{ $open: boolean }>`
 	position: fixed;
@@ -23,6 +24,7 @@ export const StyledModalDialogWrapper = styled.div<{ $open: boolean }>`
 
 export const StyledModalDialog = styled.dialog`
 	background: ${props => props.theme.colors.background};
+	border: 0;
 	padding: ${props => props.theme.spacing.md};
 	box-sizing: border-box;
 	width: 100%;
@@ -46,6 +48,11 @@ export const StyledModalHeader = styled.header`
 	h2 {
 		font-size: ${props => props.theme.fontSizes.lg};
 		font-weight: ${props => props.theme.fontWeights.bold};
+	}
+	
+	${StyledLabel} {
+		margin-inline-start: 0;
+		margin-block-end: ${props => props.theme.spacing.xs};
 	}
 `;
 
