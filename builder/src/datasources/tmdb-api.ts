@@ -12,17 +12,31 @@ export class TmdbApi {
 	authToken: string;
 	baseUrl: string = 'https://api.themoviedb.org/3';
 	logFile: WriteStream;
-	defaultUseCached: boolean = true;
+	defaultUseCached: boolean;
 
-	constructor({ defaultUseCached }) {
+	constructor({ defaultUseCached = true }) {
 		this.authToken = process.env.TMDB_AUTH_TOKEN as string;
 		this.logFile = createWriteStream('./logs/tmdb-api.log');
 		this.defaultUseCached = defaultUseCached;
 	}
 
 	async checkConnection() {
-		const response = await this.makeFetchHappen(`${this.baseUrl}/authentication`, 'get');
-		return response.success;
+		try {
+			const response = await axios.request({
+				url: `${this.baseUrl}/authentication`,
+				method: 'get',
+				headers: {
+					'Authorization': `Bearer ${this.authToken}`
+				},
+			});
+
+			return response.status === 200;
+		}
+		catch (error) {
+			customConsole.error(`Error ${error.response.status}: ${error.response.statusText} for request to ${this.baseUrl}/authentication`);
+
+			return false;
+		}
 	}
 
 	setUseCached(useCached: boolean) {

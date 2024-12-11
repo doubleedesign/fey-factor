@@ -109,56 +109,59 @@ class TVPopulator extends DataPopulator implements DataPopulatorInterface {
 				const autoIncludedRoles: PersonRoleSummary[] = credit.roles.filter(role => {
 					return ['Creator', 'Executive Producer', 'Producer'].includes(role.name);
 				});
-				// We also want to include other roles an auto-included person had in the same show,
-				// but without processing the same role twice in terms of writing to the database
-				const otherRoles: PersonRoleSummary[] = _.omit(credit.roles, autoIncludedRoles.map(role => role.name));
+				// Get their other roles
+				const otherRoles: PersonRoleSummary[] = credit.roles.filter(role =>
+					!['Creator', 'Executive Producer', 'Producer'].includes(role.name)
+				);
 
 				if (autoIncludedRoles.length > 0) {
-					await this.addPersonAndWorkToDatabase({
-						person: {
-							id: personId,
-							degree: degree
-						},
-						work: {
-							id: credit.id,
-							name: credit.name,
-							episode_count: cachedEpisodeCount[credit.id] ?? 0
-						}
-					});
-
-					// Connect the person to the show with the appropriate role IDs for the auto-included roles
-					await async.eachOfSeries(autoIncludedRoles, async (role: PersonTVRoleSummary) => {
-						// Some roles have their own episode count, but others such as Creator do not
-						// and should inherit the show's episode count
-						let episodeCountToUse = Number(role?.episode_count) && role.episode_count;
-						// If the episode count to use is still undefined, it's probably the Creator role which should use the show's total
-						if (!episodeCountToUse) {
-							episodeCountToUse = cachedEpisodeCount;
-						}
-
-						await this.connect({
-							personId: personId,
-							workId: credit.id,
-							roleName: role.type === 'cast' ? 'cast' : role.name,
-							count: episodeCountToUse ?? 0
+						await this.addPersonAndWorkToDatabase({
+							person: {
+								id: personId,
+								degree: degree
+							},
+							work: {
+								id: credit.id,
+								name: credit.name,
+								episode_count: cachedEpisodeCount[credit.id] ?? 0
+							}
 						});
-					});
 
-					// Add their other roles to the db
-					if(otherRoles.length > 0) {
-						await async.eachOfSeries(otherRoles, async (role: PersonTVRoleSummary) => {
+						// Connect the person to the show with the appropriate role IDs for the auto-included roles
+						await async.eachOfSeries(autoIncludedRoles, async (role: PersonTVRoleSummary) => {
+							// Some roles have their own episode count, but others such as Creator do not
+							// and should inherit the show's episode count
+							let episodeCountToUse = Number(role?.episode_count) && role.episode_count;
+							// If the episode count to use is still undefined, it's probably the Creator role which should use the show's total
+							if (!episodeCountToUse) {
+								episodeCountToUse = cachedEpisodeCount;
+							}
+
 							await this.connect({
 								personId: personId,
 								workId: credit.id,
 								roleName: role.type === 'cast' ? 'cast' : role.name,
-								count: role.episode_count ?? 0
+								count: episodeCountToUse ?? 0
 							});
 						});
-					}
 
-					// Add the show ID to the array that this function returns for further processing
-					showIdsToReturn.push(credit.id);
+						// Add their other roles to the db
+						if(otherRoles.length > 0) {
+							await async.eachOfSeries(otherRoles, async (role: PersonTVRoleSummary) => {
+								await this.connect({
+									personId: personId,
+									workId: credit.id,
+									roleName: role.type === 'cast' ? 'cast' : role.name,
+									count: role.episode_count ?? 0
+								});
+							});
+						}
+
+						// Add the show ID to the array that this function returns for further processing
+						showIdsToReturn.push(credit.id);
+
 				}
+
 				// This person did not have auto-included roles for this credit/show, but may have multiple that add up to qualify
 				else {
 					const countFor = dataFuncs.doesCumulativeCreditCount(credit, cachedEpisodeCount);
