@@ -18,9 +18,5 @@ export const StyledVennResultAccordion = styled.div`
 				text-decoration-color: ${props => props.theme.colors.secondary} !important;
 			}
 		}
-
-		> div:has(fieldset) {
-			padding-bottom: 1rem;
-		}
 	}
 `;

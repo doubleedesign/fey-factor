@@ -9,9 +9,20 @@ type ExpandableProps = {
 	fetchesData?: boolean;
 	defaultOpen?: boolean;
 	appearance?: 'default' | 'shadow';
+	scrollable?: boolean; // Note: maxHeight also needs to be set
+	maxHeight?: number;
 };
 
-export const Expandable: FC<PropsWithChildren<ExpandableProps>> = ({ title, titleTag, fetchesData, defaultOpen, appearance = 'default', children }) => {
+export const Expandable: FC<PropsWithChildren<ExpandableProps>> = ({
+	title,
+	titleTag,
+	fetchesData,
+	defaultOpen,
+	appearance = 'default',
+	scrollable = false,
+	maxHeight = undefined,
+	children
+}) => {
 	const [isOpen, setIsOpen] = useState<boolean>(defaultOpen || false);
 	const labelRef = useRef<HTMLElement>(null);
 	const contentRef = useRef<HTMLDivElement>(null);
@@ -54,12 +65,22 @@ export const Expandable: FC<PropsWithChildren<ExpandableProps>> = ({ title, titl
 		}
 	}, []);
 
+	const getOpenHeight = useCallback(() => {
+		const calcHeight = (labelRef?.current?.scrollHeight ?? MIN_CLOSED_HEIGHT) + (contentRef?.current?.scrollHeight ?? 0) + 16;
+
+		if(maxHeight && calcHeight > maxHeight) {
+			return maxHeight + MIN_CLOSED_HEIGHT;
+		}
+
+		return calcHeight;
+	}, [maxHeight]);
+
 	return (
 		<StyledExpandable
 			data-testid="Expandable"
 			open={isOpen} 
 			$height={isOpen
-				? ((labelRef?.current?.scrollHeight ?? MIN_CLOSED_HEIGHT) + (contentRef?.current?.scrollHeight ?? 0))
+				? getOpenHeight()
 				: getClosedHeight()
 			}
 			onTransitionEnd={handleHeight}
@@ -73,7 +94,13 @@ export const Expandable: FC<PropsWithChildren<ExpandableProps>> = ({ title, titl
 				<span><SingleLineText text={title} /></span>
 				<div>{titleTag} <i className="fa-regular fa-plus"></i></div>
 			</StyledExpandableTitle>
-			<StyledExpandableContent data-testid="ExpandableContent" ref={contentRef} $height={fetchesData ? minHeight : 'auto'}>
+			<StyledExpandableContent
+				data-testid="ExpandableContent"
+				ref={contentRef}
+				$height={fetchesData ? minHeight : 'auto'}
+				$scrollable={scrollable}
+				$maxHeight={maxHeight}
+			>
 				{fetchesData ? (
 					<div ref={innerContentRef}>
 						{/** Only render children when expanded to prevent fetching of data before it's actually needed */}

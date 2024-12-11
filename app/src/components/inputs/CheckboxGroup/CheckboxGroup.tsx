@@ -1,6 +1,6 @@
 import { FC, useCallback, ChangeEvent } from 'react';
-import { StyledCheckboxGroup } from './CheckboxGroup.style';
 import { MultiSelectOption } from '../../../types.ts';
+import { StyledFieldset } from '../common.ts';
 
 type CheckboxGroupProps = {
 	label: string;
@@ -31,11 +31,11 @@ export const CheckboxGroup: FC<CheckboxGroupProps> = ({ label, options, selected
 	}, [selectedOptions, maxSelections, onChange]);
 
 	return (
-		<StyledCheckboxGroup data-testid="CheckboxGroup">
+		<StyledFieldset data-testid="CheckboxGroup">
 			<legend>{label}</legend>
 			{options.map((option, index) => (
 				renderInput(option, index)
 			))}
-		</StyledCheckboxGroup>
+		</StyledFieldset>
 	);
 };

@@ -1,6 +1,7 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { tint, transparentize } from 'polished';
 import { StyledTooltippedElement } from '../../typography/Tooltip/TooltippedElement.style.ts';
+import { styledScrollbar } from '../../mixins.ts';
 
 export const StyledExpandableTitle = styled.summary`
 	display: flex;
@@ -9,7 +10,7 @@ export const StyledExpandableTitle = styled.summary`
 	cursor: pointer;
 	overflow: visible; // For the tooltip when there is one
 	margin: 0;
-	
+
 	> span {
 		height: 100%;
 		display: flex;
@@ -52,16 +53,19 @@ export const StyledExpandableTitle = styled.summary`
 export const StyledExpandable = styled.details<{ $height?: number, $appearance: 'default' | 'shadow' }>`
 	line-height: 1.25;
 	transition: all 0.3s ease-in-out;
-	will-change: height;
+	will-change: height, max-height;
+	padding: ${props => props.$appearance === 'shadow' ? props.theme.spacing.sm : 0};
 	height: ${props => `${props.$height}px`};
 	max-height: ${props => `${props.$height}px`};
 	overflow: hidden;
-	padding: ${props => props.$appearance === 'shadow' ? props.theme.spacing.sm : 0};
 	box-sizing: border-box;
 	border-radius: ${props => props.$appearance === 'shadow' ? props.theme.spacing.xs : 0};
 	box-shadow: ${props => props.$appearance === 'shadow' ? `0 0 0.25rem 0 ${props.theme.colors.subtle}` : 'none'};
 	margin-block-end: ${props => props.$appearance === 'shadow' ? props.theme.spacing.sm : 0};
-	
+	position: relative;
+	z-index: 600;
+
+
 	&[open] {
 		${StyledExpandableTitle} {
 			> span {
@@ -84,6 +88,16 @@ export const StyledExpandable = styled.details<{ $height?: number, $appearance: 
 	}
 `;
 
-export const StyledExpandableContent = styled.div<{ $height: number | 'auto' }>`
+export const StyledExpandableContent = styled.div<{ $height: number | 'auto', $scrollable?: boolean, $maxHeight?: number }>`
 	height: ${props => props.$height === 'auto' ? 'auto' : `${props.$height}px`};
+	${({ $scrollable, $maxHeight, theme }) => {
+		return $scrollable && css`
+				overflow-y: auto;
+				${$maxHeight && `max-height: ${$maxHeight}px`};
+				${styledScrollbar({
+					trackColor: theme.colors.background,
+					alwaysVisible: false
+				})}
+			`;
+	}}
 `;

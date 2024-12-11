@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef, useState } from 'react';
+import { FC, useEffect, useRef, useState, useMemo } from 'react';
 import {
 	StyledGlobalHeader,
 	StyledMainMenu,
@@ -23,11 +23,16 @@ export const GlobalHeader: FC<GlobalHeaderProps> = () => {
 	const location = useLocation();
 	const [isOpen, setIsOpen] = useState<boolean>(true);
 	const ref = useRef<HTMLDivElement>(null);
-	const { height: contentHeight } = useResizeObserver(ref, [isOpen], 1000);
+	const { height: contentHeight } = useResizeObserver(ref, [isOpen], 1000, 'scroll');
+	const MIN_HEIGHT = 64;
 
 	useEffect(() => {
 		setIsOpen(location.pathname === '/');
 	}, [location]);
+
+	const height = useMemo(() => {
+		return Math.max(contentHeight, MIN_HEIGHT);
+	}, [contentHeight, MIN_HEIGHT]);
 
 	return (
 		<StyledGlobalHeader data-testid="GlobalHeader">
@@ -38,7 +43,7 @@ export const GlobalHeader: FC<GlobalHeaderProps> = () => {
 					</TooltippedElement>
 				</StyledGlobalHeaderToggleButton>
 			</StyledGlobalHeaderToggleWrapper>
-			<StyledGlobalHeaderContent ref={ref} $height={isOpen ? contentHeight : 0}>
+			<StyledGlobalHeaderContent ref={ref} $height={isOpen ? height : 0}>
 				<Container as="div">
 					<Heading level="h1">
 						<Link to={'/'}>

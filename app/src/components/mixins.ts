@@ -1,5 +1,7 @@
 import { css } from 'styled-components';
 import { ThemeColor } from '../types.ts';
+import theme from '../theme.ts';
+import { tint } from 'polished';
 
 const hoverTransitionSetup = css`
 	position: relative;
@@ -62,3 +64,28 @@ export const shutterOutVertical = (color: string) => css`
 		}
 	}
 `;
+
+export const styledScrollbar = ({
+	width = 'auto',
+	trackColor = tint(0.4, theme.colors.subtle),
+	thumbColor = theme.colors.subtle,
+	alwaysVisible = true
+} = {}) => {
+	if(alwaysVisible) {
+		return css`
+			scrollbar-width: ${width};
+			scrollbar-color: ${thumbColor} ${trackColor};
+		`;
+	}
+
+	return css`
+		scrollbar-width: ${width};
+		scrollbar-color: transparent transparent;
+		transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+		
+		&:hover, &:focus-within {
+			
+			scrollbar-color: ${thumbColor} ${trackColor};
+		}
+	`;
+};

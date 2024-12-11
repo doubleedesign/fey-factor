@@ -1,13 +1,12 @@
-import { FC, lazy, useState, useMemo, useCallback, useEffect, ChangeEvent } from 'react';
+import { FC, lazy, useState, useMemo, useCallback, useEffect, ChangeEvent, useRef } from 'react';
 import {
 	extractSets,
 	generateCombinations,
 	VennDiagram,
 	ISetLike,
-	ISets,
+	ISets, ISet, ISetIntersection
 } from '@upsetjs/react';
-import { Toggle } from '../../inputs/Toggle/Toggle.tsx';
-import { NumberPicker } from '../../inputs';
+import { NumberPicker, Toggle, CheckboxGroup, RadioGroup } from '../../inputs';
 import { FinePrint, TooltippedElement } from '../../typography';
 import theme from '../../../theme';
 import { lab, hsl } from 'd3-color';
@@ -15,11 +14,12 @@ import { saturate, tint } from 'polished';
 import { ThemeColor, VennSet } from '../../../types.ts';
 import { StyledVenn, StyledVennControls, StyledVennFigure } from './Venn.style';
 import { StyledSelectLabel } from '../../inputs/common.ts';
-import { VennDetailPanel } from './VennDetailPanel/VennDetailPanel.tsx';
+import { DetailPanel } from '../../layout/DetailPanel/DetailPanel.tsx';
 import { VennPositionHandler } from './VennPositionHandler/VennPositionHandler.tsx';
-import { CheckboxGroup } from '../../inputs/CheckboxGroup/CheckboxGroup.tsx';
 import snakeCase from 'lodash/snakeCase';
 import { VennResultDetail } from './VennResultDetail/VennResultDetail.tsx';
+import { VennResultAccordion } from './VennResultAccordion/VennResultAccordion.tsx';
+import { useResizeObserver } from '../../../hooks';
 
 type VennProps = {
 	data: VennSet[];
@@ -51,6 +51,10 @@ const LazyEulerVenn = lazy(() => {
 export const Venn: FC<VennProps> = ({ data }) => {
 	const [eulerLayout, setEulerLayout] = useState(true);
 	const [limit, setLimit] = useState(7);
+	const [selectedSets, setSelectedSets] = useState<ISets<VennSet>>([]);
+	const [selectedShape, setSelectedShape] = useState<ISetLike | null>(null);
+	const wrapperRef = useRef<HTMLDivElement>(null);
+	const { height } = useResizeObserver(wrapperRef, [], 300, 'scroll');
 
 	// Data handling
 	const rawSets = useMemo(() => {
@@ -65,9 +69,6 @@ export const Venn: FC<VennProps> = ({ data }) => {
 			});
 	}, [data]);
 
-	// Initially set the visible sets according to the chosen limit
-	const [selectedSets, setSelectedSets] = useState<ISets<VennSet>>([]);
-
 	// Handle change of limit from the number picker
 	const handleLimitChange = useCallback((value: number) => {
 		setLimit(value);
@@ -75,6 +76,7 @@ export const Venn: FC<VennProps> = ({ data }) => {
 		setSelectedShape(null); // close open detail panel when the data changes
 	}, [rawSets]);
 
+	// Update the selected sets when the data or limit changes from elsewhere
 	useEffect(() => {
 		handleLimitChange(limit);
 	}, [handleLimitChange, limit, rawSets]);
@@ -85,7 +87,7 @@ export const Venn: FC<VennProps> = ({ data }) => {
 	}, [selectedSets]);
 
 
-	// Handle the checkbox group
+	// Handle the checkbox group (enables customisation of the visible sets)
 	const checkboxOptions = useMemo(() => {
 		return rawSets.map(set => ({
 			value: snakeCase(set.name),
@@ -100,7 +102,6 @@ export const Venn: FC<VennProps> = ({ data }) => {
 		}));
 	}, [selectedSets]);
 
-	// Handle change of sets from the checkbox group
 	const handleSetSelection = useCallback((event: ChangeEvent <HTMLInputElement>) => {
 		const matchingSet = rawSets.find(set => snakeCase(set.name) === event.target.value);
 		if (!matchingSet) return;
@@ -113,25 +114,39 @@ export const Venn: FC<VennProps> = ({ data }) => {
 		}
 	}, [rawSets, selectedSets]);
 
-	// Diagram circle/intersection handling after render
-	const [selectedShape, setSelectedShape] = useState(null);
-	const [hoveredShape, setHoveredShape] = useState<ISetLike<VennSet> | null>(null);
 
-	// @ts-expect-error TS7006: Parameter selection implicitly has an any type
-	const handleShapeClick = useCallback((selection) => {
-		setSelectedShape(selection);
-	}, []);
+	// Handle the radio group (lists the visible sets and highlights on click)
+	const radioGroupOptions = useMemo(() => {
+		return combinations.map(set => ({
+			value: snakeCase(set.name),
+			label: set.name,
+		}));
+	}, [combinations]);
 
-	// TODO: Finish implementing result list
-	// @ts-expect-error TS7006: Parameter selection implicitly has an any type
-	const handleResultClick = useCallback((selection) => {
-		setSelectedShape(selection);
-	}, []);
+	const selectedRadioOption = useMemo(() => {
+		if(selectedShape?.name) {
+			return {
+				value: snakeCase(selectedShape.name),
+				label: selectedShape.name,
+			};
+		}
 
-	const handleDetailClose = useCallback(() => {
-		setSelectedShape(null);
-	}, []);
+		return null;
+	}, [selectedShape]);
 
+	const handleSetHighlight = useCallback((event: ChangeEvent<HTMLInputElement>) => {
+		if(!event.target.checked) {
+			setSelectedShape(null);
+		}
+		else {
+			setSelectedShape([...selectedSets, ...combinations].find(set => {
+				return snakeCase(set.name) === event.target.value;
+			}) as ISet | ISetIntersection || null);
+		}
+	}, [selectedSets, combinations]);
+
+
+	// Handle layout toggle
 	const handleLayoutToggle = useCallback((value: boolean) => {
 		// Somehow, the timeout makes sure the CSS transition works both ways
 		setTimeout(() => {
@@ -147,8 +162,8 @@ export const Venn: FC<VennProps> = ({ data }) => {
 	}, [eulerLayout]);
 
 	return selectedSets.length > 0 ? (
-		<StyledVenn data-testid="VennDiagram">
-			<VennDetailPanel data-testid="VennDetailPanel">
+		<StyledVenn data-testid="VennDiagram" ref={wrapperRef}>
+			<DetailPanel height={height}>
 				<StyledVennControls data-testid="VennControls">
 					<Toggle
 						label={
@@ -186,13 +201,21 @@ export const Venn: FC<VennProps> = ({ data }) => {
 						disabled={!eulerLayout}
 					/>
 				</StyledVennControls>
-				<CheckboxGroup
-					label="Query results"
-					options={checkboxOptions}
-					selectedOptions={selectedCheckboxOptions}
-					onChange={handleSetSelection}
-					maxSelections={limit}
-				/>
+				<VennResultAccordion defaultOpen="Query results" itemMaxHeight={480}>
+					<CheckboxGroup
+						label="Query results"
+						options={checkboxOptions}
+						selectedOptions={selectedCheckboxOptions}
+						onChange={handleSetSelection}
+						maxSelections={limit}
+					/>
+					<RadioGroup
+						label="Diagram results"
+						options={radioGroupOptions}
+						selectedOption={selectedRadioOption}
+						onChange={handleSetHighlight}
+					/>
+				</VennResultAccordion>
 				{eulerLayout &&
 					<FinePrint>
 						<i className="fa-solid fa-triangle-exclamation"></i>
@@ -200,7 +223,7 @@ export const Venn: FC<VennProps> = ({ data }) => {
 						Default layout limits itself automatically.
 					</FinePrint>
 				}
-			</VennDetailPanel>
+			</DetailPanel >
 			<StyledVennFigure data-testid="VennFigure">
 				<VennPositionHandler>
 					{({ width, height }) => (
@@ -211,9 +234,8 @@ export const Venn: FC<VennProps> = ({ data }) => {
 									combinations={combinations}
 									width={width}
 									height={height}
-									onClick={handleShapeClick}
-									onHover={setHoveredShape}
-									selection={hoveredShape || selectedShape}
+									onClick={setSelectedShape}
+									selection={selectedShape}
 									exportButtons={false}
 									tooltips={true}
 									selectionColor={theme.colors.accent}
@@ -226,9 +248,8 @@ export const Venn: FC<VennProps> = ({ data }) => {
 									combinations={combinations}
 									width={width}
 									height={height}
-									onClick={handleShapeClick}
-									onHover={setHoveredShape}
-									selection={hoveredShape || selectedShape}
+									onClick={setSelectedShape}
+									selection={selectedShape}
 									exportButtons={false}
 									tooltips={true}
 									selectionColor={theme.colors.accent}
@@ -239,15 +260,16 @@ export const Venn: FC<VennProps> = ({ data }) => {
 					)}
 				</VennPositionHandler>
 			</StyledVennFigure>
-			<VennDetailPanel data-testid="VennDetailPanel">
+			<DetailPanel height={height}>
 				{selectedShape && (
-					<VennResultDetail data-testid="VennSelectionDetail" selection={selectedShape} onClose={handleDetailClose} />
+					<VennResultDetail data-testid="VennSelectionDetail" selection={selectedShape} onClose={() => setSelectedShape(null)} />
 				)}
 				<FinePrint>
 					<i className="fa-solid fa-circle-info"></i>
-					An individual person's degree can account for <em>Saturday Night Live</em>, but SNL itself is excluded from these results.
+					{/* eslint-disable-next-line max-len */}
+					An individual person's degree includes appearances in <em>Saturday Night Live</em> while Tina Fey was involved, but SNL itself is excluded from these results.
 				</FinePrint>
-			</VennDetailPanel>
+			</DetailPanel>
 		</StyledVenn>
 	) : null;
 };

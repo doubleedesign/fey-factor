@@ -1,11 +1,9 @@
 import styled from 'styled-components';
 
-export const StyledVennPositionHandler = styled.div<{ $transform?: string }>`
-	${({ $transform }) => $transform ? `transform: ${$transform};` : ''}
-	transition: transform 0.3s;
+export const StyledVennPositionHandler = styled.div`
 	overflow: visible;
-	height: 100%;
 	width: 100%;
+	height: 100%;
 	position: relative;
 	
 	svg {
@@ -15,5 +13,8 @@ export const StyledVennPositionHandler = styled.div<{ $transform?: string }>`
 
 export const StyledVennPositionContent = styled.div`
 	position: absolute;
-	inset: 0 0 0 0;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;s
 `;

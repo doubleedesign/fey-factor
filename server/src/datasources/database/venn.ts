@@ -6,87 +6,57 @@ export class DbVenn {
 	}
 
 	/**
-     * Initially filter shows to include in the Venn diagram because otherwise it's too complex to render
-     * @param maxAverageDegree - maximum average degree of the people involved the show
-     * @param minConnections - minimum total number of connections a show needs to be included
-     *
-     * @return {Promise<string[]>} - IDs of the shows meeting the criteria
-     */
-	async getShowsToInclude({ maxAverageDegree, minConnections, roleIds }): Promise<string[]> {
-		try {
-			const response = await this.pgClient.query({
-				text: `
-                    WITH initial_data AS (
-                         SELECT tv_shows.id AS show_id,
-                                ROUND(AVG(people.degree), 2)::DECIMAL(10, 2) AS average_degree,
-                                COUNT(connections.person_id) AS total_connections
-                             FROM
-                                 tv_shows
-                                     LEFT JOIN
-                                     connections ON tv_shows.id = connections.work_id
-                                     LEFT JOIN
-                                     people ON connections.person_id = people.id
-                             WHERE
-                                 tv_shows.id NOT LIKE '1667_T' -- exclude SNL TODO: Make this a front-end option
-                             	AND connections.role_id = ANY ($3)
-                             GROUP BY
-                                 tv_shows.id
-                         )
-                    SELECT show_id
-                        FROM
-                            initial_data
-                        WHERE
-                              average_degree <= $1
-                          AND total_connections >= $2
-                        ORDER BY
-                            total_connections DESC;
-
-                `,
-				values: [maxAverageDegree, minConnections, roleIds]
-			});
-
-			return response.rows.map((row) => row.show_id);
-		}
-		catch (error) {
-			console.error(error);
-
-			return null;
-		}
-	}
-
-
-	/**
-	 * Get the people and the set of TV shows they have worked on
-	 * limited by the given criteria
+	 * Get people and their shows in a single query, filtering shows based on criteria
+	 * and only including people who worked in the specified roles
 	 */
 	async getPeopleAndTheirShows({ maxAverageDegree, minConnections, roleIds }): Promise<VennDiagramSet[]> {
-		const showIds = await this.getShowsToInclude({ maxAverageDegree, minConnections, roleIds });
-
 		try {
 			const response = await this.pgClient.query({
 				text: `
-                    SELECT
-                        p.name AS name,
-                        p.id AS id,
-                        ARRAY_AGG(DISTINCT ts.title ORDER BY ts.title) AS sets
-                        FROM
-                            people p
-                                JOIN
-                                connections c ON p.id = c.person_id
-                                JOIN
-                                tv_shows ts ON c.work_id = ts.id
-                        WHERE
-                            ts.id = ANY ($1::text[])
-                
+                    WITH eligible_shows AS (
+                        -- First identify shows meeting the degree and connection criteria
+                        SELECT tv_shows.id AS show_id,
+                               tv_shows.title
+                            FROM
+                                tv_shows
+                                    JOIN connections c ON tv_shows.id = c.work_id
+                                    JOIN people p ON c.person_id = p.id
+                            WHERE
+                                  tv_shows.id NOT LIKE '1667_T' -- exclude SNL
+                              AND c.role_id = ANY ($3)
+                            GROUP BY
+                                tv_shows.id,
+                                tv_shows.title
+                            HAVING
+                                  ROUND(AVG(p.degree), 2) <= $1
+                              AND COUNT(DISTINCT c.person_id) >= $2
+                        ),
+                         -- Then get all people and their shows, but only for eligible shows
+                         person_shows   AS (
+                        SELECT p.id,
+                               p.name,
+                               es.title
+                            FROM
+                                people p
+                                    JOIN connections c ON p.id = c.person_id
+                                    JOIN eligible_shows es ON c.work_id = es.show_id
+                            WHERE
+                                c.role_id = ANY ($3)
+                        )
+                    SELECT id,
+                           name,
+                           ARRAY_AGG(DISTINCT title ORDER BY title) AS sets
+                        FROM person_shows
                         GROUP BY
-                            p.id, p.name
+                            id,
+                            name
                         HAVING
-                            COUNT(DISTINCT ts.title) > 1 -- Filter out sets with only one show
+                            COUNT(DISTINCT title) > 1
                         ORDER BY
-                            array_length(ARRAY_AGG(DISTINCT ts.title), 1) DESC, -- Order by set size descending
-                            p.name; -- then by name
+                            ARRAY_LENGTH(ARRAY_AGG(DISTINCT title), 1) DESC,
+                            name
 				`,
-				values: [showIds]
+				values: [maxAverageDegree, minConnections, roleIds]
 			});
 
 			return response.rows;

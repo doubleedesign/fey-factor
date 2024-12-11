@@ -5,9 +5,10 @@ import { Expandable } from '../../../layout';
 
 type VennResultAccordionProps = PropsWithChildren & {
 	defaultOpen?: string;
+	itemMaxHeight?: number;
 };
 
-export const VennResultAccordion: FC<VennResultAccordionProps> = ({ defaultOpen, children }) => {
+export const VennResultAccordion: FC<VennResultAccordionProps> = ({ defaultOpen, itemMaxHeight, children }) => {
 	const childrenWithLabels = Children.toArray(children).filter((child) => {
 		// @ts-ignore
 		return child?.props?.label;
@@ -22,7 +23,15 @@ export const VennResultAccordion: FC<VennResultAccordionProps> = ({ defaultOpen,
 				const label = child?.props?.label;
 
 				return (
-					<Expandable key={label} title={label} fetchesData={false} defaultOpen={label === defaultOpen} appearance="shadow">
+					<Expandable
+						key={label}
+						title={label}
+						fetchesData={false}
+						defaultOpen={label === defaultOpen}
+						appearance="shadow"
+						scrollable={true}
+						maxHeight={itemMaxHeight}
+					>
 						{child}
 					</Expandable>
 				);

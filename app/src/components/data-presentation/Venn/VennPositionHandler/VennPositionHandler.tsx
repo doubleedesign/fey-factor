@@ -1,4 +1,4 @@
-import { FC, useRef, ReactElement } from 'react';
+import { FC, ReactElement, useRef, useState, useEffect } from 'react';
 import { StyledVennPositionContent, StyledVennPositionHandler } from './VennPositionHandler.style';
 import { useResizeObserver } from '../../../../hooks';
 
@@ -13,7 +13,20 @@ type VennPositionHandlerProps = {
 
 export const VennPositionHandler: FC<VennPositionHandlerProps> = ({ children }) => {
 	const ref = useRef<HTMLDivElement>(null);
-	const { width, height } = useResizeObserver(ref, [ref.current], 300, true);
+	const [stableDimensions, setStableDimensions] = useState<Dimensions>({ width: 0, height: 0 });
+	const { width, height } = useResizeObserver(ref, [ref.current], 300, 'contentRect');
+
+	// Only update dimensions when there's a significant change
+	// (arbitrary threshold to help prevent unnecessary re-renders)
+	useEffect(() => {
+		const THRESHOLD = 100;
+		if (
+			Math.abs(width - stableDimensions.width) > THRESHOLD ||
+			Math.abs(height - stableDimensions.height) > THRESHOLD
+		) {
+			setStableDimensions({ width, height });
+		}
+	}, [width, height, stableDimensions]);
 
 	return (
 		<StyledVennPositionHandler
@@ -21,8 +34,9 @@ export const VennPositionHandler: FC<VennPositionHandlerProps> = ({ children }) 
 			ref={ref}
 		>
 			<StyledVennPositionContent>
-				{/** @ts-expect-error TS2349: This expression is not callable. Not all constituents of type 'ReactElement' are callable. */}
-				{children({ width, height })}
+				{typeof children === 'function'
+					? children(stableDimensions)
+					: children}
 			</StyledVennPositionContent>
 		</StyledVennPositionHandler>
 	);
