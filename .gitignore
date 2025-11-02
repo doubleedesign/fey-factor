@@ -4,3 +4,4 @@ logs
 coverage
 .idea/dataSources
 builder/src/datasources/cache/
+copilot*

@@ -29,6 +29,20 @@ export const VennResultDetail: FC<VennResultDetailProps> = ({ selection, onClose
 		return selection.elems.find((elem: VennSet) => elem.id === modalPersonId);
 	}, [modalPersonId, selection.elems]);
 
+	const consolitatedElems = useMemo(() => {
+		return selection.elems.reduce((acc: (VennSet & { instances: number })[], elem: VennSet) => {
+			if (!acc.find((e) => e.id === elem.id)) {
+				acc.push({
+					...elem,
+					instances: selection.elems.filter((e: VennSet) => e.id === elem.id).length
+				});
+			}
+
+			return acc;
+		}, [] as (VennSet & { instances: number })[]);
+
+	}, [selection.elems]);
+
 	const handleModalClose = useCallback(() => {
 		setModalOpen(false);
 		setModalPersonId('');
@@ -48,10 +62,10 @@ export const VennResultDetail: FC<VennResultDetailProps> = ({ selection, onClose
 				</StyledVennResultDetailHeader>
 				<StyledVennResultDetailBody>
 					<ul>
-						{selection.elems.map((elem: VennSet) =>	(
+						{consolitatedElems.map((elem: VennSet & { instances?: number }) =>	(
 							<li key={elem.id}>
 								<button onClick={() => handleItemClick(elem.id)}>
-									{elem.name}
+									{elem.name} {elem?.instances && elem.instances > 1 ? `(x ${elem?.instances} roles)` : ''}
 								</button>
 							</li>
 						))}

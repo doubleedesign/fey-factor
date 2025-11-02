@@ -196,7 +196,7 @@ export const Venn: FC<VennProps> = ({ data }) => {
 						}
 						value={limit}
 						defaultValue={7}
-						options={[3, 5, 7]}
+						options={[3, 5, 7, 10]}
 						onChange={handleLimitChange}
 						disabled={!eulerLayout}
 					/>
