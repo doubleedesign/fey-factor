@@ -1,7 +1,7 @@
 import pg from 'pg';
 import chalk from 'chalk';
 import { Film, Person, TvShow } from './types.ts';
-import { convertIdToInteger, convertIdToString, customConsole, logToFile } from '../common.ts';
+import { convertIdToInteger, convertIdToString, createFileIfNotExists, customConsole, logToFile } from '../common.ts';
 import { WriteStream, createWriteStream } from 'fs';
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -25,7 +25,15 @@ export class DatabaseConnection {
 			...baseConfig,
 			database: this.dbName
 		});
-		this.logFile = createWriteStream('./logs/database.log');
+
+		this.maybeCreateLogFile().then(() => {
+			this.logFile = createWriteStream('./logs/database.log');
+		});
+
+	}
+
+	async maybeCreateLogFile() {
+		await createFileIfNotExists('./logs/database.log');
 	}
 
 	/**

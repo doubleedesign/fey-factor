@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { existsSync, mkdirSync, writeFileSync, readFileSync, unlinkSync, createWriteStream, WriteStream } from 'fs';
 import * as dotenv from 'dotenv';
-import { customConsole, logToFile, wait } from '../common.ts';
+import { createFileIfNotExists, customConsole, logToFile, wait } from '../common.ts';
 
 dotenv.config();
 
@@ -16,8 +16,14 @@ export class TmdbApi {
 
 	constructor({ defaultUseCached = true }) {
 		this.authToken = process.env.TMDB_AUTH_TOKEN as string;
-		this.logFile = createWriteStream('./logs/tmdb-api.log');
-		this.defaultUseCached = defaultUseCached;
+		this.maybeCreateLogFile().then(() => {
+			this.logFile = createWriteStream('./logs/tmdb-api.log');
+			this.defaultUseCached = defaultUseCached;
+		});
+	}
+
+	async maybeCreateLogFile() {
+		await createFileIfNotExists('./logs/tmdb-api.log');
 	}
 
 	async checkConnection() {
