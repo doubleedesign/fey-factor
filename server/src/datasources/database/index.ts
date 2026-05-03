@@ -7,7 +7,6 @@ import { DbNetwork } from './network';
 import { DbVenn } from './venn';
 
 const baseConfig = {
-	// Can use 'localhost' if using WSL1, but this will not work on WSL2 - need to do some IP magic.
 	host: 'localhost',
 	port: 5432,
 	user: 'postgres',
@@ -44,6 +43,10 @@ export class DatabaseConnection extends BaseConnection {
 		this.roles = new DbRoles(this.pgClient);
 		this.network = new DbNetwork(this.pgClient);
 		this.venn = new DbVenn(this.pgClient);
+	}
+
+	checkConnection() {
+		return this.pgClient.query('SELECT NOW()');
 	}
 
 	/**

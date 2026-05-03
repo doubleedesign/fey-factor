@@ -5,6 +5,16 @@ import { readFileSync } from 'fs';
 import gql from 'graphql-tag';
 import chalk from 'chalk';
 import resolvers from './resolvers';
+import { DatabaseConnection } from './datasources/database';
+
+// Check database connection
+const db = new DatabaseConnection();
+db.checkConnection().then(() => {
+	console.log(chalk.green('Database connection successful'));
+}).catch(err => {
+	console.error(chalk.red('Database connection failed:', err));
+	process.exit(1);
+});
 
 const schema = createSchema({
 	typeDefs: gql`
