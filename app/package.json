@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "npm run relay && vite",
-		"merge-schema": "cat ../server/src/generated/queryType.graphql ../server/src/generated/typeDefs.graphql > ./src/schema.graphql",
+		"merge-schema": "pwsh -Command \"Get-Content ../server/src/generated/queryType.graphql, ../server/src/generated/typeDefs.graphql | Set-Content ./src/schema.graphql\"",
 		"relay": "npm run merge-schema && relay-compiler",
 		"build": "tsc -b && vite build",
 		"lint": "eslint .",
