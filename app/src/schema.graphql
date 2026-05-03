@@ -14,7 +14,8 @@ type Query {
 	VennDiagram(maxAverageDegree: Float, minConnections: Int, roleIds: [Int]): VennDiagram
 	Work(id: ID!): Work
 	Works(ids: [ID], limit: Int): [Work]
-}input WorkFilter {
+}
+input WorkFilter {
 	type: String
 }
 input ProviderFilter {

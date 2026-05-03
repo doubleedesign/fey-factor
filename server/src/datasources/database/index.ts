@@ -10,7 +10,7 @@ const baseConfig = {
 	host: 'localhost',
 	port: 5432,
 	user: 'postgres',
-	password: 'root'
+	password: 'WFn96rw9$kNvmQbD'
 };
 
 // Base class for the connection
