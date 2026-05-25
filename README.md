@@ -2,6 +2,12 @@
 
 A funsies project inspired by [Six Degrees of Kevin Bacon](https://en.wikipedia.org/wiki/Six_Degrees_of_Kevin_Bacon) but for finding and assessing live-action, scripted American[^1] comedies based on their proximity and strength of connections to Tina Fey[^2].
 
+## Background
+
+My partner and I are frequently looking for new (to us) TV comedies to watch. Trying to choose from streaming services often left us paralysed by choice, and of those shows we did like we started noticing a pattern of the faces and names that were becoming more familiar, especially those appearing together. He started proposing certain shows based on "a promising Venn diagram" or describing a show as "Feyjacent". I started developing a vague hypothesis that “All good American TV comedy made in the last X years exists within Y degrees of Tina Fey”[^3] (actual numbers to be decided), and also thought, what if I could build the Venn diagram?[^4]
+
+## Implementation
+
 The project is made up of three parts:
 
 | Step/layer         | Summary                                                                                                                                               | Docs                                       |
@@ -13,7 +19,10 @@ The project is made up of three parts:
 Please see the README for each individual layer for more information about the tools and libraries used.
 
 [^1]: Currently only TV shows are filtered by origin country, not movies.
-[^2]: It can actually be run with anyone as your start person, you just need their TMDB ID. You may also need to adjust the code, e.g., I am planning an Australian drama version for which I will need to adjust the country filter.
+[^2]: It can actually be run with anyone as your start person, you just need their TMDB ID. You may also need to adjust the code because of some of the arbitrary values I've selected and bits that might not be relevant to your use case (e.g., special handling for _Saturday Night Live_, filtering by production country).
+[^3]: I am prepared to concede that the true centre of the Venn diagram may actually be Michael Schur.
+[^4]: We've ended up using the list more than the actual diagram for choosing shows, but a version of the diagram is available. It is somewhat limited due to the complexity of the data and limitations of the graphing library I used, but it is fun to look at!
+
 
 ---
 
