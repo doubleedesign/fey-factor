@@ -5,8 +5,11 @@
 	"type": "module",
 	"scripts": {
 		"dev": "npm run relay && vite",
+		"dev:bash": "npm run relay:bash && vite",
 		"merge-schema": "pwsh -Command \"Get-Content ../server/src/generated/queryType.graphql, ../server/src/generated/typeDefs.graphql | Set-Content ./src/schema.graphql\"",
+		"merge-schema:bash": "cat ../server/src/generated/queryType.graphql ../server/src/generated/typeDefs.graphql > ./src/schema.graphql",
 		"relay": "npm run merge-schema && relay-compiler",
+		"relay:bash": "npm run merge-schema:bash && relay-compiler",
 		"build": "tsc -b && vite build",
 		"lint": "eslint .",
 		"preview": "vite preview"

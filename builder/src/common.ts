@@ -21,7 +21,7 @@ export const EXCLUDED_GENRE_IDS = [
 	28, // action film
 ];
 
-export const START_YEAR = new Date().getFullYear() - 20;
+export const START_YEAR = new Date().getFullYear() - 25;
 
 export function convertIdToInteger(id: string) {
 	return parseInt(id.replace('_T', '').replace('_F', ''));

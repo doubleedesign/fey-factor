@@ -13,14 +13,23 @@ The Venn diagram is made possible by [UpSet.js](https://upset.js.org/docs/gettin
 ---
 ## Running locally
 
+Grab a [TMDB API key](https://www.themoviedb.org/settings/api) and put it in `./app/.env` as `VITE_TMDB_API_KEY`.
+
 Install dependencies:
-```bash
+```powershell
 npm install
 ```
 
 Combine the generated schema from the server, run the Relay compiler, and run the Vite dev server in one step with:
-```bash
+
+For Windows (PowerShell):
+```powershell
 npm run dev
+```
+
+For Mac/Linux:
+```bash
+npm run dev:bash
 ```
 
 ---

@@ -19,17 +19,17 @@ The inclusion criteria are basic, so this should be considered a beta proof-of-c
 
 ---
 ## Setup
-```bash
+```powershell
 cd builder
 npm install
 ```
 - Postgres settings in `src/database/DatabaseConnection.ts``
-- TMDB API key as `TMDB_AUTH_TOKEN` in `.env`.
+- TMDB auth token as `TMDB_AUTH_TOKEN` in `.env` ([TMDB API settings](https://www.themoviedb.org/settings/api))
 
 ---
 ## Usage
 Ensure Postgres is running, and then run the interactive console script:
-```bash
+```powershell
 npm run start
 ```
 For first run, arrow down to the "danger zone" and choose the "Initialise empty database" option. After that, the prompts are designed to be fairly self-explanatory and show the intended order of data population steps.
