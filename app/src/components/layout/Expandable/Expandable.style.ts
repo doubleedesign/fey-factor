@@ -57,7 +57,7 @@ export const StyledExpandable = styled.details<{ $height?: number, $appearance: 
 	padding: ${props => props.$appearance === 'shadow' ? props.theme.spacing.sm : 0};
 	height: ${props => `${props.$height}px`};
 	max-height: ${props => `${props.$height}px`};
-	overflow: hidden;
+	overflow: visible;
 	box-sizing: border-box;
 	border-radius: ${props => props.$appearance === 'shadow' ? props.theme.spacing.xs : 0};
 	box-shadow: ${props => props.$appearance === 'shadow' ? `0 0 0.25rem 0 ${props.theme.colors.subtle}` : 'none'};

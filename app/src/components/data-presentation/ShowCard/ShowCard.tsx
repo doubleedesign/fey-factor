@@ -56,24 +56,24 @@ export const ShowCard = ({ id, expandable }: ShowCardProps) => {
 
 	let tag = null;
 	if(degree0.length > 0) {
-		tag = <TooltippedElement id={`feyjacent-tooltip-${data?.TvShow?.id}`} tooltip="This is a Tina Fey production" position="bottom">
+		tag = <TooltippedElement id={`feyjacent-tooltip-${data?.TvShow?.id}`} tooltip="This is a Tina Fey production" position="left">
 			<Label text="It's Fey day" type="success"/>
 		</TooltippedElement>;
 	}
 	else if(degreeOne.length > 4) {
-		tag = <TooltippedElement id={`feyjacent-tooltip-${data?.TvShow?.id}`} tooltip={`${degreeOne.length} first-degree connections`} position="bottom">
+		tag = <TooltippedElement id={`feyjacent-tooltip-${data?.TvShow?.id}`} tooltip={`${degreeOne.length} first-degree connections`} position="left">
 			<Label text="Highly Feyjacent" type="accent" />
 		</TooltippedElement>;
 	}
 	else if(degreeOne.length > 2 && degreeTwo.length > 10) {
 		// eslint-disable-next-line max-len
-		tag = <TooltippedElement id={`feyjacent-tooltip-${data?.TvShow?.id}`} tooltip={`${degreeOne.length} first-degree and ${degreeTwo.length} second-degree connections`} position="bottom">
+		tag = <TooltippedElement id={`feyjacent-tooltip-${data?.TvShow?.id}`} tooltip={`${degreeOne.length} first-degree and ${degreeTwo.length} second-degree connections`} position="left">
 			<Label text="Pretty Feyjacent" type="subtle" />
 		</TooltippedElement>;
 	}
 	else if(degreeOne.length > 0 && degreeTwo.length > 4) {
 		// eslint-disable-next-line max-len
-		tag = <TooltippedElement id={`feyjacent-tooltip-${data?.TvShow?.id}`} tooltip={`${degreeOne.length} first-degree and ${degreeTwo.length} second-degree connections`} position="bottom">
+		tag = <TooltippedElement id={`feyjacent-tooltip-${data?.TvShow?.id}`} tooltip={`${degreeOne.length} first-degree and ${degreeTwo.length} second-degree connections`} position="left">
 			<Label text="Somewhat Feyjacent" type="subtler" />
 		</TooltippedElement>;
 	}
