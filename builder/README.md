@@ -15,7 +15,7 @@ The inclusion criteria are basic, so this should be considered a beta proof-of-c
 ## Prerequisites
 - [Node](https://nodejs.org)
 - Postgres database server (the database itself is created by the script)
-- [TMDB API key](https://developer.themoviedb.org/docs/getting-started)
+- [TMDB auth token](https://developer.themoviedb.org/docs/getting-started)
 
 ---
 ## Setup
@@ -24,7 +24,7 @@ cd builder
 npm install
 ```
 - Postgres settings in `src/database/DatabaseConnection.ts``
-- TMDB auth token as `TMDB_AUTH_TOKEN` in `.env` ([TMDB API settings](https://www.themoviedb.org/settings/api))
+- [TMDB auth token](https://www.themoviedb.org/settings/api) as `TMDB_AUTH_TOKEN` in `.env`
 
 ---
 ## Usage

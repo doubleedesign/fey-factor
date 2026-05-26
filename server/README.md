@@ -12,6 +12,8 @@ The back-end is a GraphQL server built with [Yoga](https://the-guild.dev/graphql
 ---
 ## Running locally
 
+Grab a [TMDB auth token](https://www.themoviedb.org/settings/api) and put it in `./server/.env` as `TMDB_AUTH_TOKEN`.
+
 Install dependencies:
 ```bash
 npm install
