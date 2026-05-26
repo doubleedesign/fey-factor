@@ -2,6 +2,10 @@
 
 A funsies project inspired by [Six Degrees of Kevin Bacon](https://en.wikipedia.org/wiki/Six_Degrees_of_Kevin_Bacon) but for finding and assessing live-action, scripted American[^1] comedies based on their proximity and strength of connections to Tina Fey[^2].
 
+![ranking-table.png](ranking-table.png)
+
+![venn-diagram.png](venn-diagram.png)
+
 ## Background
 
 My partner and I are frequently looking for new (to us) TV comedies to watch. Trying to choose from streaming services often left us paralysed by choice, and of those shows we did like we started noticing a pattern of the faces and names that were becoming more familiar, especially those appearing together. He started proposing certain shows based on "a promising Venn diagram" or describing a show as "Feyjacent". I started developing a vague hypothesis that “All the best American TV comedy made in the last 25 years exists within 2 degrees of Tina Fey”[^3], and also thought, what if I could build the Venn diagram?[^4]
