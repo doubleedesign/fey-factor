@@ -6,7 +6,7 @@ import upperFirst from 'lodash/upperFirst';
 import camelCase from 'lodash/camelCase';
 import { Inflectors } from 'en-inflectors';
 import snakeCase from 'lodash/snakeCase';
-import typeObjects from '../src/generated/typeObjects.json' assert { type: 'json' };
+import typeObjects from '../src/generated/typeObjects.json' with { type: 'json' };
 
 export type TypeObject = {
 	fields: { fieldName: string, fieldType: any, required: boolean }[];

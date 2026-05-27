@@ -1,7 +1,6 @@
 /**
- * @generated SignedSource<<08ca59ff7b704a3630153a874da6897a>>
+ * @generated SignedSource<<a18b9d2b1a6010a6240224a40dab7864>>
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* tslint:disable */
@@ -87,8 +86,8 @@ v4 = [
     "name": "Node",
     "plural": false,
     "selections": [
-      (v1/*: any*/),
-      (v2/*: any*/),
+      (v1/*:: as any*/),
+      (v2/*:: as any*/),
       {
         "alias": null,
         "args": null,
@@ -97,8 +96,8 @@ v4 = [
         "name": "edges",
         "plural": true,
         "selections": [
-          (v1/*: any*/),
-          (v3/*: any*/),
+          (v1/*:: as any*/),
+          (v3/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -107,8 +106,8 @@ v4 = [
             "name": "nodes",
             "plural": true,
             "selections": [
-              (v1/*: any*/),
-              (v2/*: any*/),
+              (v1/*:: as any*/),
+              (v2/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -117,8 +116,8 @@ v4 = [
                 "name": "edges",
                 "plural": true,
                 "selections": [
-                  (v1/*: any*/),
-                  (v3/*: any*/),
+                  (v1/*:: as any*/),
+                  (v3/*:: as any*/),
                   {
                     "alias": null,
                     "args": null,
@@ -127,8 +126,8 @@ v4 = [
                     "name": "nodes",
                     "plural": true,
                     "selections": [
-                      (v1/*: any*/),
-                      (v2/*: any*/),
+                      (v1/*:: as any*/),
+                      (v2/*:: as any*/),
                       {
                         "alias": null,
                         "args": null,
@@ -137,8 +136,8 @@ v4 = [
                         "name": "edges",
                         "plural": true,
                         "selections": [
-                          (v1/*: any*/),
-                          (v3/*: any*/)
+                          (v1/*:: as any*/),
+                          (v3/*:: as any*/)
                         ],
                         "storageKey": null
                       }
@@ -160,20 +159,20 @@ v4 = [
 ];
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "NetworkDiagramQuery",
-    "selections": (v4/*: any*/),
+    "selections": (v4/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "NetworkDiagramQuery",
-    "selections": (v4/*: any*/)
+    "selections": (v4/*:: as any*/)
   },
   "params": {
     "cacheID": "7d13ff84df9e6239250d0d79e20122c9",

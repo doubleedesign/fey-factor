@@ -5,7 +5,7 @@ export class DbConnectionEntities {
 	constructor(private pgClient: pg.Pool) {
 	}
 
-	async getPersonForConnection(id: number): Promise<Person> {
+	async getPersonForConnection(id: number): Promise<Person|null> {
 		try {
 			const response = await this.pgClient.query({
 				text: 'SELECT * FROM people WHERE id = (SELECT person_id FROM connections WHERE id = $1)',
@@ -21,7 +21,7 @@ export class DbConnectionEntities {
 		}
 	}
 
-	async getWorkForConnection(id: number): Promise<Work> {
+	async getWorkForConnection(id: number): Promise<Work|null> {
 		try {
 			const response = await this.pgClient.query({
 				text: 'SELECT * FROM works WHERE id = (SELECT work_id FROM connections WHERE id = $1)',
@@ -37,7 +37,7 @@ export class DbConnectionEntities {
 		}
 	}
 
-	async getRoleForConnection(id: number): Promise<Role> {
+	async getRoleForConnection(id: number): Promise<Role|null> {
 		try {
 			const response = await this.pgClient.query({
 				text: 'SELECT * FROM roles WHERE id = (SELECT role_id FROM connections WHERE id = $1)',

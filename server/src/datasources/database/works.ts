@@ -7,7 +7,7 @@ export class DbWorks {
 	constructor(private pgClient: pg.Pool) {
 	}
 
-	async getTvShow(id: number): Promise<TvShow> {
+	async getTvShow(id: number): Promise<TvShow|null> {
 		try {
 			const response = await this.pgClient.query({
 				text: `SELECT tv_shows.id,
@@ -54,11 +54,11 @@ export class DbWorks {
 		catch (error) {
 			console.error(error);
 
-			return null;
+			return [];
 		}
 	}
 
-	async getMovie(id: number): Promise<Movie> {
+	async getMovie(id: number): Promise<Movie|null> {
 		try {
 			const response = await this.pgClient.query({
 				text: 'SELECT * FROM movies WHERE id = $1',
@@ -92,7 +92,7 @@ export class DbWorks {
 		catch (error) {
 			console.error(error);
 
-			return null;
+			return [];
 		}
 	}
 
@@ -159,7 +159,7 @@ export class DbWorks {
 		catch (error) {
 			console.error(error);
 
-			return null;
+			return [];
 		}
 	}
 
@@ -175,7 +175,7 @@ export class DbWorks {
 		catch (error) {
 			console.error(error);
 
-			return null;
+			return [];
 		}
 	}
 
@@ -207,7 +207,7 @@ export class DbWorks {
 		catch (error) {
 			console.error(error);
 
-			return null;
+			return [];
 		}
 	}
 
@@ -293,7 +293,7 @@ export class DbWorks {
 		catch (error) {
 			console.error(error);
 
-			return null;
+			return [];
 		}
 	}
 
@@ -369,7 +369,7 @@ export class DbWorks {
 		catch (error) {
 			console.error(error);
 
-			return null;
+			return {};
 		}
 	}
 }

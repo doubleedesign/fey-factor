@@ -172,8 +172,23 @@ async function mergeSchemaForFrontend() {
 	console.log('Merging schema for frontend...');
 
 	return new Promise((resolve, reject) => {
+		if(process.env.OS === 'Windows_NT') {
+			const psCommand = `Get-Content './src/generated/queryType.graphql', './src/generated/typeDefs.graphql' | Set-Content '${frontendOutputFile}'`;
+			exec(`powershell.exe -NoProfile -NonInteractive -Command "${psCommand}"`, (error, stdout, stderr) => {
+				if (error || stderr) {
+					reject(error || stderr);
+					handleError(error || stderr);
+				}
+
+				console.log(chalk.green(`Successfully merged types in ${frontendOutputFile}`));
+				resolve(stdout);
+			});
+
+			return;
+		}
+
 		exec(`cat ./src/generated/queryType.graphql ./src/generated/typeDefs.graphql > ${frontendOutputFile}`, (error, stdout, stderr) => {
-			if(error || stderr) {
+			if (error || stderr) {
 				reject(error || stderr);
 				handleError(error || stderr);
 			}
@@ -188,7 +203,7 @@ async function mergeSchemaForFrontend() {
  * Shared function to handle errors
  * @param error
  */
-function handleError(error: Error | string | null) {
+function handleError(error: Error | string | null | unknown) {
 	if(error instanceof Error) {
 		console.error(`Error: ${error.message}`);
 	}

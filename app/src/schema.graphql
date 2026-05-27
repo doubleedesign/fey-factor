@@ -14,7 +14,8 @@ type Query {
 	VennDiagram(maxAverageDegree: Float, minConnections: Int, roleIds: [Int]): VennDiagram
 	Work(id: ID!): Work
 	Works(ids: [ID], limit: Int): [Work]
-}input WorkFilter {
+}
+input WorkFilter {
 	type: String
 }
 input ProviderFilter {
@@ -72,13 +73,13 @@ type Node {
 	degree: Int!
 	edges(limit: Int): [Edge]
 }
+type VennDiagram {
+	data: [VennDiagramSet!]!
+}
 type Edge {
 	id: ID!
 	title: String!
 	nodes(limit: Int): [Node]
-}
-type VennDiagram {
-	data: [VennDiagramSet!]!
 }
 type Movie implements Work {
 	id: ID!

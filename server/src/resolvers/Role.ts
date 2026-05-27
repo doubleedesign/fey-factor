@@ -7,6 +7,7 @@ export default {
 		Role: async (_, { id }): Promise<Role> => {
 			const coreFields = await db.roles.getRole(id);
 
+			// @ts-ignore
 			return {
 				...coreFields,
 				// The rest of the fields for the Role type become available here as if by magic
@@ -14,7 +15,7 @@ export default {
 			};
 		},
 		Roles: async (_, { ids, limit = undefined }): Promise<Role[]> => {
-			let result = [];
+			let result: Role[] = [];
 			if (ids) {
 				result = await db.roles.getRoles(ids, limit);
 			}

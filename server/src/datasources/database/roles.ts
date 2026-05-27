@@ -5,7 +5,7 @@ export class DbRoles {
 	constructor(private pgClient: pg.Pool) {
 	}
 
-	async getRole(id: number): Promise<Role> {
+	async getRole(id: number): Promise<Role|null> {
 		try {
 			const response = await this.pgClient.query({
 				text: 'SELECT * FROM roles WHERE id = $1',
@@ -21,7 +21,7 @@ export class DbRoles {
 		}
 	}
 
-	async getRoles(ids: number[], limit: number): Promise<Role[]> {
+	async getRoles(ids: number[], limit?: number): Promise<Role[]> {
 		try {
 			if (!ids || ids.length === 0) {
 				const response = await this.pgClient.query({
@@ -52,7 +52,7 @@ export class DbRoles {
 		catch (error) {
 			console.error(error);
 
-			return null;
+			return [];
 		}
 	}
 
@@ -68,7 +68,7 @@ export class DbRoles {
 		catch (error) {
 			console.error(error);
 
-			return null;
+			return [];
 		}
 	}
 
@@ -84,7 +84,7 @@ export class DbRoles {
 		catch (error) {
 			console.error(error);
 
-			return null;
+			return [];
 		}
 	}
 
@@ -100,7 +100,7 @@ export class DbRoles {
 		catch (error) {
 			console.error(error);
 
-			return null;
+			return [];
 		}
 	}
 }

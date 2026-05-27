@@ -11,6 +11,7 @@ export default {
 			const show = await db.works.getTvShow(convertIdToInteger(id));
 			const nodes = await db.network.getPersonNodesForTvShowEdge(convertIdToInteger(id));
 
+			// @ts-ignore
 			return { ...show, nodes };
 		},
 		edges: async(_, { nodeId }): Promise<Edge[]> => {

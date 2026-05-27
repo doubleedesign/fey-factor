@@ -2,7 +2,7 @@ import { exec } from 'child_process';
 import { readFileSync, writeFileSync } from 'fs';
 import ts, { TypeLiteralNode } from 'typescript';
 import chalk from 'chalk';
-import typeObjects from '../src/generated/typeObjects.json' assert { type: 'json' };
+import typeObjects from '../src/generated/typeObjects.json' with { type: 'json' };
 
 const scalarObject: Record<string, object> = {};
 const typeStrings: string[] = [];
@@ -74,10 +74,12 @@ function processExportedTypes(node: ts.Node) {
 				if (ts.isPropertySignature(member) && ts.isIdentifier(member.name)) {
 					const key = member.name.text;
 					let value = {};
+					// @ts-ignore
 					if (ts.isTypeLiteralNode(member.type)) {
 						member.type.members.forEach(subMember => {
 							if (ts.isPropertySignature(subMember) && ts.isIdentifier(subMember.name)) {
 								value = {
+									// @ts-expect-error TS18048: subMember.type is possibly undefined
 									[`${subMember.name.getText()}`]: subMember.type.getText()
 								};
 							}
@@ -96,8 +98,8 @@ function processExportedTypes(node: ts.Node) {
 			typeLiteral.members.forEach(member => {
 				if (ts.isPropertySignature(member) && ts.isIdentifier(member.name)) {
 					const key = member.name.text;
-					const value = convertValue(member.type.getText());
-					const operator = member.type.getText().includes('Maybe') ? '?:' : ':';
+					const value = convertValue(member.type?.getText() as string);
+					const operator = member.type?.getText().includes('Maybe') ? '?:' : ':';
 					thisTypeString += (`${key}${operator} ${value};\n`);
 				}
 			});
@@ -106,8 +108,8 @@ function processExportedTypes(node: ts.Node) {
 		}
 		else if (ts.isIntersectionTypeNode(node.type)) {
 			// Get the named types in the intersection
-			const typeRefs = [];
-			const fieldNamesFromTypeRefs = [];
+			const typeRefs: string[] = [];
+			const fieldNamesFromTypeRefs: string[] = [];
 			ts.forEachChild(node.type, (node: ts.Node) => {
 				if(ts.isTypeReferenceNode(node)) {
 					// Push the name into the list to include in the definition
@@ -125,7 +127,9 @@ function processExportedTypes(node: ts.Node) {
 					node.members.forEach(member => {
 						if (ts.isPropertySignature(member) && ts.isIdentifier(member.name) && !fieldNamesFromTypeRefs.includes(member.name.text)) {
 							const key = member.name.text;
+							// @ts-expect-error TS18048: member.type is possibly undefined
 							const value = convertValue(member.type.getText());
+							// @ts-expect-error TS18048: member.type is possibly undefined
 							const operator = member.type.getText().includes('Maybe') ? '?:' : ':';
 							thisTypeString += (`${key}${operator} ${value};\n`);
 						}

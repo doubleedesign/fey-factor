@@ -7,7 +7,7 @@ import gql from 'graphql-tag';
 import ts from 'typescript';
 import difference from 'lodash/difference';
 import { getSubtypesOfSupertype, getSupertypeOfSubtype, typeFormatToDbTableNameFormat } from './utils';
-import typeObjects from '../src/generated/typeObjects.json' assert { type: 'json' };
+import typeObjects from '../src/generated/typeObjects.json' with { type: 'json' };
 
 const rl = readline.createInterface({
 	input: process.stdin,
@@ -98,8 +98,8 @@ function generateResolverForType(node: ObjectTypeDefinitionNode, tsSourceFile: t
 	const supertype = getSupertypeOfSubtype(typeName);
 	const groupName = typeFormatToDbTableNameFormat(supertype || typeName);
 	const tsFields = getSourceFields(typeName, tsSourceFile);
-	const gqlFields = node.fields.map(field => field.name.value);
-	const resolverFunctions = [];
+	const gqlFields = node.fields?.map(field => field.name.value);
+	const resolverFunctions: string[] = [];
 
 	// The core entities match the original TS types generated from the database; this is to resolve those fields
 	tsFields.forEach(field => {
@@ -151,7 +151,7 @@ function generateResolverForInterface(node: InterfaceTypeDefinitionNode, tsSourc
 	const filename = `./src/resolvers/${typeName}.ts`;
 
 	const subtypes = getSubtypesOfSupertype(typeName);
-	const subtypeFields = subtypes.map(subtype => {
+	const subtypeFields: string[][] = subtypes.map(subtype => {
 		return getSourceFields(subtype, tsSourceFile);
 	});
 
@@ -185,7 +185,7 @@ function generateResolverForInterface(node: InterfaceTypeDefinitionNode, tsSourc
  * @param interfaceName
  */
 function getSourceFields(interfaceName: string, sourceFile: ts.SourceFile, ) {
-	const fields = [];
+	const fields: string[] = [];
 
 	function visit(node) {
 		// Check if the node is an interface declaration

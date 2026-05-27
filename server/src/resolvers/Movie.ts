@@ -10,8 +10,10 @@ export default {
 		Movie: async (_, { id }): Promise<Movie> => {
 			const coreFields = await db.works.getMovie(id);
 
+			// @ts-ignore
 			return {
 				...coreFields,
+				// @ts-ignore
 				id: convertIdToInteger(coreFields.id),
 			};
 		},

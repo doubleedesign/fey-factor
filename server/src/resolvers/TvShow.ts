@@ -13,6 +13,10 @@ export default {
 			const coreFields = await db.works.getTvShow(id);
 			const ranking_data = await db.works.getRankingDataForTvshow(id);
 
+			if(!coreFields) {
+				throw new Error(`TvShow with id ${id} not found`);
+			}
+
 			return {
 				...coreFields,
 				id: convertIdToInteger(coreFields.id),
@@ -20,7 +24,7 @@ export default {
 			};
 		},
 		TvShows: async (_, { ids, limit }): Promise<TvShow[]> => {
-			let result = [];
+			let result: TvShow[] = [];
 			if (ids && ids.length > 0) {
 				result = await db.works.getTvShows(ids);
 			}
@@ -28,6 +32,7 @@ export default {
 				result = await db.works.getRankedListOfTvShows(limit);
 			}
 
+			// @ts-ignore
 			return result.map(tvShow => ({
 				...tvShow,
 				ranking_data: {
@@ -60,6 +65,7 @@ export default {
 				const allResults = await api.getWatchProviders(parent.id);
 
 				if(filter.provider_type) {
+				// @ts-expect-error TS18046: result is of type unknown
 					return allResults.filter(result => filter.provider_type.includes(result.provider_type));
 				}
 

@@ -1,7 +1,6 @@
 /**
- * @generated SignedSource<<e6bd105708a69063e320cc7cace4a763>>
+ * @generated SignedSource<<a69a968b477d034faf89618746caaf9b>>
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* tslint:disable */
@@ -55,7 +54,7 @@ return {
     "kind": "Fragment",
     "metadata": null,
     "name": "RolePickerQuery",
-    "selections": (v0/*: any*/),
+    "selections": (v0/*:: as any*/),
     "type": "Query",
     "abstractKey": null
   },
@@ -64,7 +63,7 @@ return {
     "argumentDefinitions": [],
     "kind": "Operation",
     "name": "RolePickerQuery",
-    "selections": (v0/*: any*/)
+    "selections": (v0/*:: as any*/)
   },
   "params": {
     "cacheID": "109ab102a1ee5aa51f57b7833e51cfa5",

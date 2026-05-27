@@ -1,7 +1,6 @@
 /**
- * @generated SignedSource<<a54ef640b0939a7df65dcbb34ab8a85f>>
+ * @generated SignedSource<<351a65bda783a4584d3283f1c9692b88>>
  * @lightSyntaxTransform
- * @nogrep
  */
 
 /* tslint:disable */
@@ -86,22 +85,22 @@ v6 = {
 };
 return {
   "fragment": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Fragment",
     "metadata": null,
     "name": "ShowCardQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "TvShow",
         "kind": "LinkedField",
         "name": "TvShow",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
-          (v4/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
+          (v4/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -110,10 +109,10 @@ return {
             "name": "people",
             "plural": true,
             "selections": [
-              (v2/*: any*/),
-              (v3/*: any*/),
-              (v5/*: any*/),
-              (v6/*: any*/),
+              (v2/*:: as any*/),
+              (v3/*:: as any*/),
+              (v5/*:: as any*/),
+              (v6/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -122,8 +121,8 @@ return {
                 "name": "roles",
                 "plural": true,
                 "selections": [
-                  (v2/*: any*/),
-                  (v5/*: any*/)
+                  (v2/*:: as any*/),
+                  (v5/*:: as any*/)
                 ],
                 "storageKey": null
               }
@@ -139,21 +138,21 @@ return {
   },
   "kind": "Request",
   "operation": {
-    "argumentDefinitions": (v0/*: any*/),
+    "argumentDefinitions": (v0/*:: as any*/),
     "kind": "Operation",
     "name": "ShowCardQuery",
     "selections": [
       {
         "alias": null,
-        "args": (v1/*: any*/),
+        "args": (v1/*:: as any*/),
         "concreteType": "TvShow",
         "kind": "LinkedField",
         "name": "TvShow",
         "plural": false,
         "selections": [
-          (v2/*: any*/),
-          (v3/*: any*/),
-          (v4/*: any*/),
+          (v2/*:: as any*/),
+          (v3/*:: as any*/),
+          (v4/*:: as any*/),
           {
             "alias": null,
             "args": null,
@@ -162,10 +161,10 @@ return {
             "name": "people",
             "plural": true,
             "selections": [
-              (v2/*: any*/),
-              (v3/*: any*/),
-              (v5/*: any*/),
-              (v6/*: any*/),
+              (v2/*:: as any*/),
+              (v3/*:: as any*/),
+              (v5/*:: as any*/),
+              (v6/*:: as any*/),
               {
                 "alias": null,
                 "args": null,
@@ -174,9 +173,9 @@ return {
                 "name": "roles",
                 "plural": true,
                 "selections": [
-                  (v2/*: any*/),
-                  (v5/*: any*/),
-                  (v3/*: any*/)
+                  (v2/*:: as any*/),
+                  (v5/*:: as any*/),
+                  (v3/*:: as any*/)
                 ],
                 "storageKey": null
               }

@@ -38,7 +38,7 @@ export class DbNetwork {
 		catch (error) {
 			console.error(error);
 
-			return null;
+			return [];
 		}
 	}
 
@@ -82,7 +82,7 @@ export class DbNetwork {
 		catch (error) {
 			console.error(error);
 
-			return null;
+			return [];
 		}
 	}
 
@@ -112,7 +112,7 @@ export class DbNetwork {
 		catch (error) {
 			console.error(error);
 
-			return null;
+			return [];
 		}
 	}
 }

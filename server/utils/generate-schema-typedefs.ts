@@ -77,8 +77,8 @@ export async function generateSchemaTypedefs(file: string) {
 		createAndSaveQueryType();
 	}
 	catch (error) {
-		console.error(chalk.red(`Error generating GraphQL type definitions: ${error.message}`));
-		console.log(error.stack);
+		console.error(chalk.red(`Error generating GraphQL type definitions: ${(error as Error).message}`));
+		console.log((error as Error)?.stack);
 	}
 }
 
@@ -155,6 +155,7 @@ function processTableTypes(node: ts.InterfaceDeclaration) {
 	node.members.forEach(member => {
 		if(ts.isPropertySignature(member)) {
 			const tableName = (member.name as ts.Identifier).text;
+			// @ts-ignore
 			const column: Partial<ts.PropertySignature> = (member.type as TypeLiteralNode).members.find((member: ts.PropertySignature) => {
 				const columnName = (member.name as ts.Identifier).text;
 
@@ -184,10 +185,11 @@ async function processExportedType(node: ts.InterfaceDeclaration | ts.TypeAliasD
 		// Create an object for the type with the same name
 		// (this will have more fields added to it for GQL according to the table's foreign keys, in another function)
 		typeObjects[node.name.text] = {
+			// @ts-ignore
 			fields: fields,
 			isDirectlyQueryable:
 				// Manually set some types to not be directly queryable
-				![].includes(node.name.text)
+				![].includes(node.name.text as string as never)
 				// If this table has a glue key, it will not be a standalone GraphQL type
 				// (Big assumption based on my current use case; may need to change in the future)
 				&& !Boolean(glueKey),
@@ -226,13 +228,14 @@ async function processExportedType(node: ts.InterfaceDeclaration | ts.TypeAliasD
 			// @ts-ignore
 			supertype = node.type.types.find(item => ts.isTypeReferenceNode(item))?.typeName?.getText();
 
+			// @ts-ignore
 			fields = node.type.types.map(item => {
 				// Inherited fields
 				// Note: If the parent type is in the same file it must be first,
 				// or if it's in a different file that must be processed first, to ensure the type's fields are available here
 				if (ts.isTypeReferenceNode(item)) {
 					const typeName = (item.typeName as Identifier).escapedText as string;
-
+					// @ts-ignore
 					fields.concat(typeObjects[typeName].fields);
 				}
 				// Standard fields
@@ -242,6 +245,7 @@ async function processExportedType(node: ts.InterfaceDeclaration | ts.TypeAliasD
 			}).flat();
 		}
 		else if(ts.isTypeLiteralNode(node.type)) {
+			// @ts-expect-error TS2322 Type undefined is not assignable to type never
 			fields = node.type.members.map(field => formatField(field));
 		}
 
@@ -327,6 +331,12 @@ async function addForeignKeyFields() {
 			const foreignKeyFieldType = tableTypes.find(type => type.tableName === foreignKeyFieldName)?.dataType;
 			const subtypes = Object.keys(typeObjects).filter(name => typeObjects[name].isSubtypeOf === foreignKeyFieldType);
 
+			if(!foreignKeyFieldType) {
+				console.warn(chalk.yellow(`Could not find a type for the foreign key field ${foreignKeyFieldName} in table ${table.tableName}. Skipping adding fields for this foreign key.`));
+
+				return;
+			}
+
 			// Connect up the non-glue foreign key types to each other so {Type} objects can be directly queried
 			// This is based entirely on the Connections table, which has People, Works, and Roles
 			// The purpose of this is to add works and roles fields to People, people to Works, etc.
@@ -337,7 +347,7 @@ async function addForeignKeyFields() {
 
 				typeObjects[foreignKeyFieldType].fields.push({
 					fieldName: otherKeyObject.table,
-					fieldType: `${tableTypes.find(type => type.tableName === otherKeyObject.table).dataType}[]`,
+					fieldType: `${tableTypes?.find(type => type.tableName === otherKeyObject.table)?.dataType}[]`,
 					required: false,
 				});
 
@@ -358,7 +368,7 @@ async function addForeignKeyFields() {
 					if (typeObjects[subtype].fields.find(field => field.fieldName === otherKeyObject.table)) return; // skip if it already exists
 					typeObjects[subtype].fields.push({
 						fieldName: otherKeyObject.table,
-						fieldType: `${tableTypes.find(type => type.tableName === otherKeyObject.table).dataType}[]`,
+						fieldType: `${tableTypes?.find(type => type.tableName === otherKeyObject.table)?.dataType}[]`,
 						required: false
 					});
 				});
@@ -372,16 +382,18 @@ async function addForeignKeyFields() {
 			});
 		});
 
-		if(glueKey) {
+		if(glueKey && tableDataType) {
 			// The fields in this table that are not foreign keys or the primary key: add them to the glue field's type
 			// For example, this will add episode_count (from connections) to Role, because role_id is the glue key of connections
 			const fieldsToAdd = difference(table.columns, Object.keys(table.foreignKeys), [table.primaryKey]);
 			typeObjects[glueTypeName].fields.push(
-				...fieldsToAdd.map(fieldName => ({
-					fieldName,
-					fieldType: typeObjects[tableDataType].fields.find(field => field.fieldName === fieldName)?.fieldType || 'unknown',
-					required: false
-				}))
+				...fieldsToAdd.map(fieldName => {
+					return ({
+						fieldName: fieldName as string,
+						fieldType: typeObjects[tableDataType].fields.find(field => field.fieldName === fieldName)?.fieldType || 'unknown',
+						required: false
+					});
+				})
 			);
 		}
 	}
@@ -397,16 +409,18 @@ function addExtraFields(extraFieldTypes: ts.TypeAliasDeclaration[]) {
 	Object.entries(typeObjects).forEach(([typeName, data]) => {
 		const extraFieldsTypes = extraFieldTypes.filter(type => type.name.text.startsWith(typeName));
 		const parentType = typeObjects[typeName].isSubtypeOf;
-		const parentExtraFieldsTypes = extraFieldTypes.filter(type => type.name.text.startsWith(parentType)) ?? null;
+		const parentExtraFieldsTypes = extraFieldTypes.filter(type => type.name.text.startsWith(parentType as string)) ?? null;
 
 		if(parentType && parentExtraFieldsTypes) {
 			parentExtraFieldsTypes.forEach(parentExtraFieldsType => {
+				// @ts-expect-error TS2345 Type undefined is not assignable to type
 				typeObjects[typeName].fields.push(...(parentExtraFieldsType.type as ts.TypeLiteralNode).members.map(field => formatField(field)));
 			});
 		}
 
 		if(extraFieldsTypes) {
 			extraFieldsTypes.forEach(extraFieldsType => {
+				// @ts-expect-error TS2345 Type undefined is not assignable to type
 				typeObjects[typeName].fields.push(...(extraFieldsType.type as ts.TypeLiteralNode).members.map(field => formatField(field)));
 			});
 		}
@@ -447,8 +461,11 @@ function convertAndSaveTypes() {
 	// Add filter inputs for interfaces
 	interfaces.forEach((name) => {
 		const stringParts = [];
+		// @ts-ignore
 		stringParts.push(`input ${name}Filter {`);
+		// @ts-ignore
 		stringParts.push('\ttype: String');
+		// @ts-ignore
 		stringParts.push('}');
 		const finalString = stringParts.join('\n').concat('\n');
 		appendFileSync(typesDestFile, finalString);
@@ -463,7 +480,7 @@ function convertAndSaveTypes() {
 	rootTypes.forEach(([name, data]) => {
 		if(!data.isGqlEntity) return;
 
-		const stringParts = [];
+		const stringParts: string[] = [];
 		// Open the declaration; interface = has subtypes; type = standalone concrete type
 		data.isInterface ? stringParts.push(`interface ${name} {`) : stringParts.push(`type ${name} {`);
 
@@ -482,7 +499,7 @@ function convertAndSaveTypes() {
 
 	// Then the subtypes that implement some of them
 	subTypes.forEach(([name, data]) => {
-		const stringParts = [];
+		const stringParts: string[] = [];
 		// Open the declaration - this is where it matters that it's a subtype
 		stringParts.push(`type ${name} implements ${data.isSubtypeOf} {`);
 
@@ -505,7 +522,7 @@ function convertAndSaveTypes() {
 	 * @param fields
 	 */
 	function processFields(fields: TypeObject['fields']) {
-		const stringParts = [];
+		const stringParts: string[] = [];
 		fields.forEach(({ fieldName, fieldType, required }) => {
 			const gqlFieldType = ['average_degree', 'weighted_score'].includes(fieldName)
 				? (required ? 'Float!' : 'Float')

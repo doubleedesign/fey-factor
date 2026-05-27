@@ -55,7 +55,7 @@ export const GlobalHeader: FC<GlobalHeaderProps> = () => {
 					<StyledMainMenu>
 						<StyledMainMenuList>
 							<StyledMainMenuListItem><NavLink to={'/rankings'}>Rankings</NavLink></StyledMainMenuListItem>
-							<StyledMainMenuListItem><NavLink to={'/network'}>Network</NavLink></StyledMainMenuListItem>
+							{/*<StyledMainMenuListItem><NavLink to={'/network'}>Network</NavLink></StyledMainMenuListItem>*/}
 							<StyledMainMenuListItem><NavLink to={'/venn-diagram'}>Venn Diagram</NavLink></StyledMainMenuListItem>
 							<StyledMainMenuListIconItem>
 								<TooltippedElement id="about-tooltip" tooltip="About">

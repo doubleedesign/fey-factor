@@ -10,6 +10,7 @@ export default {
 			const person = await db.people.getPerson(id);
 			const edges = await db.network.getEdgesForPersonNode(id, 'T');
 
+			// @ts-ignore
 			return { ...person, edges };
 		},
 		nodes: async (_, { edgeId }): Promise<Node[]> => {

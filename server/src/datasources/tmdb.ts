@@ -38,16 +38,18 @@ export class TmdbApiConnection {
 			return response.json();
 		}
 		catch (error) {
-			if (error.response && error.response.status === 429) {
+			// @ts-expect-error TS2339: Property response does not exist on type {}
+			if (error?.response && error?.response?.status === 429) {
 				console.warn('Rate limit exceeded. Waiting for 30 seconds before retrying...');
 				await wait(30000);
 
 				return this.makeFetchHappen(url, method, data); // Retry the request
 			}
-			else if(url.endsWith('watch/providers') && error.message === 'fetch failed') {
+			else if(url.endsWith('watch/providers') && (error as Error).message === 'fetch failed') {
 				return null;
 			}
 			else {
+				// @ts-expect-error TS2339: Property response does not exist on type {}
 				console.error(`Error ${error?.response?.status}: ${error?.response?.statusText} for request to ${url}`);
 
 				return null;
@@ -60,9 +62,11 @@ export class TmdbApiConnection {
 			const data = await this.makeFetchHappen(`${this.baseUrl}/tv/${tvShowId}/watch/providers`, 'GET');
 			if (!data?.results || !data.results['AU']) return [];
 
+			// @ts-ignore
 			return Object.entries(data.results['AU']).reduce((acc: Provider[], [key, values]: [string, Partial<Provider>[]]) => {
 				if (key === 'link') return acc;
 
+				// @ts-ignore
 				values.forEach((provider: Provider) => {
 					if (provider.provider_name === 'Netflix basic with Ads') return;
 					acc.push({
@@ -75,7 +79,7 @@ export class TmdbApiConnection {
 			}, []);
 		}
 		catch(error) {
-			console.error(error.message);
+			console.error((error as Error).message);
 
 			return [];
 		}
@@ -86,7 +90,7 @@ export class TmdbApiConnection {
 			return await this.makeFetchHappen(`${this.baseUrl}/tv/${tvShowId}`, 'GET');
 		}
 		catch(error) {
-			console.error(error.message);
+			console.error((error as Error).message);
 
 			return null;
 		}

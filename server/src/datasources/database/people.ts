@@ -6,7 +6,7 @@ export class DbPeople {
 	constructor(private pgClient: pg.Pool) {
 	}
 
-	async getPerson(id: number): Promise<Person> {
+	async getPerson(id: number): Promise<Person|null> {
 		try {
 			const response = await this.pgClient.query({
 				text: 'SELECT * FROM people WHERE id = $1',
@@ -54,7 +54,7 @@ export class DbPeople {
 		catch (error) {
 			console.error(error);
 
-			return null;
+			return [];
 		}
 	}
 
@@ -85,7 +85,7 @@ export class DbPeople {
 		catch (error) {
 			console.error(error);
 
-			return null;
+			return [];
 		}
 	}
 
@@ -109,7 +109,7 @@ export class DbPeople {
 		catch (error) {
 			console.error(error);
 
-			return null;
+			return [];
 		}
 	}
 
@@ -123,7 +123,7 @@ export class DbPeople {
 		catch (error) {
 			console.error(error);
 
-			return null;
+			return [];
 		}
 	}
 
@@ -155,7 +155,7 @@ export class DbPeople {
 		catch (error) {
 			console.error(error);
 
-			return null;
+			return [];
 		}
 	}
 
@@ -183,7 +183,7 @@ export class DbPeople {
 		catch (error) {
 			console.error(error);
 
-			return null;
+			return [];
 		}
 	}
 
@@ -199,7 +199,7 @@ export class DbPeople {
 		catch (error) {
 			console.error(error);
 
-			return null;
+			return [];
 		}
 	}
 }

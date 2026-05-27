@@ -56,13 +56,13 @@ type Node {
 	degree: Int!
 	edges(limit: Int): [Edge]
 }
+type VennDiagram {
+	data: [VennDiagramSet!]!
+}
 type Edge {
 	id: ID!
 	title: String!
 	nodes(limit: Int): [Node]
-}
-type VennDiagram {
-	data: [VennDiagramSet!]!
 }
 type Movie implements Work {
 	id: ID!

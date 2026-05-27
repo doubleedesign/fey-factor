@@ -1,5 +1,6 @@
 import { DatabaseConnection } from '../datasources/database';
 import { Person } from '../generated/source-types';
+import { TvShow, Movie } from '../generated/gql-types-reformatted';
 const db = new DatabaseConnection();
 
 export default {
@@ -7,6 +8,7 @@ export default {
 		Person: async (_, { id }): Promise<Person> => {
 			const coreFields = await db.people.getPerson(id);
 
+			// @ts-ignore
 			return {
 				...coreFields,
 				// The rest of the fields for the Person type become available here as if by magic
@@ -14,7 +16,7 @@ export default {
 			};
 		},
 		People: async (_, { ids, limit = undefined }): Promise<Person[]> => {
-			let result = [];
+			let result: Person[] = [];
 			if (ids && ids.length > 0) {
 				result = await db.people.getPeople(ids, limit);
 			}
@@ -37,7 +39,7 @@ export default {
 		},
 		works: async (person: Person, args, context) => {
 			const { type } = args?.filter;
-			let works = [];
+			let works: TvShow|Movie[] = [];
 			if(type && type === 'TvShow') {
 				works = await db.people.getTvShowsForPerson(person.id);
 			}
